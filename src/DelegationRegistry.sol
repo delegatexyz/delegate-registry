@@ -19,12 +19,22 @@ Reusable is critical so new projects can bootstrap off existing network effects.
 
 Use an ERC-165-esque hash list for specific permissions. Start out with claim permissions but can expand to more later.
 
+TODO: can we get onchain enumeration?
+TODO: can we get all-at-once revocation?
+TODO: can we get timelocked delegation for selling off airdrop rights?
+TODO: does the ens fuse wrapper match what we're doing here?
+
 */
 
 
 contract DelegationRegistry {
 
     mapping(bytes32 => address) delegations;
+
+    event DelegateForAll(address _vault, address _delegate, bytes32 role);
+    event DelegateForCollection(address _vault, address _delegate, bytes32 role, address _collection);
+    event DelegateForToken(address _vault, address _delegate, bytes32 role, address _collection, uint256 _tokenId);
+
 
     ///////////
     // WRITE //
@@ -33,16 +43,19 @@ contract DelegationRegistry {
     function delegateForAll(address _delegate, bytes32 _role) external {
         bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender));
         delegations[delegateHash] = _delegate;
+        emit DelegateForAll(msg.sender, _delegate, _role);
     }
 
     function delegateForCollection(address _delegate, bytes32 _role, address _collection) external {
         bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender, _collection));
         delegations[delegateHash] = _delegate;
+        emit DelegateForCollection(msg.sender, _delegate, _role, _collection);
     }
 
     function delegateForToken(address _delegate, bytes32 _role, address _collection, uint256 _tokenId) external {
         bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender, _collection, _tokenId));
         delegations[delegateHash] = _delegate;
+        emit DelegateForToken(msg.sender, _delegate, _role, _collection, _tokenId);
     }
 
     //////////
