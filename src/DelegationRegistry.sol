@@ -24,37 +24,45 @@ Use an ERC-165-esque hash list for specific permissions. Start out with claim pe
 
 contract DelegationRegistry {
 
-    mapping(address => address) internal delegationsForAll;
-    mapping(bytes32 => address) internal delegationsForCollection;
-    mapping(bytes32 => address) internal delegationsForToken;
+    mapping(bytes32 => address) delegations;
 
-    function delegateForAll(address _delegate) external {
-        delegationsForAll[msg.sender] = _delegate;
+    ///////////
+    // WRITE //
+    ///////////
+
+    function delegateForAll(address _delegate, bytes32 _role) external {
+        bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender));
+        delegations[delegateHash] = _delegate;
     }
 
-    function delegateForCollection(address _delegate, address _collection) external {
-        bytes32 delegateHash = keccak256(abi.encodePacked(msg.sender, _collection));
-        delegationsForCollection[delegateHash] = _delegate;
+    function delegateForCollection(address _delegate, bytes32 _role, address _collection) external {
+        bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender, _collection));
+        delegations[delegateHash] = _delegate;
     }
 
-    function delegateForToken(address _delegate, address _collection, uint256 _tokenId) external {
-        bytes32 delegateHash = keccak256(abi.encodePacked(msg.sender, _collection, _tokenId));
-        delegationsForToken[delegateHash] = _delegate;
+    function delegateForToken(address _delegate, bytes32 _role, address _collection, uint256 _tokenId) external {
+        bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender, _collection, _tokenId));
+        delegations[delegateHash] = _delegate;
     }
 
-    function getDelegateForAll(address _vault) public view returns (address) {
-        return delegationsForAll[_vault];
+    //////////
+    // READ //
+    //////////
+
+    function getDelegateForAll(bytes32 _role, address _vault) public view returns (address) {
+        bytes32 delegateHash = keccak256(abi.encodePacked(_role, _vault));
+        return delegations[delegateHash];
     }
 
-    function getDelegateForCollection(address _vault, address _collection) public view returns (address) {
+    function getDelegateForCollection(bytes32 _role, address _vault, address _collection) public view returns (address) {
         bytes32 delegateHash = keccak256(abi.encodePacked(_vault, _collection));
-        address delegate = delegationsForCollection[delegateHash];
-        return delegate != address(0x0) ? delegate : getDelegateForAll(_vault);
+        address delegate = delegations[delegateHash];
+        return delegate != address(0x0) ? delegate : getDelegateForAll(_role, _vault);
     }
     
-    function getDelegateForToken(address _vault, address _collection, uint256 _tokenId) public view returns (address) {
+    function getDelegateForToken(bytes32 _role, address _vault, address _collection, uint256 _tokenId) public view returns (address) {
         bytes32 delegateHash = keccak256(abi.encodePacked(_vault, _collection, _tokenId));
-        address delegate = delegationsForToken[delegateHash];
-        return delegate != address(0x0) ? delegate : getDelegateForCollection(_vault, _collection);
+        address delegate = delegations[delegateHash];
+        return delegate != address(0x0) ? delegate : getDelegateForCollection(_role, _vault, _collection);
     }
 }
