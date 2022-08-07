@@ -35,6 +35,7 @@ contract DelegationRegistry {
     event DelegateForCollection(address _vault, address _delegate, bytes32 _role, address _collection);
     event DelegateForToken(address _vault, address _delegate, bytes32 _role, address _collection, uint256 _tokenId);
     event DelegateFor(address _vault, address _delegate, bytes32 _role, bytes32 _data);
+    event DelegateRevoked(address _vault, address _delegate, bytes32 _role);
 
     ///////////
     // WRITE //
@@ -66,6 +67,14 @@ contract DelegationRegistry {
         bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender, _data));
         delegations[delegateHash] = _delegate;
         emit DelegateFor(msg.sender, _delegate, _role, _data);
+    }
+
+    /// @notice Revoke the delegate's authority to act on your behalf for all NFT collections
+    function revokeDelegationForAll(bytes32 _role) external {
+        bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender));
+        address delegate = delegations[delegateHash];
+        delegations[delegateHash] = address(0);
+        emit DelegateRevoked(msg.sender, delegate, _role);
     }
 
     //////////
