@@ -29,7 +29,7 @@ TODO: does the ens fuse wrapper match what we're doing here?
 
 contract DelegationRegistry {
 
-    mapping(bytes32 => address) delegations;
+    mapping(bytes32 => bool) delegations;
 
     event DelegateForAll(address _vault, address _delegate, bytes32 _role);
     event DelegateForCollection(address _vault, address _delegate, bytes32 _role, address _collection);
@@ -42,30 +42,30 @@ contract DelegationRegistry {
     ///////////
 
     /// @notice Allow the delegate to act on your behalf for all NFT collections
-    function delegateForAll(address _delegate, bytes32 _role) external {
-        bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender));
-        delegations[delegateHash] = _delegate;
+    function delegateForAll(address _delegate, bytes32 _role, bool _value) external {
+        bytes32 delegateHash = keccak256(abi.encodePacked(_delegate, _role, msg.sender));
+        delegations[delegateHash] = _value;
         emit DelegateForAll(msg.sender, _delegate, _role);
     }
 
     /// @notice Allow the delegate to act on your behalf for a specific NFT collection
-    function delegateForCollection(address _delegate, bytes32 _role, address _collection) external {
-        bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender, _collection));
-        delegations[delegateHash] = _delegate;
+    function delegateForCollection(address _delegate, bytes32 _role, address _collection, bool _value) external {
+        bytes32 delegateHash = keccak256(abi.encodePacked(_delegate, _role, msg.sender, _collection));
+        delegations[delegateHash] = _value;
         emit DelegateForCollection(msg.sender, _delegate, _role, _collection);
     }
 
     /// @notice Allow the delegate to act on your behalf for a specific token, supports 721 and 1155
-    function delegateForToken(address _delegate, bytes32 _role, address _collection, uint256 _tokenId) external {
-        bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender, _collection, _tokenId));
-        delegations[delegateHash] = _delegate;
+    function delegateForToken(address _delegate, bytes32 _role, address _collection, uint256 _tokenId, bool _value) external {
+        bytes32 delegateHash = keccak256(abi.encodePacked(_delegate, _role, msg.sender, _collection, _tokenId));
+        delegations[delegateHash] = _value;
         emit DelegateForToken(msg.sender, _delegate, _role, _collection, _tokenId);
     }
 
     /// @notice A delegation generalization where the vault can pass arbitrary data to be interpreted
-    function delegateFor(address _delegate, bytes32 _role, bytes32 _data) external {
-        bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender, _data));
-        delegations[delegateHash] = _delegate;
+    function delegateFor(address _delegate, bytes32 _role, bytes32 _data, bool _value) external {
+        bytes32 delegateHash = keccak256(abi.encodePacked(_delegate, _role, msg.sender, _data));
+        delegations[delegateHash] = _value;
         emit DelegateFor(msg.sender, _delegate, _role, _data);
     }
 
@@ -82,7 +82,7 @@ contract DelegationRegistry {
     //////////
 
     /// @notice Returns the address delegated to act on your behalf for all NFTs
-    function getDelegateForAll(bytes32 _role, address _vault) public view returns (address) {
+    function getDelegateForAll(bytes32 _role, address _vault) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encodePacked(_role, _vault));
         return delegations[delegateHash];
     }
@@ -106,5 +106,11 @@ contract DelegationRegistry {
         bytes32 delegateHash = keccak256(abi.encodePacked(_role, _vault, _data));
         address delegate = delegations[delegateHash];
         return delegate;
+    }
+
+    /// @notice Returns the address delegated to act on your behalf for all NFTs
+    function checkDelegateForAll(address _delegate, bytes32 _role, address _vault) public view returns (bool) {
+        bytes32 delegateHash = keccak256(abi.encodePacked(_delegate, _role, _vault));
+        return delegations[delegateHash];
     }
 }
