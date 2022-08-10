@@ -9,13 +9,9 @@ contract DelegationRegistry {
     /// @notice The global mapping and single source of truth for delegations
     mapping(bytes32 => bool) delegations;
 
-    event SetDelegation(address _vault, address _delegate, bytes32 _role, bytes32 _data);
-    event RevokeDelegation(address _vault, address _delegate, bytes32 _role, bytes32 _data);
-
-    event DelegateForAll(address _vault, address _delegate, bytes32 _role);
-    event DelegateForCollection(address _vault, address _delegate, bytes32 _role, address _collection);
-    event DelegateForToken(address _vault, address _delegate, bytes32 _role, address _collection, uint256 _tokenId);
-    event DelegateRevoked(address _vault, address _delegate, bytes32 _role);
+    event DelegateForAll(address _vault, address _delegate, bytes32 _role, bool _value);
+    event DelegateForCollection(address _vault, address _delegate, bytes32 _role, address _collection, bool _value);
+    event DelegateForToken(address _vault, address _delegate, bytes32 _role, address _collection, uint256 _tokenId, bool _value);
 
     ///////////
     // WRITE //
@@ -25,21 +21,21 @@ contract DelegationRegistry {
     function delegateForAll(address _delegate, bytes32 _role, bool _value) external {
         bytes32 delegateHash = keccak256(abi.encodePacked(_delegate, _role, msg.sender));
         delegations[delegateHash] = _value;
-        emit DelegateForAll(msg.sender, _delegate, _role);
+        emit DelegateForAll(msg.sender, _delegate, _role, _value);
     }
 
     /// @notice Allow the delegate to act on your behalf for a specific NFT collection
     function delegateForCollection(address _delegate, bytes32 _role, address _collection, bool _value) external {
         bytes32 delegateHash = keccak256(abi.encodePacked(_delegate, _role, msg.sender, _collection));
         delegations[delegateHash] = _value;
-        emit DelegateForCollection(msg.sender, _delegate, _role, _collection);
+        emit DelegateForCollection(msg.sender, _delegate, _role, _collection, _value);
     }
 
     /// @notice Allow the delegate to act on your behalf for a specific token, supports 721 and 1155
     function delegateForToken(address _delegate, bytes32 _role, address _collection, uint256 _tokenId, bool _value) external {
         bytes32 delegateHash = keccak256(abi.encodePacked(_delegate, _role, msg.sender, _collection, _tokenId));
         delegations[delegateHash] = _value;
-        emit DelegateForToken(msg.sender, _delegate, _role, _collection, _tokenId);
+        emit DelegateForToken(msg.sender, _delegate, _role, _collection, _tokenId, _value);
     }
 
     //////////
