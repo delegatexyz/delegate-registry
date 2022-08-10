@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-
+/// @notice An immutable registry contract to be deployed as a standalone primitive
+/// @dev New project launches can read previous cold wallet -> hot wallet delegations from here and integrate those permissions into their flow
 contract DelegationRegistry {
 
+    /// @notice The global mapping and single source of truth for delegations
     mapping(bytes32 => bool) delegations;
 
     event DelegateForAll(address _vault, address _delegate, bytes32 _role);
@@ -63,21 +65,21 @@ contract DelegationRegistry {
     }
 
     /// @notice Returns the address delegated to act on your behalf for an NFT collection
-    function getDelegateForCollection(bytes32 _role, address _vault, address _collection) public view returns (address) {
+    function getDelegateForCollection(bytes32 _role, address _vault, address _collection) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encodePacked(_role, _vault, _collection));
         address delegate = delegations[delegateHash];
         return delegate != address(0x0) ? delegate : getDelegateForAll(_role, _vault);
     }
     
     /// @notice Returns the address delegated to act on your behalf for an specific NFT
-    function getDelegateForToken(bytes32 _role, address _vault, address _collection, uint256 _tokenId) public view returns (address) {
+    function getDelegateForToken(bytes32 _role, address _vault, address _collection, uint256 _tokenId) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encodePacked(_role, _vault, _collection, _tokenId));
         address delegate = delegations[delegateHash];
         return delegate != address(0x0) ? delegate : getDelegateForCollection(_role, _vault, _collection);
     }
 
     /// @notice Returns the address delegated to act on your behalf for arbitrary data
-    function getDelegateFor(bytes32 _role, address _vault, bytes32 _data) public view returns (address) {
+    function getDelegateFor(bytes32 _role, address _vault, bytes32 _data) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encodePacked(_role, _vault, _data));
         address delegate = delegations[delegateHash];
         return delegate;
