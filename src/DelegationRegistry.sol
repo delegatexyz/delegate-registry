@@ -8,15 +8,28 @@ contract DelegationRegistry {
     /// @notice The global mapping and single source of truth for delegations
     mapping(bytes32 => bool) delegations;
 
+    event SetDelegation(address _vault, address _delegate, bytes32 _role, bytes32 _data);
+    event RevokeDelegation(address _vault, address _delegate, bytes32 _role, bytes32 _data);
+
     event DelegateForAll(address _vault, address _delegate, bytes32 _role);
     event DelegateForCollection(address _vault, address _delegate, bytes32 _role, address _collection);
     event DelegateForToken(address _vault, address _delegate, bytes32 _role, address _collection, uint256 _tokenId);
-    event DelegateFor(address _vault, address _delegate, bytes32 _role, bytes32 _data);
     event DelegateRevoked(address _vault, address _delegate, bytes32 _role);
 
     ///////////
     // WRITE //
     ///////////
+
+    /// @notice A delegation generalization where the vault can pass arbitrary data to be interpreted
+    function _setDelegationValue(address _delegate, bytes32 _role, bytes32 _data, bool _value) internal {
+        bytes32 delegateHash = keccak256(abi.encodePacked(_delegate, _role, msg.sender, _data));
+        delegations[delegateHash] = _value;
+        if (_value) {
+            emit SetDelegation(msg.sender, _delegate, _role, _data);
+        } else {
+            emit RevokeDelegation(msg.sender, _delegate, _role, _data);
+        }
+    }
 
     /// @notice Allow the delegate to act on your behalf for all NFT collections
     function delegateForAll(address _delegate, bytes32 _role, bool _value) external {
@@ -39,19 +52,11 @@ contract DelegationRegistry {
         emit DelegateForToken(msg.sender, _delegate, _role, _collection, _tokenId);
     }
 
-    /// @notice A delegation generalization where the vault can pass arbitrary data to be interpreted
-    function delegateFor(address _delegate, bytes32 _role, bytes32 _data, bool _value) external {
-        bytes32 delegateHash = keccak256(abi.encodePacked(_delegate, _role, msg.sender, _data));
-        delegations[delegateHash] = _value;
-        emit DelegateFor(msg.sender, _delegate, _role, _data);
-    }
-
     /// @notice Revoke the delegate's authority to act on your behalf for all NFT collections
-    function revokeDelegationForAll(bytes32 _role) external {
-        bytes32 delegateHash = keccak256(abi.encodePacked(_role, msg.sender));
-        address delegate = delegations[delegateHash];
-        delegations[delegateHash] = address(0);
-        emit DelegateRevoked(msg.sender, delegate, _role);
+    function revokeDelegationForAll(address _delegate, bytes32 _role) external {
+        bytes32 delegateHash = keccak256(abi.encodePacked(_delegate, _role, msg.sender));
+        delegations[delegateHash] = false;
+        emit DelegateRevoked(msg.sender, _delegate, _role);
     }
 
     //////////
@@ -67,22 +72,19 @@ contract DelegationRegistry {
     /// @notice Returns the address delegated to act on your behalf for an NFT collection
     function getDelegateForCollection(bytes32 _role, address _vault, address _collection) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encodePacked(_role, _vault, _collection));
-        address delegate = delegations[delegateHash];
-        return delegate != address(0x0) ? delegate : getDelegateForAll(_role, _vault);
+        return delegations[delegateHash] ? true : getDelegateForAll(_role, _vault);
     }
     
     /// @notice Returns the address delegated to act on your behalf for an specific NFT
     function getDelegateForToken(bytes32 _role, address _vault, address _collection, uint256 _tokenId) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encodePacked(_role, _vault, _collection, _tokenId));
-        address delegate = delegations[delegateHash];
-        return delegate != address(0x0) ? delegate : getDelegateForCollection(_role, _vault, _collection);
+        return delegations[delegateHash] ? true : getDelegateForCollection(_role, _vault, _collection);
     }
 
     /// @notice Returns the address delegated to act on your behalf for arbitrary data
     function getDelegateFor(bytes32 _role, address _vault, bytes32 _data) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encodePacked(_role, _vault, _data));
-        address delegate = delegations[delegateHash];
-        return delegate;
+        return delegations[delegateHash];
     }
 
     /// @notice Returns the address delegated to act on your behalf for all NFTs
