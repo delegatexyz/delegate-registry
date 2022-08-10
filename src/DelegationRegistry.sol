@@ -72,7 +72,7 @@ contract DelegationRegistry {
     /// @param collection The contract address for the collection you're delegating
     /// @param vault The cold wallet who issued the delegation
     function checkDelegateForCollection(address delegate, bytes32 role, address vault, address collection) public view returns (bool) {
-        bytes32 delegateHash = keccak256(abi.encodePacked(role, vault, collection));
+        bytes32 delegateHash = keccak256(abi.encodePacked(delegate, role, vault, collection));
         return delegations[delegateHash] ? true : checkDelegateForAll(delegate, role, vault);
     }
     
@@ -83,7 +83,7 @@ contract DelegationRegistry {
     /// @param tokenId The token id for the token you're delegating
     /// @param vault The cold wallet who issued the delegation
     function checkDelegateForToken(address delegate, bytes32 role, address vault, address collection, uint256 tokenId) public view returns (bool) {
-        bytes32 delegateHash = keccak256(abi.encodePacked(role, vault, collection, tokenId));
+        bytes32 delegateHash = keccak256(abi.encodePacked(delegate, role, vault, collection, tokenId));
         return delegations[delegateHash] ? true : checkDelegateForCollection(delegate, role, vault, collection);
     }
 }
