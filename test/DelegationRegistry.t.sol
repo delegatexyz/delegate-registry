@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.15;
 
 import "forge-std/Test.sol";
 import { DelegationRegistry } from "src/DelegationRegistry.sol";
 
 contract DelegationRegistryTest is Test {
+
     DelegationRegistry reg;
+
     function setUp() public {
         reg = new DelegationRegistry();
     }
@@ -16,7 +18,7 @@ contract DelegationRegistryTest is Test {
         reg.delegateForAll(delegate, role, true);
         assertTrue(reg.checkDelegateForAll(delegate, role, vault));
         // Revoke
-        reg.revokeDelegationForAll(delegate, role);
+        reg.delegateForAll(delegate, role, false);
         assertFalse(reg.checkDelegateForAll(delegate, role, vault));
     }
 }
