@@ -7,7 +7,7 @@ pragma solidity ^0.8.15;
 contract DelegationRegistry {
 
     /// @notice The global mapping and single source of truth for delegations
-    mapping(bytes32 => bool) delegations;
+    mapping(bytes32 => bool) delegations;    
 
     /// @notice Emitted when a user delegates their entire wallet
     event DelegateForAll(address vault, address delegate, bytes32 role, bool value);
