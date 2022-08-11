@@ -25,7 +25,7 @@ contract DelegationRegistry {
     /// @param role The role for delegations, default is 0x0000000000000000000000000000000000000000000000000000000000000000
     /// @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
     function delegateForAll(address delegate, bytes32 role, bool value) external {
-        bytes32 delegateHash = keccak256(abi.encodePacked(delegate, role, msg.sender));
+        bytes32 delegateHash = keccak256(abi.encode(delegate, role, msg.sender));
         delegations[delegateHash] = value;
         emit DelegateForAll(msg.sender, delegate, role, value);
     }
@@ -36,7 +36,7 @@ contract DelegationRegistry {
     /// @param collection The contract address for the collection you're delegating
     /// @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
     function delegateForCollection(address delegate, bytes32 role, address collection, bool value) external {
-        bytes32 delegateHash = keccak256(abi.encodePacked(delegate, role, msg.sender, collection));
+        bytes32 delegateHash = keccak256(abi.encode(delegate, role, msg.sender, collection));
         delegations[delegateHash] = value;
         emit DelegateForCollection(msg.sender, delegate, role, collection, value);
     }
@@ -48,7 +48,7 @@ contract DelegationRegistry {
     /// @param tokenId The token id for the token you're delegating
     /// @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
     function delegateForToken(address delegate, bytes32 role, address collection, uint256 tokenId, bool value) external {
-        bytes32 delegateHash = keccak256(abi.encodePacked(delegate, role, msg.sender, collection, tokenId));
+        bytes32 delegateHash = keccak256(abi.encode(delegate, role, msg.sender, collection, tokenId));
         delegations[delegateHash] = value;
         emit DelegateForToken(msg.sender, delegate, role, collection, tokenId, value);
     }
@@ -62,7 +62,7 @@ contract DelegationRegistry {
     /// @param role The role for delegations, default is 0x0000000000000000000000000000000000000000000000000000000000000000
     /// @param vault The cold wallet who issued the delegation
     function checkDelegateForAll(address delegate, bytes32 role, address vault) public view returns (bool) {
-        bytes32 delegateHash = keccak256(abi.encodePacked(delegate, role, vault));
+        bytes32 delegateHash = keccak256(abi.encode(delegate, role, vault));
         return delegations[delegateHash];
     }
 
@@ -72,7 +72,7 @@ contract DelegationRegistry {
     /// @param collection The contract address for the collection you're delegating
     /// @param vault The cold wallet who issued the delegation
     function checkDelegateForCollection(address delegate, bytes32 role, address vault, address collection) public view returns (bool) {
-        bytes32 delegateHash = keccak256(abi.encodePacked(delegate, role, vault, collection));
+        bytes32 delegateHash = keccak256(abi.encode(delegate, role, vault, collection));
         return delegations[delegateHash] ? true : checkDelegateForAll(delegate, role, vault);
     }
     
@@ -83,7 +83,7 @@ contract DelegationRegistry {
     /// @param tokenId The token id for the token you're delegating
     /// @param vault The cold wallet who issued the delegation
     function checkDelegateForToken(address delegate, bytes32 role, address vault, address collection, uint256 tokenId) public view returns (bool) {
-        bytes32 delegateHash = keccak256(abi.encodePacked(delegate, role, vault, collection, tokenId));
+        bytes32 delegateHash = keccak256(abi.encode(delegate, role, vault, collection, tokenId));
         return delegations[delegateHash] ? true : checkDelegateForCollection(delegate, role, vault, collection);
     }
 }
