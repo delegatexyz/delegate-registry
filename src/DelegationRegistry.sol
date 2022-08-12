@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.15;
+pragma solidity ^0.8.16;
+
+// import {AddressSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 
 /** 
 * @title An immutable registry contract to be deployed as a standalone primitive
@@ -13,7 +15,13 @@ contract DelegationRegistry {
     /** 
     * @notice The global mapping and single source of truth for delegations
     */
-    mapping(bytes32 => bool) delegations;    
+    mapping(bytes32 => bool) public delegations;  
+
+    mapping(address => address) internal recentDelegationsForAll;  
+
+    mapping(address => mapping(address => address)) recentDelegationsForContract;
+
+    mapping(address => mapping(address => mapping(uint256 => address))) recentDelegationsForToken;
 
     /** 
     * @notice Emitted when a user delegates their entire wallet
@@ -36,11 +44,11 @@ contract DelegationRegistry {
     * @notice Allow the delegate to act on your behalf for all NFT collections
     * @param delegate The hotwallet to act on your behalf
     * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
-    */
-        
+    */ 
     function delegateForAll(address delegate, bool value) external {
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender));
         delegations[delegateHash] = value;
+        recentDelegationsForAll[msg.sender] = delegate;
         emit DelegateForAll(msg.sender, delegate, value);
     }
 
@@ -50,7 +58,6 @@ contract DelegationRegistry {
     * @param collection The contract address for the collection you're delegating
     * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
     */
-
     function delegateForCollection(address delegate, address collection, bool value) external {
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, collection));
         delegations[delegateHash] = value;
@@ -63,8 +70,7 @@ contract DelegationRegistry {
     * @param collection The contract address for the collection you're delegating
     * @param tokenId The token id for the token you're delegating
     * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
-    */    
-
+    */
     function delegateForToken(address delegate, address collection, uint256 tokenId, bool value) external {
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, collection, tokenId));
         delegations[delegateHash] = value;
@@ -73,12 +79,15 @@ contract DelegationRegistry {
 
     /** -----------  READ ----------- */
 
+    function getDelegateForAll(address vault) external view returns (address) {
+        return recentDelegationsForAll[vault];
+    }
+
     /** 
     * @notice Returns true if the address is delegated to act on your behalf for all NFTs
     * @param delegate The hotwallet to act on your behalf
     * @param vault The cold wallet who issued the delegation
     */
-
     function checkDelegateForAll(address delegate, address vault) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encode(delegate, vault));
         return delegations[delegateHash];
@@ -89,8 +98,7 @@ contract DelegationRegistry {
     * @param delegate The hotwallet to act on your behalf
     * @param collection The contract address for the collection you're delegating
     * @param vault The cold wallet who issued the delegation
-    */
-        
+    */ 
     function checkDelegateForCollection(address delegate, address vault, address collection) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encode(delegate, vault, collection));
         return delegations[delegateHash] ? true : checkDelegateForAll(delegate, vault);
@@ -103,7 +111,6 @@ contract DelegationRegistry {
     * @param tokenId The token id for the token you're delegating
     * @param vault The cold wallet who issued the delegation
     */
-
     function checkDelegateForToken(address delegate, address vault, address collection, uint256 tokenId) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encode(delegate, vault, collection, tokenId));
         return delegations[delegateHash] ? true : checkDelegateForCollection(delegate, vault, collection);
