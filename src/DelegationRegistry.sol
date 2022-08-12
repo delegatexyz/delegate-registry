@@ -13,39 +13,25 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
 contract DelegationRegistry {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    /** 
-    * @notice The global mapping and single source of truth for delegations
-    */
+    /// @notice The global mapping and single source of truth for delegations
     mapping(bytes32 => bool) public delegations;  
 
-    /**
-    * @notice A secondary mapping to return onchain enumerability of wallet-level delegations
-    */
+    /// @notice A secondary mapping to return onchain enumerability of wallet-level delegations
     mapping(address => EnumerableSet.AddressSet) internal delegationsForAll;
 
-    /**
-    * @notice A secondary mapping to return onchain enumerability of collection-level delegations
-    */
+    /// @notice A secondary mapping to return onchain enumerability of collection-level delegations
     mapping(address => mapping(address => EnumerableSet.AddressSet)) internal delegationsForCollection;
 
-    /**
-    * @notice A secondary mapping to return onchain enumerability of token-level delegations
-    */
+    /// @notice A secondary mapping to return onchain enumerability of token-level delegations
     mapping(address => mapping(address => mapping(uint256 => EnumerableSet.AddressSet))) internal delegationsForToken;
 
-    /** 
-    * @notice Emitted when a user delegates their entire wallet
-    */
+    /// @notice Emitted when a user delegates their entire wallet
     event DelegateForAll(address vault, address delegate, bool value);
     
-    /** 
-    * @notice Emitted when a user delegates a specific collection
-    */ 
+    /// @notice Emitted when a user delegates a specific collection
     event DelegateForCollection(address vault, address delegate, address collection, bool value);
 
-    /** 
-    * @notice Emitted when a user delegates a specific token
-    */
+    /// @notice Emitted when a user delegates a specific token
     event DelegateForToken(address vault, address delegate, address collection, uint256 tokenId, bool value);
 
     /** -----------  WRITE ----------- */
@@ -54,7 +40,7 @@ contract DelegationRegistry {
     * @notice Allow the delegate to act on your behalf for all NFT collections
     * @param delegate The hotwallet to act on your behalf
     * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
-    */ 
+    */
     function delegateForAll(address delegate, bool value) external {
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender));
         delegations[delegateHash] = value;
