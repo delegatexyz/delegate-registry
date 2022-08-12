@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.16;
 
-// import {AddressSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
+import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 
 /** 
 * @title An immutable registry contract to be deployed as a standalone primitive
@@ -11,17 +11,27 @@ pragma solidity ^0.8.16;
 */
 
 contract DelegationRegistry {
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     /** 
     * @notice The global mapping and single source of truth for delegations
     */
     mapping(bytes32 => bool) public delegations;  
 
-    mapping(address => address) internal recentDelegationsForAll;  
+    /**
+    * @notice A secondary mapping to return onchain enumerability of wallet-level delegations
+    */
+    mapping(address => EnumerableSet.AddressSet) internal delegationsForAll;
 
-    mapping(address => mapping(address => address)) recentDelegationsForContract;
+    /**
+    * @notice A secondary mapping to return onchain enumerability of collection-level delegations
+    */
+    mapping(address => mapping(address => EnumerableSet.AddressSet)) internal delegationsForCollection;
 
-    mapping(address => mapping(address => mapping(uint256 => address))) recentDelegationsForToken;
+    /**
+    * @notice A secondary mapping to return onchain enumerability of token-level delegations
+    */
+    mapping(address => mapping(address => mapping(uint256 => EnumerableSet.AddressSet))) internal delegationsForToken;
 
     /** 
     * @notice Emitted when a user delegates their entire wallet
@@ -48,7 +58,7 @@ contract DelegationRegistry {
     function delegateForAll(address delegate, bool value) external {
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender));
         delegations[delegateHash] = value;
-        recentDelegationsForAll[msg.sender] = delegate;
+        _setDelegationEnumeration(delegationsForAll[msg.sender], delegate, value);
         emit DelegateForAll(msg.sender, delegate, value);
     }
 
@@ -61,6 +71,7 @@ contract DelegationRegistry {
     function delegateForCollection(address delegate, address collection, bool value) external {
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, collection));
         delegations[delegateHash] = value;
+        _setDelegationEnumeration(delegationsForCollection[msg.sender][collection], delegate, value);
         emit DelegateForCollection(msg.sender, delegate, collection, value);
     }
 
@@ -74,13 +85,48 @@ contract DelegationRegistry {
     function delegateForToken(address delegate, address collection, uint256 tokenId, bool value) external {
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, collection, tokenId));
         delegations[delegateHash] = value;
+        _setDelegationEnumeration(delegationsForToken[msg.sender][collection][tokenId], delegate, value);
         emit DelegateForToken(msg.sender, delegate, collection, tokenId, value);
+    }
+
+    function _setDelegationEnumeration(EnumerableSet.AddressSet storage set, address key, bool value) internal {
+        if (value) {
+            set.add(key);
+        } else {
+            set.remove(key);
+        }
     }
 
     /** -----------  READ ----------- */
 
-    function getDelegateForAll(address vault) external view returns (address) {
-        return recentDelegationsForAll[vault];
+    /**
+    * @notice Returns an array of wallet-level delegations for a given vault
+    * @param vault The cold wallet who issued the delegation
+    * @return addresses Array of wallet-level delegations for a given vault
+    */
+    function getDelegationsForAll(address vault) external view returns (address[] memory) {
+        return delegationsForAll[vault].values();
+    }
+
+    /**
+    * @notice Returns an array of collection-level delegations for a given vault and collection
+    * @param vault The cold wallet who issued the delegation
+    * @param collection The contract address for the collection you're delegating
+    * @return addresses Array of collection-level delegations for a given vault and collection
+    */
+    function getDelegationsForCollection(address vault, address collection) external view returns (address[] memory) {
+        return delegationsForCollection[vault][collection].values();
+    }
+
+    /**
+    * @notice Returns an array of collection-level delegations for a given vault's token
+    * @param vault The cold wallet who issued the delegation
+    * @param collection The contract address for the collection holding the token
+    * @param tokenId The token id for the token you're delegating
+    * @return addresses Array of collection-level delegations for a given vault's token
+    */
+    function getDelegationsForToken(address vault, address collection, uint256 tokenId) external view returns (address[] memory) {
+        return delegationsForToken[vault][collection][tokenId].values();
     }
 
     /** 

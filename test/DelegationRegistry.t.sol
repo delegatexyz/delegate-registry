@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import "forge-std/Test.sol";
+import { Test } from "forge-std/Test.sol";
+import { console2 } from "forge-std/console2.sol";
 import { DelegationRegistry } from "src/DelegationRegistry.sol";
 
 contract DelegationRegistryTest is Test {
@@ -43,5 +44,22 @@ contract DelegationRegistryTest is Test {
         // Revoke
         reg.delegateForToken(delegate, collection, tokenId, false);
         assertFalse(reg.checkDelegateForToken(delegate, vault, collection, tokenId));
+    }
+
+    function testMultipleDelegationForAll(address vault, address delegate0, address delegate1) public {
+        vm.assume(delegate0 != delegate1);
+        vm.startPrank(vault);
+        reg.delegateForAll(delegate0, true);
+        reg.delegateForAll(delegate1, true);
+        // Read
+        console2.log(123);
+        address[] memory delegates = reg.getDelegationsForAll(vault);
+        assertEq(delegates.length, 2);
+        assertEq(delegates[0], delegate0);
+        assertEq(delegates[1], delegate1);
+        // Remove
+        reg.delegateForAll(delegate0, false);
+        delegates = reg.getDelegationsForAll(vault);
+        assertEq(delegates.length, 1);
     }
 }
