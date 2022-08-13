@@ -23,12 +23,12 @@ contract DelegationRegistry {
     /** 
     * @notice Emitted when a user delegates a specific contract address
     */ 
-    event DelegateForContract(address vault, address delegate, bytes32 role, address contract, bool value);
+    event DelegateForContract(address vault, address delegate, bytes32 role, address contract_, bool value);
 
     /** 
     * @notice Emitted when a user delegates a specific token
     */
-    event DelegateForToken(address vault, address delegate, bytes32 role, address contract, uint256 tokenId, bool value);
+    event DelegateForToken(address vault, address delegate, bytes32 role, address contract_, uint256 tokenId, bool value);
 
     /** -----------  WRITE ----------- */
 
@@ -49,29 +49,29 @@ contract DelegationRegistry {
     * @notice Allow the delegate to act on your behalf for a specific NFT contract
     * @param delegate The hotwallet to act on your behalf
     * @param role The role for delegations, default is 0x0000000000000000000000000000000000000000000000000000000000000000
-    * @param contract The address for the contract you're delegating
+    * @param contract_ The address for the contract you're delegating
     * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
     */
 
-    function delegateForContract(address delegate, bytes32 role, address contract, bool value) external {
-        bytes32 delegateHash = keccak256(abi.encode(delegate, role, msg.sender, contract));
+    function delegateForContract(address delegate, bytes32 role, address contract_, bool value) external {
+        bytes32 delegateHash = keccak256(abi.encode(delegate, role, msg.sender, contract_));
         delegations[delegateHash] = value;
-        emit DelegateForContract(msg.sender, delegate, role, contract, value);
+        emit DelegateForContract(msg.sender, delegate, role, contract_, value);
     }
 
     /** 
     * @notice Allow the delegate to act on your behalf for a specific token, supports 721 and 1155
     * @param delegate The hotwallet to act on your behalf
     * @param role The role for delegations, default is 0x0000000000000000000000000000000000000000000000000000000000000000
-    * @param contract The contract address that the token you're delegating belongs to
+    * @param contract_ The contract address that the token you're delegating belongs to
     * @param tokenId The token id for the token you're delegating
     * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
     */    
 
-    function delegateForToken(address delegate, bytes32 role, address contract, uint256 tokenId, bool value) external {
-        bytes32 delegateHash = keccak256(abi.encode(delegate, role, msg.sender, contract, tokenId));
+    function delegateForToken(address delegate, bytes32 role, address contract_, uint256 tokenId, bool value) external {
+        bytes32 delegateHash = keccak256(abi.encode(delegate, role, msg.sender, contract_, tokenId));
         delegations[delegateHash] = value;
-        emit DelegateForToken(msg.sender, delegate, role, contract, tokenId, value);
+        emit DelegateForToken(msg.sender, delegate, role, contract_, tokenId, value);
     }
 
     /** -----------  READ ----------- */
@@ -92,12 +92,12 @@ contract DelegationRegistry {
     * @notice Returns true if the address is delegated to act on your behalf for an NFT contract
     * @param delegate The hotwallet to act on your behalf
     * @param role The role for delegations, default is 0x0000000000000000000000000000000000000000000000000000000000000000
-    * @param contract The address for the contract you're delegating
+    * @param contract_ The address for the contract you're delegating
     * @param vault The cold wallet who issued the delegation
     */
         
-    function checkDelegateForContract(address delegate, bytes32 role, address vault, address contract) public view returns (bool) {
-        bytes32 delegateHash = keccak256(abi.encode(delegate, role, vault, contract));
+    function checkDelegateForContract(address delegate, bytes32 role, address vault, address contract_) public view returns (bool) {
+        bytes32 delegateHash = keccak256(abi.encode(delegate, role, vault, contract_));
         return delegations[delegateHash] ? true : checkDelegateForAll(delegate, role, vault);
     }
     
@@ -105,13 +105,13 @@ contract DelegationRegistry {
     * @notice Returns true if the address is delegated to act on your behalf for an specific NFT
     * @param delegate The hotwallet to act on your behalf
     * @param role The role for delegations, default is 0x0000000000000000000000000000000000000000000000000000000000000000
-    * @param contract The contract address that the token you're delegating belongs to
+    * @param contract_ The contract address that the token you're delegating belongs to
     * @param tokenId The token id for the token you're delegating
     * @param vault The cold wallet who issued the delegation
     */
 
-    function checkDelegateForToken(address delegate, bytes32 role, address vault, address contract, uint256 tokenId) public view returns (bool) {
-        bytes32 delegateHash = keccak256(abi.encode(delegate, role, vault, contract, tokenId));
-        return delegations[delegateHash] ? true : checkDelegateForContract(delegate, role, vault, contract);
+    function checkDelegateForToken(address delegate, bytes32 role, address vault, address contract_, uint256 tokenId) public view returns (bool) {
+        bytes32 delegateHash = keccak256(abi.encode(delegate, role, vault, contract_, tokenId));
+        return delegations[delegateHash] ? true : checkDelegateForContract(delegate, role, vault, contract_);
     }
 }
