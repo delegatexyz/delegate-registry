@@ -18,32 +18,32 @@ contract DelegationRegistryTest is Test {
         vm.startPrank(vault);
         reg.delegateForAll(delegate, true);
         assertTrue(reg.checkDelegateForAll(delegate, vault));
-        assertTrue(reg.checkDelegateForCollection(delegate, vault, address(0x0)));
+        assertTrue(reg.checkDelegateForContract(delegate, vault, address(0x0)));
         assertTrue(reg.checkDelegateForToken(delegate, vault, address(0x0), 0));
         // Revoke
         reg.delegateForAll(delegate, false);
         assertFalse(reg.checkDelegateForAll(delegate, vault));
     }
 
-    function testApproveAndRevokeForCollection(address vault, address delegate, address collection) public {
+    function testApproveAndRevokeForContract(address vault, address delegate, address contract_) public {
         // Approve
         vm.startPrank(vault);
-        reg.delegateForCollection(delegate, collection, true);
-        assertTrue(reg.checkDelegateForCollection(delegate, vault, collection));
-        assertTrue(reg.checkDelegateForToken(delegate, vault, collection, 0));
+        reg.delegateForContract(delegate, contract_, true);
+        assertTrue(reg.checkDelegateForContract(delegate, vault, contract_));
+        assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, 0));
         // Revoke
-        reg.delegateForCollection(delegate, collection, false);
-        assertFalse(reg.checkDelegateForCollection(delegate, vault, collection));
+        reg.delegateForContract(delegate, contract_, false);
+        assertFalse(reg.checkDelegateForContract(delegate, vault, contract_));
     }
 
-    function testApproveAndRevokeForToken(address vault, address delegate, address collection, uint256 tokenId) public {
+    function testApproveAndRevokeForToken(address vault, address delegate, address contract_, uint256 tokenId) public {
         // Approve
         vm.startPrank(vault);
-        reg.delegateForToken(delegate, collection, tokenId, true);
-        assertTrue(reg.checkDelegateForToken(delegate, vault, collection, tokenId));
+        reg.delegateForToken(delegate, contract_, tokenId, true);
+        assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, tokenId));
         // Revoke
-        reg.delegateForToken(delegate, collection, tokenId, false);
-        assertFalse(reg.checkDelegateForToken(delegate, vault, collection, tokenId));
+        reg.delegateForToken(delegate, contract_, tokenId, false);
+        assertFalse(reg.checkDelegateForToken(delegate, vault, contract_, tokenId));
     }
 
     function testMultipleDelegationForAll(address vault, address delegate0, address delegate1) public {
