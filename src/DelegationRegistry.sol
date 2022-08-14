@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.14;
 
 import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 
@@ -14,7 +14,7 @@ contract DelegationRegistry {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @notice The global mapping and single source of truth for delegations
-    mapping(bytes32 => bool) public delegations;  
+    mapping(bytes32 => uint256) public delegations;  
 
     /// @notice A secondary mapping to return onchain enumerability of wallet-level delegations
     mapping(address => EnumerableSet.AddressSet) internal delegationsForAll;
@@ -26,39 +26,39 @@ contract DelegationRegistry {
     mapping(address => mapping(address => mapping(uint256 => EnumerableSet.AddressSet))) internal delegationsForToken;
 
     /// @notice Emitted when a user delegates their entire wallet
-    event DelegateForAll(address vault, address delegate, bool value);
+    event DelegateForAll(address vault, address delegate, uint256 expiry);
     
     /// @notice Emitted when a user delegates a specific collection
-    event DelegateForCollection(address vault, address delegate, address collection, bool value);
+    event DelegateForCollection(address vault, address delegate, address collection, uint256 expiry);
 
     /// @notice Emitted when a user delegates a specific token
-    event DelegateForToken(address vault, address delegate, address collection, uint256 tokenId, bool value);
+    event DelegateForToken(address vault, address delegate, address collection, uint256 tokenId, uint256 expiry);
 
     /** -----------  WRITE ----------- */
 
     /** 
     * @notice Allow the delegate to act on your behalf for all NFT collections
     * @param delegate The hotwallet to act on your behalf
-    * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
+    * @param expiry The expiration timestap of a delegation for this address. Set to ZERO to revoke
     */
-    function delegateForAll(address delegate, bool value) external {
+    function delegateForAll(address delegate, uint256 expiry) external {
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender));
-        delegations[delegateHash] = value;
-        _setDelegationEnumeration(delegationsForAll[msg.sender], delegate, value);
-        emit DelegateForAll(msg.sender, delegate, value);
+        delegations[delegateHash] = expiry;
+        _setDelegationEnumeration(delegationsForAll[msg.sender], delegate, expiry);
+        emit DelegateForAll(msg.sender, delegate, expiry);
     }
 
     /** 
     * @notice Allow the delegate to act on your behalf for a specific NFT collection
     * @param delegate The hotwallet to act on your behalf
     * @param collection The contract address for the collection you're delegating
-    * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
+    * @param expiry The expiration timestap of a delegation for this address. Set to ZERO to revoke
     */
-    function delegateForCollection(address delegate, address collection, bool value) external {
+    function delegateForCollection(address delegate, address collection, uint256 expiry) external {
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, collection));
-        delegations[delegateHash] = value;
-        _setDelegationEnumeration(delegationsForCollection[msg.sender][collection], delegate, value);
-        emit DelegateForCollection(msg.sender, delegate, collection, value);
+        delegations[delegateHash] = expiry;
+        _setDelegationEnumeration(delegationsForCollection[msg.sender][collection], delegate, expiry);
+        emit DelegateForCollection(msg.sender, delegate, collection, expiry);
     }
 
     /** 
@@ -66,21 +66,17 @@ contract DelegationRegistry {
     * @param delegate The hotwallet to act on your behalf
     * @param collection The contract address for the collection you're delegating
     * @param tokenId The token id for the token you're delegating
-    * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
+    * @param expiry The expiration timestap of a delegation for this address. Set to ZERO to revoke
     */
-    function delegateForToken(address delegate, address collection, uint256 tokenId, bool value) external {
+    function delegateForToken(address delegate, address collection, uint256 tokenId, uint256 expiry) external {
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, collection, tokenId));
-        delegations[delegateHash] = value;
-        _setDelegationEnumeration(delegationsForToken[msg.sender][collection][tokenId], delegate, value);
-        emit DelegateForToken(msg.sender, delegate, collection, tokenId, value);
+        delegations[delegateHash] = expiry;
+        _setDelegationEnumeration(delegationsForToken[msg.sender][collection][tokenId], delegate, expiry);
+        emit DelegateForToken(msg.sender, delegate, collection, tokenId, expiry);
     }
 
-    function _setDelegationEnumeration(EnumerableSet.AddressSet storage set, address key, bool value) internal {
-        if (value) {
-            set.add(key);
-        } else {
-            set.remove(key);
-        }
+    function _setDelegationEnumeration(EnumerableSet.AddressSet storage set, address key, uint256 expiry) internal {
+        expiry != 0 ? set.add(key) : set.remove(key);
     }
 
     /** -----------  READ ----------- */
@@ -122,7 +118,7 @@ contract DelegationRegistry {
     */
     function checkDelegateForAll(address delegate, address vault) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encode(delegate, vault));
-        return delegations[delegateHash];
+        return delegations[delegateHash] > block.timestamp ? true : false;
     }
 
     /** 
@@ -133,7 +129,7 @@ contract DelegationRegistry {
     */ 
     function checkDelegateForCollection(address delegate, address vault, address collection) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encode(delegate, vault, collection));
-        return delegations[delegateHash] ? true : checkDelegateForAll(delegate, vault);
+        return delegations[delegateHash] > block.timestamp ? true : checkDelegateForAll(delegate, vault);
     }
     
     /** 
@@ -145,6 +141,6 @@ contract DelegationRegistry {
     */
     function checkDelegateForToken(address delegate, address vault, address collection, uint256 tokenId) public view returns (bool) {
         bytes32 delegateHash = keccak256(abi.encode(delegate, vault, collection, tokenId));
-        return delegations[delegateHash] ? true : checkDelegateForCollection(delegate, vault, collection);
+        return delegations[delegateHash] > block.timestamp ? true : checkDelegateForCollection(delegate, vault, collection);
     }
 }
