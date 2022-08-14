@@ -19,8 +19,8 @@ contract DelegationRegistry {
     /// @notice A secondary mapping to return onchain enumerability of wallet-level delegations
     mapping(address => EnumerableSet.AddressSet) internal delegationsForAll;
 
-    /// @notice A secondary mapping to return onchain enumerability of collection-level delegations
-    mapping(address => mapping(address => EnumerableSet.AddressSet)) internal delegationsForCollection;
+    /// @notice A secondary mapping to return onchain enumerability of contract-level delegations
+    mapping(address => mapping(address => EnumerableSet.AddressSet)) internal delegationsForContract;
 
     /// @notice A secondary mapping to return onchain enumerability of token-level delegations
     mapping(address => mapping(address => mapping(uint256 => EnumerableSet.AddressSet))) internal delegationsForToken;
@@ -28,16 +28,16 @@ contract DelegationRegistry {
     /// @notice Emitted when a user delegates their entire wallet
     event DelegateForAll(address vault, address delegate, bool value);
     
-    /// @notice Emitted when a user delegates a specific collection
-    event DelegateForCollection(address vault, address delegate, address collection, bool value);
+    /// @notice Emitted when a user delegates a specific contract
+    event DelegateForContract(address vault, address delegate, address contract_, bool value);
 
     /// @notice Emitted when a user delegates a specific token
-    event DelegateForToken(address vault, address delegate, address collection, uint256 tokenId, bool value);
+    event DelegateForToken(address vault, address delegate, address contract_, uint256 tokenId, bool value);
 
     /** -----------  WRITE ----------- */
 
     /** 
-    * @notice Allow the delegate to act on your behalf for all NFT collections
+    * @notice Allow the delegate to act on your behalf for all NFT contracts
     * @param delegate The hotwallet to act on your behalf
     * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
     */
@@ -49,30 +49,30 @@ contract DelegationRegistry {
     }
 
     /** 
-    * @notice Allow the delegate to act on your behalf for a specific NFT collection
+    * @notice Allow the delegate to act on your behalf for a specific NFT contract
     * @param delegate The hotwallet to act on your behalf
-    * @param collection The contract address for the collection you're delegating
+    * @param contract_ The address for the contract you're delegating
     * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
     */
-    function delegateForCollection(address delegate, address collection, bool value) external {
-        bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, collection));
+    function delegateForContract(address delegate, address contract_, bool value) external {
+        bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, contract_));
         delegations[delegateHash] = value;
-        _setDelegationEnumeration(delegationsForCollection[msg.sender][collection], delegate, value);
-        emit DelegateForCollection(msg.sender, delegate, collection, value);
+        _setDelegationEnumeration(delegationsForContract[msg.sender][contract_], delegate, value);
+        emit DelegateForContract(msg.sender, delegate, contract_, value);
     }
 
     /** 
     * @notice Allow the delegate to act on your behalf for a specific token, supports 721 and 1155
     * @param delegate The hotwallet to act on your behalf
-    * @param collection The contract address for the collection you're delegating
+    * @param contract_ The address for the contract you're delegating
     * @param tokenId The token id for the token you're delegating
     * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
     */
-    function delegateForToken(address delegate, address collection, uint256 tokenId, bool value) external {
-        bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, collection, tokenId));
+    function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value) external {
+        bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, contract_, tokenId));
         delegations[delegateHash] = value;
-        _setDelegationEnumeration(delegationsForToken[msg.sender][collection][tokenId], delegate, value);
-        emit DelegateForToken(msg.sender, delegate, collection, tokenId, value);
+        _setDelegationEnumeration(delegationsForToken[msg.sender][contract_][tokenId], delegate, value);
+        emit DelegateForToken(msg.sender, delegate, contract_, tokenId, value);
     }
 
     function _setDelegationEnumeration(EnumerableSet.AddressSet storage set, address key, bool value) internal {
@@ -95,24 +95,24 @@ contract DelegationRegistry {
     }
 
     /**
-    * @notice Returns an array of collection-level delegations for a given vault and collection
+    * @notice Returns an array of contract-level delegations for a given vault and contract
     * @param vault The cold wallet who issued the delegation
-    * @param collection The contract address for the collection you're delegating
-    * @return addresses Array of collection-level delegations for a given vault and collection
+    * @param contract_ The address for the contract you're delegating
+    * @return addresses Array of contract-level delegations for a given vault and contract
     */
-    function getDelegationsForCollection(address vault, address collection) external view returns (address[] memory) {
-        return delegationsForCollection[vault][collection].values();
+    function getDelegationsForContract(address vault, address contract_) external view returns (address[] memory) {
+        return delegationsForContract[vault][contract_].values();
     }
 
     /**
-    * @notice Returns an array of collection-level delegations for a given vault's token
+    * @notice Returns an array of contract-level delegations for a given vault's token
     * @param vault The cold wallet who issued the delegation
-    * @param collection The contract address for the collection holding the token
+    * @param contract_ The address for the contract holding the token
     * @param tokenId The token id for the token you're delegating
-    * @return addresses Array of collection-level delegations for a given vault's token
+    * @return addresses Array of contract-level delegations for a given vault's token
     */
-    function getDelegationsForToken(address vault, address collection, uint256 tokenId) external view returns (address[] memory) {
-        return delegationsForToken[vault][collection][tokenId].values();
+    function getDelegationsForToken(address vault, address contract_, uint256 tokenId) external view returns (address[] memory) {
+        return delegationsForToken[vault][contract_][tokenId].values();
     }
 
     /** 
@@ -126,25 +126,25 @@ contract DelegationRegistry {
     }
 
     /** 
-    * @notice Returns true if the address is delegated to act on your behalf for an NFT collection
+    * @notice Returns true if the address is delegated to act on your behalf for an NFT contract
     * @param delegate The hotwallet to act on your behalf
-    * @param collection The contract address for the collection you're delegating
+    * @param contract_ The address for the contract you're delegating
     * @param vault The cold wallet who issued the delegation
     */ 
-    function checkDelegateForCollection(address delegate, address vault, address collection) public view returns (bool) {
-        bytes32 delegateHash = keccak256(abi.encode(delegate, vault, collection));
+    function checkDelegateForContract(address delegate, address vault, address contract_) public view returns (bool) {
+        bytes32 delegateHash = keccak256(abi.encode(delegate, vault, contract_));
         return delegations[delegateHash] ? true : checkDelegateForAll(delegate, vault);
     }
     
     /** 
     * @notice Returns true if the address is delegated to act on your behalf for an specific NFT
     * @param delegate The hotwallet to act on your behalf
-    * @param collection The contract address for the collection you're delegating
+    * @param contract_ The address for the contract you're delegating
     * @param tokenId The token id for the token you're delegating
     * @param vault The cold wallet who issued the delegation
     */
-    function checkDelegateForToken(address delegate, address vault, address collection, uint256 tokenId) public view returns (bool) {
-        bytes32 delegateHash = keccak256(abi.encode(delegate, vault, collection, tokenId));
-        return delegations[delegateHash] ? true : checkDelegateForCollection(delegate, vault, collection);
+    function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId) public view returns (bool) {
+        bytes32 delegateHash = keccak256(abi.encode(delegate, vault, contract_, tokenId));
+        return delegations[delegateHash] ? true : checkDelegateForContract(delegate, vault, contract_);
     }
 }
