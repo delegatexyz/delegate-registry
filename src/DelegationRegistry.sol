@@ -42,6 +42,8 @@ contract DelegationRegistry {
     * @param expiry The expiration timestap of a delegation for this address. Set to ZERO to revoke
     */
     function delegateForAll(address delegate, uint256 expiry) external {
+        require(expiry > block.timestamp || expiry == 0, "INVALID_EXPIRY");
+
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender));
         delegations[delegateHash] = expiry;
         _setDelegationEnumeration(delegationsForAll[msg.sender], delegate, expiry);
@@ -55,6 +57,8 @@ contract DelegationRegistry {
     * @param expiry The expiration timestap of a delegation for this address. Set to ZERO to revoke
     */
     function delegateForCollection(address delegate, address collection, uint256 expiry) external {
+        require(expiry > block.timestamp || expiry == 0, "INVALID_EXPIRY");
+
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, collection));
         delegations[delegateHash] = expiry;
         _setDelegationEnumeration(delegationsForCollection[msg.sender][collection], delegate, expiry);
@@ -69,6 +73,8 @@ contract DelegationRegistry {
     * @param expiry The expiration timestap of a delegation for this address. Set to ZERO to revoke
     */
     function delegateForToken(address delegate, address collection, uint256 tokenId, uint256 expiry) external {
+        require(expiry > block.timestamp || expiry == 0, "INVALID_EXPIRY");
+
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, collection, tokenId));
         delegations[delegateHash] = expiry;
         _setDelegationEnumeration(delegationsForToken[msg.sender][collection][tokenId], delegate, expiry);
