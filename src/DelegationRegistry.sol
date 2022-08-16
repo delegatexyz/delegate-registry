@@ -126,7 +126,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
                 delegateCount++;
             }
             unchecked {
-                i++;
+                ++i;
             }
         }
         if (potentialDelegatesLength > delegateCount) {
@@ -153,7 +153,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
                 delegateCount++;
             }
             unchecked {
-                i++;
+                ++i;
             }
         }
         if (potentialDelegatesLength > delegateCount) {
