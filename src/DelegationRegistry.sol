@@ -3,6 +3,7 @@
 pragma solidity ^0.8.16;
 
 import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
+import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import {IDelegationRegistry} from "./IDelegationRegistry.sol";
 
 /** 
@@ -11,7 +12,7 @@ import {IDelegationRegistry} from "./IDelegationRegistry.sol";
 * @dev New project launches can read previous cold wallet -> hot wallet delegations from here and integrate those permissions into their flow
 */
 
-contract DelegationRegistry is IDelegationRegistry {
+contract DelegationRegistry is IDelegationRegistry, ERC165 {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @notice The global mapping and single source of truth for delegations
@@ -34,6 +35,13 @@ contract DelegationRegistry is IDelegationRegistry {
     /// @notice A secondary mapping to return onchain enumerability of token-level delegations
     /// @notice vault -> vaultVersion -> contract -> tokenId -> delegates
     mapping(address => mapping (uint256 => mapping(address => mapping(uint256 => EnumerableSet.AddressSet)))) internal delegationsForToken;
+
+    /** 
+    * See {IERC165-supportsInterface}.
+    */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165) returns (bool) {
+        return interfaceId == type(IDelegationRegistry).interfaceId || super.supportsInterface(interfaceId);
+    }
 
     /** -----------  WRITE ----------- */
 

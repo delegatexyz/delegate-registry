@@ -6,10 +6,10 @@
 
 Welcome! If you're a programmer, view [the specific registry code here](src/DelegationRegistry.sol). If you want to discuss specific open questions, click on the "Issues" tab to leave a comment. If you're interested in integrating this standard into your NFT project or marketplace, we're in the process of creating example templates - or reach out directly via a [Twitter DM](https://twitter.com/0xfoobar).
 
-We have an exciting group of initial people circling around this standard, including foobar (hi!), punk6529 (open metaverse), loopify (loopiverse), andy8052 (fractional), purplehat (artblocks), emiliano (nftrentals), arran (proof), james (collabland), john (gnosis safe), tally labs and many more. The dream is to move from a fragmented world where no individual deployment gets serious use to a global registry where users can register their vault once and use it safely for a variety of airdrops & other claims! Please reach out if interested in helping make this a reality on either the technical, social, or integration side.
+We have an exciting group of initial people circling around this standard, including foobar (hi!), punk6529 (open metaverse), loopify (loopiverse), andy8052 (fractional), purplehat (artblocks), emiliano (nftrentals), arran (proof), james (collabland), john (gnosis safe), wwhchung (manifoldxyz) tally labs and many more. The dream is to move from a fragmented world where no individual deployment gets serious use to a global registry where users can register their vault once and use it safely for a variety of airdrops & other claims! Please reach out if interested in helping make this a reality on either the technical, social, or integration side.
 
 
-## Why NFT delegation?
+## Why delegation?
 
 Proving ownership of an asset to a third party application in the Ethereum ecosystem is common. Common examples include claiming airdrops, minting from collection whitelists, and verifying token ownership for a gated discord/telegram channel. Users frequently sign payloads of data to authenticate themselves before gaining access to perform some operation. However, this introduces the danger of accidentally signing a malicious transaction from a cold wallet vault.
 
