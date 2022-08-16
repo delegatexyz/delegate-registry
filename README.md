@@ -51,6 +51,5 @@ Please open an issue or pull request if you have ideas or code for how to addres
 
 Can we get onchain enumeration?  
 Can we get multiple delegation?  
-Can we get all-at-once revocation?  
 Can we get timelocked delegation?  
 Does the ENS fuse wrapper match what we're doing here?  
