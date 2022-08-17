@@ -8,8 +8,9 @@ import {IDelegationRegistry} from "./IDelegationRegistry.sol";
 
 /** 
 * @title An immutable registry contract to be deployed as a standalone primitive
-* @author foobar, wwhchung
 * @dev New project launches can read previous cold wallet -> hot wallet delegations from here and integrate those permissions into their flow
+* contributors: foobar (0xfoobar), punk6529 (open metaverse), loopify (loopiverse), andy8052 (fractional), purplehat (artblocks), emiliano (nftrentals),
+*               arran (proof), james (collabland), john (gnosis safe), wwhchung (manifoldxyz) tally labs and many more
 */
 
 contract DelegationRegistry is IDelegationRegistry, ERC165 {
