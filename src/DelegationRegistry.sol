@@ -132,8 +132,26 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
     * See {IDelegationRegistry-getDelegationsForAll}.
     */
-    function getDelegationsForAll(address vault) external view returns (address[] memory) {
-        return delegationsForAll[vault][vaultVersion[vault]].values();
+    function getDelegationsForAll(address vault) external view returns (address[] memory delegates) {
+        EnumerableSet.AddressSet storage potentialDelegates = delegationsForAll[vault][vaultVersion[vault]];
+        uint256 potentialDelegatesLength = potentialDelegates.length();
+        uint256 delegateCount = 0;
+        delegates = new address[](potentialDelegatesLength);
+        for (uint256 i = 0; i < potentialDelegatesLength;) {
+            if (checkDelegateForAll(potentialDelegates.at(i), vault)) {
+                delegates[delegateCount] = potentialDelegates.at(i);
+                delegateCount++;
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        if (potentialDelegatesLength > delegateCount) {
+            assembly { 
+                let decrease := sub(potentialDelegatesLength, delegateCount)
+                mstore(delegates, sub(mload(delegates), decrease))
+            }
+        }
     }
 
     /**
