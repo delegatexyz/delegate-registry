@@ -10,14 +10,14 @@ import {IDelegationRegistry} from "./IDelegationRegistry.sol";
 * @title An immutable registry contract to be deployed as a standalone primitive
 * @dev New project launches can read previous cold wallet -> hot wallet delegations from here and integrate those permissions into their flow
 * contributors: foobar (0xfoobar), punk6529 (open metaverse), loopify (loopiverse), andy8052 (fractional), purplehat (artblocks), emiliano (nftrentals),
-*               arran (proof), james (collabland), john (gnosis safe), wwhchung (manifoldxyz) tally labs and many more
+*               arran (proof), james (collabland), john (gnosis safe), wwhchung (manifoldxyz), rusowsky (0xrusowsky), tally labs and many more
 */
 
 contract DelegationRegistry is IDelegationRegistry, ERC165 {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @notice The global mapping and single source of truth for delegations
-    mapping(bytes32 => bool) private delegations;
+    mapping(bytes32 => uint256) private delegations;
 
     /// @notice A mapping of wallets to versions (for cheap revocation)
     mapping(address => uint256) private vaultVersion;
@@ -49,35 +49,38 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /** 
     * See {IDelegationRegistry-delegateForAll}.
     */
-    function delegateForAll(address delegate, bool value) external override {
+    function delegateForAll(address delegate, uint256 expiry) external override {
+        require(block.timestamp < expiry, "INVALID_EXPIRY");
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, vaultVersion[msg.sender], delegateVersion[msg.sender][delegate]));
-        delegations[delegateHash] = value;
-        _setDelegationEnumeration(delegationsForAll[msg.sender][vaultVersion[msg.sender]], delegate, value);
-        emit IDelegationRegistry.DelegateForAll(msg.sender, delegate, value);
+        delegations[delegateHash] = expiry;
+        _setDelegationEnumeration(delegationsForAll[msg.sender][vaultVersion[msg.sender]], delegate, expiry);
+        emit IDelegationRegistry.DelegateForAll(msg.sender, delegate, expiry);
     }
 
     /** 
     * See {IDelegationRegistry-delegateForContract}.
     */
-    function delegateForContract(address delegate, address contract_, bool value) external override {
+    function delegateForContract(address delegate, address contract_, uint256 expiry) external override {
+        require(block.timestamp < expiry, "INVALID_EXPIRY");
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, contract_, vaultVersion[msg.sender], delegateVersion[msg.sender][delegate]));
-        delegations[delegateHash] = value;
-        _setDelegationEnumeration(delegationsForContract[msg.sender][vaultVersion[msg.sender]][contract_], delegate, value);
-        emit IDelegationRegistry.DelegateForContract(msg.sender, delegate, contract_, value);
+        delegations[delegateHash] = expiry;
+        _setDelegationEnumeration(delegationsForContract[msg.sender][vaultVersion[msg.sender]][contract_], delegate, expiry);
+        emit IDelegationRegistry.DelegateForContract(msg.sender, delegate, contract_, expiry);
     }
 
     /** 
     * See {IDelegationRegistry-delegateForToken}.
     */
-    function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value) external override {
+    function delegateForToken(address delegate, address contract_, uint256 tokenId, uint256 expiry) external override {
+        require(block.timestamp < expiry, "INVALID_EXPIRY");
         bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, contract_, tokenId, vaultVersion[msg.sender], delegateVersion[msg.sender][delegate]));
-        delegations[delegateHash] = value;
-        _setDelegationEnumeration(delegationsForToken[msg.sender][vaultVersion[msg.sender]][contract_][tokenId], delegate, value);
-        emit IDelegationRegistry.DelegateForToken(msg.sender, delegate, contract_, tokenId, value);
+        delegations[delegateHash] = expiry;
+        _setDelegationEnumeration(delegationsForToken[msg.sender][vaultVersion[msg.sender]][contract_][tokenId], delegate, expiry);
+        emit IDelegationRegistry.DelegateForToken(msg.sender, delegate, contract_, tokenId, expiry);
     }
 
-    function _setDelegationEnumeration(EnumerableSet.AddressSet storage set, address key, bool value) internal {
-        if (value) {
+    function _setDelegationEnumeration(EnumerableSet.AddressSet storage set, address key, uint256 expiry) internal {
+        if (expiry != 0) {
             set.add(key);
         } else {
             set.remove(key);
@@ -102,6 +105,26 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         // For delegationsForContract and delegationsForToken, filter in the view
         // functions
         emit IDelegationRegistry.RevokeDelegate(msg.sender, delegate);
+    }
+
+    /** 
+    * See {IDelegationRegistry-revokeForContract}.
+    */
+    function revokeForContract(address delegate, address contract_) external override {
+        bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, contract_, vaultVersion[msg.sender], delegateVersion[msg.sender][delegate]));
+        delete delegations[delegateHash];
+        _setDelegationEnumeration(delegationsForContract[msg.sender][vaultVersion[msg.sender]][contract_], delegate, 0);
+        emit IDelegationRegistry.RevokeForContract(msg.sender, delegate, contract_);
+    }
+    
+    /** 
+    * See {IDelegationRegistry-revokeForToken}.
+    */
+    function revokeForToken(address delegate, address contract_, uint256 tokenId) external override {
+        bytes32 delegateHash = keccak256(abi.encode(delegate, msg.sender, contract_, tokenId, vaultVersion[msg.sender], delegateVersion[msg.sender][delegate]));
+        delete delegations[delegateHash];
+        _setDelegationEnumeration(delegationsForToken[msg.sender][vaultVersion[msg.sender]][contract_][tokenId], delegate, 0);
+        emit IDelegationRegistry.RevokeForToken(msg.sender, delegate, contract_, tokenId);
     }
 
     /** -----------  READ ----------- */
@@ -170,7 +193,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     */
     function checkDelegateForAll(address delegate, address vault) public view override returns (bool) {
         bytes32 delegateHash = keccak256(abi.encode(delegate, vault, vaultVersion[vault], delegateVersion[vault][delegate]));
-        return delegations[delegateHash];
+        return delegations[delegateHash] > block.timestamp ? true : false;
     }
 
     /** 
@@ -178,7 +201,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     */ 
     function checkDelegateForContract(address delegate, address vault, address contract_) public view override returns (bool) {
         bytes32 delegateHash = keccak256(abi.encode(delegate, vault, contract_, vaultVersion[vault], delegateVersion[vault][delegate]));
-        return delegations[delegateHash] ? true : checkDelegateForAll(delegate, vault);
+        return delegations[delegateHash] > block.timestamp ? true : checkDelegateForAll(delegate, vault);
     }
     
     /** 
@@ -186,6 +209,6 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     */
     function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId) public view override returns (bool) {
         bytes32 delegateHash = keccak256(abi.encode(delegate, vault, contract_, tokenId, vaultVersion[vault], delegateVersion[vault][delegate]));
-        return delegations[delegateHash] ? true : checkDelegateForContract(delegate, vault, contract_);
+        return delegations[delegateHash] > block.timestamp ? true : checkDelegateForContract(delegate, vault, contract_);
     }
 }

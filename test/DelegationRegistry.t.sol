@@ -16,48 +16,48 @@ contract DelegationRegistryTest is Test {
     function testApproveAndRevokeForAll(address vault, address delegate) public {
         // Approve
         vm.startPrank(vault);
-        reg.delegateForAll(delegate, true);
+        reg.delegateForAll(delegate, 1234);
         assertTrue(reg.checkDelegateForAll(delegate, vault));
         assertTrue(reg.checkDelegateForContract(delegate, vault, address(0x0)));
         assertTrue(reg.checkDelegateForToken(delegate, vault, address(0x0), 0));
         // Revoke
-        reg.delegateForAll(delegate, false);
+        reg.revokeDelegate(delegate);
         assertFalse(reg.checkDelegateForAll(delegate, vault));
     }
 
     function testApproveAndRevokeForContract(address vault, address delegate, address contract_) public {
         // Approve
         vm.startPrank(vault);
-        reg.delegateForContract(delegate, contract_, true);
+        reg.delegateForContract(delegate, contract_, 1234);
         assertTrue(reg.checkDelegateForContract(delegate, vault, contract_));
         assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, 0));
         // Revoke
-        reg.delegateForContract(delegate, contract_, false);
+        reg.revokeForContract(delegate, contract_);
         assertFalse(reg.checkDelegateForContract(delegate, vault, contract_));
     }
 
     function testApproveAndRevokeForToken(address vault, address delegate, address contract_, uint256 tokenId) public {
         // Approve
         vm.startPrank(vault);
-        reg.delegateForToken(delegate, contract_, tokenId, true);
+        reg.delegateForToken(delegate, contract_, tokenId, 1234);
         assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, tokenId));
         // Revoke
-        reg.delegateForToken(delegate, contract_, tokenId, false);
+        reg.revokeForToken(delegate, contract_, tokenId);
         assertFalse(reg.checkDelegateForToken(delegate, vault, contract_, tokenId));
     }
 
     function testMultipleDelegationForAll(address vault, address delegate0, address delegate1) public {
         vm.assume(delegate0 != delegate1);
         vm.startPrank(vault);
-        reg.delegateForAll(delegate0, true);
-        reg.delegateForAll(delegate1, true);
+        reg.delegateForAll(delegate0, 1234);
+        reg.delegateForAll(delegate1, 1234);
         // Read
         address[] memory delegates = reg.getDelegationsForAll(vault);
         assertEq(delegates.length, 2);
         assertEq(delegates[0], delegate0);
         assertEq(delegates[1], delegate1);
         // Remove
-        reg.delegateForAll(delegate0, false);
+        reg.revokeDelegate(delegate0);
         delegates = reg.getDelegationsForAll(vault);
         assertEq(delegates.length, 1);
     }
@@ -66,14 +66,14 @@ contract DelegationRegistryTest is Test {
         vm.assume(delegate != vault0);
         vm.assume(vault0 != vault1);
         vm.startPrank(vault0);
-        reg.delegateForAll(delegate, true);
-        reg.delegateForContract(delegate, contract_, true);
-        reg.delegateForToken(delegate, contract_, tokenId, true);
+        reg.delegateForAll(delegate, 1234);
+        reg.delegateForContract(delegate, contract_, 1234);
+        reg.delegateForToken(delegate, contract_, tokenId, 1234);
         vm.stopPrank();
         vm.startPrank(vault1);
-        reg.delegateForAll(delegate, true);
-        reg.delegateForContract(delegate, contract_, true);
-        reg.delegateForToken(delegate, contract_, tokenId, true);
+        reg.delegateForAll(delegate, 1234);
+        reg.delegateForContract(delegate, contract_, 1234);
+        reg.delegateForToken(delegate, contract_, tokenId, 1234);
         vm.stopPrank();
         // Revoke delegates for vault0
         vm.startPrank(vault0);
@@ -105,12 +105,12 @@ contract DelegationRegistryTest is Test {
         vm.assume(vault != delegate0);
         vm.assume(delegate0 != delegate1);
         vm.startPrank(vault);
-        reg.delegateForAll(delegate0, true);
-        reg.delegateForContract(delegate0, contract_, true);
-        reg.delegateForToken(delegate0, contract_, tokenId, true);
-        reg.delegateForAll(delegate1, true);
-        reg.delegateForContract(delegate1, contract_, true);
-        reg.delegateForToken(delegate1, contract_, tokenId, true);
+        reg.delegateForAll(delegate0, 1234);
+        reg.delegateForContract(delegate0, contract_, 1234);
+        reg.delegateForToken(delegate0, contract_, tokenId, 1234);
+        reg.delegateForAll(delegate1, 1234);
+        reg.delegateForContract(delegate1, contract_, 1234);
+        reg.delegateForToken(delegate1, contract_, tokenId, 1234);
         
         // Revoke delegate0
         reg.revokeDelegate(delegate0);
@@ -132,5 +132,38 @@ contract DelegationRegistryTest is Test {
         assertTrue(reg.checkDelegateForContract(delegate1, vault, contract_));
         assertFalse(reg.checkDelegateForToken(delegate0, vault, contract_, tokenId));
         assertTrue(reg.checkDelegateForToken(delegate1, vault, contract_, tokenId));
+    }
+
+    function testApproveAndExpireForAll(address vault, address delegate) public {
+        // Approve
+        vm.startPrank(vault);
+        reg.delegateForAll(delegate, 1234);
+        assertTrue(reg.checkDelegateForAll(delegate, vault));
+        assertTrue(reg.checkDelegateForContract(delegate, vault, address(0x0)));
+        assertTrue(reg.checkDelegateForToken(delegate, vault, address(0x0), 0));
+        // Expire
+        vm.warp(4321);
+        assertFalse(reg.checkDelegateForAll(delegate, vault));
+    }
+
+    function testApproveAndExpireForContract(address vault, address delegate, address contract_) public {
+        // Approve
+        vm.startPrank(vault);
+        reg.delegateForContract(delegate, contract_, 1234);
+        assertTrue(reg.checkDelegateForContract(delegate, vault, contract_));
+        assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, 0));
+        // Expire
+        vm.warp(4321);
+        assertFalse(reg.checkDelegateForContract(delegate, vault, contract_));
+    }
+
+    function testApproveAndExpireForToken(address vault, address delegate, address contract_, uint256 tokenId) public {
+        // Approve
+        vm.startPrank(vault);
+        reg.delegateForToken(delegate, contract_, tokenId, 1234);
+        assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, tokenId));
+        // Expire
+        vm.warp(4321);
+        assertFalse(reg.checkDelegateForToken(delegate, vault, contract_, tokenId));
     }
 }
