@@ -138,12 +138,12 @@ contract DelegationRegistryTest is Test {
         vm.assume(vault != delegate0);
         vm.assume(delegate0 != delegate1);
         vm.startPrank(vault);
-        reg.delegateForAll(delegate0, true);
-        reg.delegateForContract(delegate0, contract_, true);
-        reg.delegateForToken(delegate0, contract_, tokenId, true);
-        reg.delegateForAll(delegate1, true);
-        reg.delegateForContract(delegate1, contract_, true);
-        reg.delegateForToken(delegate1, contract_, tokenId, true);
+        reg.delegateForAll(delegate0, 1234);
+        reg.delegateForContract(delegate0, contract_, 1234);
+        reg.delegateForToken(delegate0, contract_, tokenId, 1234);
+        reg.delegateForAll(delegate1, 1234);
+        reg.delegateForContract(delegate1, contract_, 1234);
+        reg.delegateForToken(delegate1, contract_, tokenId, 1234);
 
         // delegate 0 revoke self from being a delegate for vault
         changePrank(delegate0);
