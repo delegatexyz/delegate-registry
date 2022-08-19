@@ -68,6 +68,11 @@ interface IDelegationRegistry {
      */
     function revokeDelegate(address delegate) external;
 
+    /**
+     * @notice Revoke delegation for a specific vault, for all permissions
+     */
+    function revokeSelf(address vault) external;
+
     /** 
     * @notice Prevent the delegate to act on your behalf for a specific contract.
     *         Opposite of delegateForContract(address delegate, address contract_, uint256 expiry)

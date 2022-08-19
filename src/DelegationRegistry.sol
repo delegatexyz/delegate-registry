@@ -95,16 +95,18 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         emit IDelegationRegistry.RevokeAllDelegates(msg.sender);
     }
 
-     /**
+    /**
     * See {IDelegationRegistry-revokeDelegate}.
     */
     function revokeDelegate(address delegate) external override {
-        delegateVersion[msg.sender][delegate]++;
-        // Remove delegate from enumerations
-        delegationsForAll[msg.sender][vaultVersion[msg.sender]].remove(delegate);
-        // For delegationsForContract and delegationsForToken, filter in the view
-        // functions
-        emit IDelegationRegistry.RevokeDelegate(msg.sender, delegate);
+            _revokeDelegate(delegate, msg.sender);
+    }
+
+    /**
+    * See {IDelegationRegistry-revokeSelf}.
+    */
+    function revokeSelf(address vault) external override {
+        _revokeDelegate(msg.sender, vault);
     }
 
     /** 
@@ -127,6 +129,15 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         emit IDelegationRegistry.RevokeForToken(msg.sender, delegate, contract_, tokenId);
     }
 
+    function _revokeDelegate(address delegate, address vault) internal {
+        delegateVersion[vault][delegate]++;
+        // Remove delegate from enumerations
+        delegationsForAll[vault][vaultVersion[vault]].remove(delegate);
+        // For delegationsForContract and delegationsForToken, filter in the view
+        // functions
+        emit IDelegationRegistry.RevokeDelegate(vault, msg.sender);
+    }
+    
     /** -----------  READ ----------- */
 
     /**
