@@ -23,7 +23,7 @@ interface IDelegationRegistry {
     /// @notice Emitted when a user revokes all delegations
     event RevokeAllDelegates(address vault);
 
-    /// @notice Emitted when a user revoes all delegations for a given delegate
+    /// @notice Emitted when a user revokes all delegations for a given delegate
     event RevokeDelegate(address vault, address delegate);
     
     /// @notice Emitted when a user revokes a specific contract
@@ -48,6 +48,7 @@ interface IDelegationRegistry {
     * @param expiry The expiration timestamp of this delegation
     */
     function delegateForContract(address delegate, address contract_, uint256 expiry) external;
+    
     /** 
     * @notice Allow the delegate to act on your behalf for a specific token, supports 721 and 1155
     * @param delegate The hotwallet to act on your behalf
