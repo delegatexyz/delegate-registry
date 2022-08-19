@@ -99,7 +99,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     * See {IDelegationRegistry-revokeDelegate}.
     */
     function revokeDelegate(address delegate) external override {
-            _revokeDelegate(delegate, msg.sender);
+        _revokeDelegate(delegate, msg.sender);
     }
 
     /**
@@ -137,7 +137,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         // functions
         emit IDelegationRegistry.RevokeDelegate(vault, msg.sender);
     }
-    
+
     /** -----------  READ ----------- */
 
     /**

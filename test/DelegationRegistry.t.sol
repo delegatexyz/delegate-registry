@@ -149,7 +149,7 @@ contract DelegationRegistryTest is Test {
         changePrank(delegate0);
         reg.revokeSelf(vault);
         vm.stopPrank();
-
+        
         // Read
         address[] memory vaultDelegatesForAll = reg.getDelegationsForAll(vault);
         assertEq(vaultDelegatesForAll.length, 1);
@@ -247,3 +247,4 @@ contract DelegationRegistryTest is Test {
         assertTrue(reg.checkDelegateForToken(delegate1, vault, contract_, tokenId));
     }
 }
+
