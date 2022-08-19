@@ -10,7 +10,7 @@ import {IDelegationRegistry} from "./IDelegationRegistry.sol";
 * @title An immutable registry contract to be deployed as a standalone primitive
 * @dev New project launches can read previous cold wallet -> hot wallet delegations from here and integrate those permissions into their flow
 * contributors: foobar (0xfoobar), punk6529 (open metaverse), loopify (loopiverse), andy8052 (fractional), purplehat (artblocks), emiliano (nftrentals),
-*               arran (proof), james (collabland), john (gnosis safe), wwhchung (manifoldxyz), rusowsky (0xrusowsky) tally labs and many more
+*               arran (proof), james (collabland), john (gnosis safe), wwhchung (manifoldxyz), rusowsky (0xrusowsky), tally labs and many more
 */
 
 contract DelegationRegistry is IDelegationRegistry, ERC165 {
@@ -95,16 +95,27 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         emit IDelegationRegistry.RevokeAllDelegates(msg.sender);
     }
 
-     /**
+    /**
     * See {IDelegationRegistry-revokeDelegate}.
     */
     function revokeDelegate(address delegate) external override {
-        delegateVersion[msg.sender][delegate]++;
+        _revokeDelegate(delegate, msg.sender);
+    }
+
+    /**
+    * See {IDelegationRegistry-revokeSelf}.
+    */
+    function revokeSelf(address vault) external override {
+        _revokeDelegate(msg.sender, vault);
+    }
+
+    function _revokeDelegate(address delegate, address vault) internal {
+        delegateVersion[vault][delegate]++;
         // Remove delegate from enumerations
-        delegationsForAll[msg.sender][vaultVersion[msg.sender]].remove(delegate);
+        delegationsForAll[vault][vaultVersion[vault]].remove(delegate);
         // For delegationsForContract and delegationsForToken, filter in the view
         // functions
-        emit IDelegationRegistry.RevokeDelegate(msg.sender, delegate);
+        emit IDelegationRegistry.RevokeDelegate(vault, msg.sender);
     }
 
     /** -----------  READ ----------- */

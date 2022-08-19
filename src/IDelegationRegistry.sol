@@ -61,6 +61,11 @@ interface IDelegationRegistry {
      */
     function revokeDelegate(address delegate) external;
 
+    /**
+     * @notice Revoke delegation for a specific vault, for all permissions
+     */
+    function revokeSelf(address vault) external;
+
     /** -----------  READ ----------- */
 
     /**
