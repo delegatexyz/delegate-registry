@@ -133,4 +133,38 @@ contract DelegationRegistryTest is Test {
         assertFalse(reg.checkDelegateForToken(delegate0, vault, contract_, tokenId));
         assertTrue(reg.checkDelegateForToken(delegate1, vault, contract_, tokenId));
     }
+
+    function testRevokeSelf(address vault, address delegate0, address delegate1, address contract_, uint256 tokenId) public {
+        vm.assume(vault != delegate0);
+        vm.assume(delegate0 != delegate1);
+        vm.startPrank(vault);
+        reg.delegateForAll(delegate0, true);
+        reg.delegateForContract(delegate0, contract_, true);
+        reg.delegateForToken(delegate0, contract_, tokenId, true);
+        reg.delegateForAll(delegate1, true);
+        reg.delegateForContract(delegate1, contract_, true);
+        reg.delegateForToken(delegate1, contract_, tokenId, true);
+        
+        // delegate 0 revoke self from being a delegate for vault
+        changePrank(delegate0);
+        reg.revokeSelf(vault);
+        vm.stopPrank();
+        // Read
+        address[] memory vaultDelegatesForAll = reg.getDelegationsForAll(vault);
+        assertEq(vaultDelegatesForAll.length, 1);
+        assertEq(vaultDelegatesForAll[0], delegate1);
+        address[] memory vaultDelegatesForContract = reg.getDelegationsForContract(vault, contract_);
+        assertEq(vaultDelegatesForContract.length, 1);
+        assertEq(vaultDelegatesForContract[0], delegate1);
+        address[] memory vaultDelegatesForToken = reg.getDelegationsForToken(vault, contract_, tokenId);
+        assertEq(vaultDelegatesForToken.length, 1);
+        assertEq(vaultDelegatesForToken[0], delegate1);
+
+        assertFalse(reg.checkDelegateForAll(delegate0, vault));
+        assertTrue(reg.checkDelegateForAll(delegate1, vault));
+        assertFalse(reg.checkDelegateForContract(delegate0, vault, contract_));
+        assertTrue(reg.checkDelegateForContract(delegate1, vault, contract_));
+        assertFalse(reg.checkDelegateForToken(delegate0, vault, contract_, tokenId));
+        assertTrue(reg.checkDelegateForToken(delegate1, vault, contract_, tokenId));
+    }
 }

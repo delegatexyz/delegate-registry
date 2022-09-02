@@ -1,10 +1,10 @@
-# nft-delegation
+# token-delegation
 
 <img src="vault.png" width="300" />
 
 ## Overview
 
-Welcome! If you're a programmer, view [the specific registry code here](src/DelegationRegistry.sol). If you want to discuss specific open questions, click on the "Issues" tab to leave a comment. If you're interested in integrating this standard into your NFT project or marketplace, we're in the process of creating example templates - or reach out directly via a [Twitter DM](https://twitter.com/0xfoobar).
+Welcome! If you're a programmer, view [the specific registry code here](src/DelegationRegistry.sol). If you want to discuss specific open questions, click on the "Issues" tab to leave a comment. If you're interested in integrating this standard into your token project or marketplace, we're in the process of creating example templates - or reach out directly via a [Twitter DM](https://twitter.com/0xfoobar).
 
 We have an exciting group of initial people circling around this standard, including foobar (hi!), punk6529 (open metaverse), loopify (loopiverse), andy8052 (fractional), purplehat (artblocks), emiliano (nftrentals), arran (proof), james (collabland), john (gnosis safe), wwhchung (manifoldxyz) tally labs and many more. The dream is to move from a fragmented world where no individual deployment gets serious use to a global registry where users can register their vault once and use it safely for a variety of airdrops & other claims! Please reach out if interested in helping make this a reality on either the technical, social, or integration side.
 
@@ -27,7 +27,7 @@ Why? This is critical for smart contract composability, which cannot produce a p
 Why? Because governance is an attack vector. There should be none of it in a neutral trustless delegation standard. The standard is designed to be as flexible as possible, but upgrades are always possible by deploying a new registry with different functionality.
 
 ### Fully Extensible, User-Defined Roles
-Why? Because we can't anticipate all the future use cases for delegation today. The registry should accomodate novel and distinct roles, via an [EIP-165-esque hashlist](https://eips.ethereum.org/EIPS/eip-165) for specific permissions. We will hardcode NFT-specific methods to ease adoption as well.
+Why? Because we can't anticipate all the future use cases for delegation today. The registry should accomodate novel and distinct roles, via an [EIP-165-esque hashlist](https://eips.ethereum.org/EIPS/eip-165) for specific permissions. We will hardcode token-specific methods to ease adoption as well.
 
 ### Fully Standalone, No External Dependencies
 Why? Because external dependencies are an unnecessary attack vector. 
@@ -44,7 +44,7 @@ Sincere appreciation for everyone who's taken a crack at this problem in the pas
 
 ENS delegation via [EIP-5131](https://eips.ethereum.org/EIPS/eip-5131): ENS is an offshore foundation with a for-profit token that charges rent for every new domain registration. We applaud the widespread adoption it's gotten, however this is a dangerous dependency for what should be a timeless standard. Additionally, delegations for a fresh wallet should be free (only gas) rather than costing additional economic rents.
 
-wenew's approach via [HotWalletProxy](https://github.com/wenewlabs/public/blob/main/HotWalletProxy/HotWalletProxy.sol): This is the right directional approach, with an onchain registry that can be set via either a vault transaction or a vault signature submitted from a hot wallet. However it doesn't provide enough generalizability of drilling down into specific collections or specific NFTs, the `ownerOf()` method naming overlaps with existing standards, and doesn't generalize to other types of delegation such as governance-specific standards. Delegation should be explicit rather than overwriting existing ERC721 method names.
+wenew's approach via [HotWalletProxy](https://github.com/wenewlabs/public/blob/main/HotWalletProxy/HotWalletProxy.sol): This is the right directional approach, with an onchain registry that can be set via either a vault transaction or a vault signature submitted from a hot wallet. However it doesn't provide enough generalizability of drilling down into specific collections or specific tokens, the `ownerOf()` method naming overlaps with existing standards, and doesn't generalize to other types of delegation such as governance-specific standards. Delegation should be explicit rather than overwriting existing ERC721 method names.
 
 ### Open Questions
 Please open an issue or pull request if you have ideas or code for how to address these issues, or thoughts on how important they are compared to a simple interface.
