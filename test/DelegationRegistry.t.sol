@@ -4,6 +4,7 @@ pragma solidity ^0.8.16;
 import { Test } from "forge-std/Test.sol";
 import { console2 } from "forge-std/console2.sol";
 import { DelegationRegistry } from "src/DelegationRegistry.sol";
+import { IDelegationRegistry } from "src/IDelegationRegistry.sol";
 
 contract DelegationRegistryTest is Test {
 
@@ -166,5 +167,83 @@ contract DelegationRegistryTest is Test {
         assertTrue(reg.checkDelegateForContract(delegate1, vault, contract_));
         assertFalse(reg.checkDelegateForToken(delegate0, vault, contract_, tokenId));
         assertTrue(reg.checkDelegateForToken(delegate1, vault, contract_, tokenId));
+    }
+
+    function testDelegateEnumeration(address vault0, address vault1, address delegate0, address delegate1, address contract0, address contract1, uint256 tokenId0, uint256 tokenId1) public {
+        vm.assume(vault0 != vault1);
+        vm.assume(vault0 != delegate0);
+        vm.assume(vault0 != delegate1);
+        vm.assume(vault1 != delegate0);
+        vm.assume(vault1 != delegate1);
+        vm.assume(delegate0 != delegate1);
+        vm.assume(contract0 != contract1);
+        vm.assume(tokenId0 != tokenId1);
+        vm.startPrank(vault0);
+        reg.delegateForAll(delegate0, true);
+        reg.delegateForContract(delegate0, contract0, true);
+        reg.delegateForToken(delegate0, contract1, tokenId1, true);
+        reg.delegateForAll(delegate1, true);
+        reg.delegateForContract(delegate1, contract0, true);
+        reg.delegateForToken(delegate1, contract1, tokenId1, true);
+        vm.stopPrank();
+
+        vm.startPrank(vault1);
+        reg.delegateForAll(delegate0, true);
+        reg.delegateForContract(delegate0, contract1, true);
+        reg.delegateForToken(delegate0, contract0, tokenId0, true);
+
+        // Read
+        IDelegationRegistry.DelegationInfo[] memory info;
+        info = reg.getDelegationsForDelegate(delegate0);
+        assertEq(info.length, 6);
+
+        // Revoke
+        reg.delegateForAll(delegate0, false);
+        info = reg.getDelegationsForDelegate(delegate0);
+        assertEq(info.length, 5);
+        reg.delegateForContract(delegate0, contract1, false);
+        info = reg.getDelegationsForDelegate(delegate0);
+        assertEq(info.length, 4);
+        reg.delegateForToken(delegate0, contract0, tokenId0, false);
+        info = reg.getDelegationsForDelegate(delegate0);
+        assertEq(info.length, 3);
+
+        // Grant again
+        reg.delegateForAll(delegate0, true);
+        reg.delegateForContract(delegate0, contract1, true);
+        reg.delegateForToken(delegate0, contract0, tokenId0, true);
+
+        // vault1 revoke delegate0
+        vm.stopPrank();
+        vm.startPrank(vault0);
+        reg.revokeDelegate(delegate0);
+        vm.stopPrank();
+
+        // Remaining delegations should all be related to vault1
+        info = reg.getDelegationsForDelegate(delegate0);
+        assertEq(info.length, 3);
+        assertEq(info[0].vault, vault1);
+        assertEq(info[1].vault, vault1);
+        assertEq(info[2].vault, vault1);
+        info = reg.getDelegationsForDelegate(delegate1);
+        assertEq(info.length, 3);
+        assertEq(info[0].vault, vault0);
+        assertEq(info[1].vault, vault0);
+        assertEq(info[2].vault, vault0);
+
+        // vault1 revokes all delegates
+        vm.startPrank(vault1);
+        reg.revokeAllDelegates();
+        vm.stopPrank();
+
+        // delegate0 has no more delegations, delegate1 remains
+        info = reg.getDelegationsForDelegate(delegate0);
+        assertEq(info.length, 0);
+        info = reg.getDelegationsForDelegate(delegate1);
+        assertEq(info.length, 3);
+        assertEq(info[0].vault, vault0);
+        assertEq(info[1].vault, vault0);
+        assertEq(info[2].vault, vault0);
+
     }
 }
