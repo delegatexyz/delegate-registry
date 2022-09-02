@@ -26,9 +26,6 @@ Why? This is critical for smart contract composability, which cannot produce a p
 ### Fully Immutable, No Admin Powers
 Why? Because governance is an attack vector. There should be none of it in a neutral trustless delegation standard. The standard is designed to be as flexible as possible, but upgrades are always possible by deploying a new registry with different functionality.
 
-### Fully Extensible, User-Defined Roles
-Why? Because we can't anticipate all the future use cases for delegation today. The registry should accomodate novel and distinct roles, via an [EIP-165-esque hashlist](https://eips.ethereum.org/EIPS/eip-165) for specific permissions. We will hardcode token-specific methods to ease adoption as well.
-
 ### Fully Standalone, No External Dependencies
 Why? Because external dependencies are an unnecessary attack vector. 
 
