@@ -11,6 +11,21 @@ pragma solidity ^0.8.16;
 
 interface IDelegationRegistry {
 
+    /// Delegation type
+    enum DelegationType {
+        NONE,
+        ALL,
+        CONTRACT,
+        TOKEN
+    }
+
+    struct DelegationInfo {
+        DelegationType type_;
+        address vault;
+        address contract_;
+        uint256 tokenId;
+    }
+
     /// @notice Emitted when a user delegates their entire wallet
     event DelegateForAll(address vault, address delegate, bool value);
     
@@ -67,6 +82,13 @@ interface IDelegationRegistry {
     function revokeSelf(address vault) external;
 
     /** -----------  READ ----------- */
+
+    /**
+    * @notice Returns all active delegations for a given delegate
+    * @param delegate The delegate that you would like to retrieve delegations for
+    * @return info Array of DelegationInfo structs
+    */
+    function getDelegationsForDelegate(address delegate) external view returns (DelegationInfo[] memory);
 
     /**
     * @notice Returns an array of wallet-level delegations for a given vault
