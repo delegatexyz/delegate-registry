@@ -53,13 +53,13 @@ contract DelegationRegistryTest is Test {
         reg.delegateForAll(delegate0, true);
         reg.delegateForAll(delegate1, true);
         // Read
-        address[] memory delegates = reg.getDelegationsForAll(vault);
+        address[] memory delegates = reg.getDelegatesForAll(vault);
         assertEq(delegates.length, 2);
         assertEq(delegates[0], delegate0);
         assertEq(delegates[1], delegate1);
         // Remove
         reg.delegateForAll(delegate0, false);
-        delegates = reg.getDelegationsForAll(vault);
+        delegates = reg.getDelegatesForAll(vault);
         assertEq(delegates.length, 1);
     }
 
@@ -81,17 +81,17 @@ contract DelegationRegistryTest is Test {
         reg.revokeAllDelegates();
         vm.stopPrank();
         // Read
-        address[] memory vault0DelegatesForAll = reg.getDelegationsForAll(vault0);
+        address[] memory vault0DelegatesForAll = reg.getDelegatesForAll(vault0);
         assertEq(vault0DelegatesForAll.length, 0);
-        address[] memory vault1DelegatesForAll = reg.getDelegationsForAll(vault1);
+        address[] memory vault1DelegatesForAll = reg.getDelegatesForAll(vault1);
         assertEq(vault1DelegatesForAll.length, 1);
-        address[] memory vault0DelegatesForContract = reg.getDelegationsForContract(vault0, contract_);
+        address[] memory vault0DelegatesForContract = reg.getDelegatesForContract(vault0, contract_);
         assertEq(vault0DelegatesForContract.length, 0);
-        address[] memory vault1DelegatesForContract = reg.getDelegationsForContract(vault1, contract_);
+        address[] memory vault1DelegatesForContract = reg.getDelegatesForContract(vault1, contract_);
         assertEq(vault1DelegatesForContract.length, 1);
-        address[] memory vault0DelegatesForToken = reg.getDelegationsForToken(vault0, contract_, tokenId);
+        address[] memory vault0DelegatesForToken = reg.getDelegatesForToken(vault0, contract_, tokenId);
         assertEq(vault0DelegatesForToken.length, 0);
-        address[] memory vault1DelegatesForToken = reg.getDelegationsForToken(vault1, contract_, tokenId);
+        address[] memory vault1DelegatesForToken = reg.getDelegatesForToken(vault1, contract_, tokenId);
         assertEq(vault1DelegatesForToken.length, 1);
 
         assertFalse(reg.checkDelegateForAll(delegate, vault0));
@@ -117,13 +117,13 @@ contract DelegationRegistryTest is Test {
         reg.revokeDelegate(delegate0);
         vm.stopPrank();
         // Read
-        address[] memory vaultDelegatesForAll = reg.getDelegationsForAll(vault);
+        address[] memory vaultDelegatesForAll = reg.getDelegatesForAll(vault);
         assertEq(vaultDelegatesForAll.length, 1);
         assertEq(vaultDelegatesForAll[0], delegate1);
-        address[] memory vaultDelegatesForContract = reg.getDelegationsForContract(vault, contract_);
+        address[] memory vaultDelegatesForContract = reg.getDelegatesForContract(vault, contract_);
         assertEq(vaultDelegatesForContract.length, 1);
         assertEq(vaultDelegatesForContract[0], delegate1);
-        address[] memory vaultDelegatesForToken = reg.getDelegationsForToken(vault, contract_, tokenId);
+        address[] memory vaultDelegatesForToken = reg.getDelegatesForToken(vault, contract_, tokenId);
         assertEq(vaultDelegatesForToken.length, 1);
         assertEq(vaultDelegatesForToken[0], delegate1);
 
@@ -151,13 +151,13 @@ contract DelegationRegistryTest is Test {
         reg.revokeSelf(vault);
         vm.stopPrank();
         // Read
-        address[] memory vaultDelegatesForAll = reg.getDelegationsForAll(vault);
+        address[] memory vaultDelegatesForAll = reg.getDelegatesForAll(vault);
         assertEq(vaultDelegatesForAll.length, 1);
         assertEq(vaultDelegatesForAll[0], delegate1);
-        address[] memory vaultDelegatesForContract = reg.getDelegationsForContract(vault, contract_);
+        address[] memory vaultDelegatesForContract = reg.getDelegatesForContract(vault, contract_);
         assertEq(vaultDelegatesForContract.length, 1);
         assertEq(vaultDelegatesForContract[0], delegate1);
-        address[] memory vaultDelegatesForToken = reg.getDelegationsForToken(vault, contract_, tokenId);
+        address[] memory vaultDelegatesForToken = reg.getDelegatesForToken(vault, contract_, tokenId);
         assertEq(vaultDelegatesForToken.length, 1);
         assertEq(vaultDelegatesForToken[0], delegate1);
 
@@ -194,18 +194,18 @@ contract DelegationRegistryTest is Test {
 
         // Read
         IDelegationRegistry.DelegationInfo[] memory info;
-        info = reg.getDelegationsForDelegate(delegate0);
+        info = reg.getDelegationsByDelegate(delegate0);
         assertEq(info.length, 6);
 
         // Revoke
         reg.delegateForAll(delegate0, false);
-        info = reg.getDelegationsForDelegate(delegate0);
+        info = reg.getDelegationsByDelegate(delegate0);
         assertEq(info.length, 5);
         reg.delegateForContract(delegate0, contract1, false);
-        info = reg.getDelegationsForDelegate(delegate0);
+        info = reg.getDelegationsByDelegate(delegate0);
         assertEq(info.length, 4);
         reg.delegateForToken(delegate0, contract0, tokenId0, false);
-        info = reg.getDelegationsForDelegate(delegate0);
+        info = reg.getDelegationsByDelegate(delegate0);
         assertEq(info.length, 3);
 
         // Grant again
@@ -220,12 +220,12 @@ contract DelegationRegistryTest is Test {
         vm.stopPrank();
 
         // Remaining delegations should all be related to vault1
-        info = reg.getDelegationsForDelegate(delegate0);
+        info = reg.getDelegationsByDelegate(delegate0);
         assertEq(info.length, 3);
         assertEq(info[0].vault, vault1);
         assertEq(info[1].vault, vault1);
         assertEq(info[2].vault, vault1);
-        info = reg.getDelegationsForDelegate(delegate1);
+        info = reg.getDelegationsByDelegate(delegate1);
         assertEq(info.length, 3);
         assertEq(info[0].vault, vault0);
         assertEq(info[1].vault, vault0);
@@ -237,9 +237,9 @@ contract DelegationRegistryTest is Test {
         vm.stopPrank();
 
         // delegate0 has no more delegations, delegate1 remains
-        info = reg.getDelegationsForDelegate(delegate0);
+        info = reg.getDelegationsByDelegate(delegate0);
         assertEq(info.length, 0);
-        info = reg.getDelegationsForDelegate(delegate1);
+        info = reg.getDelegationsByDelegate(delegate1);
         assertEq(info.length, 3);
         assertEq(info[0].vault, vault0);
         assertEq(info[1].vault, vault0);

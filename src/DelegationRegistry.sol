@@ -222,14 +222,14 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /** 
      * @inheritdoc IDelegationRegistry
      */
-    function getDelegationsForAll(address vault) external view returns (address[] memory) {
+    function getDelegatesForAll(address vault) external view returns (address[] memory) {
         return delegationsForAll[vault][vaultVersion[vault]].values();
     }
 
     /** 
      * @inheritdoc IDelegationRegistry
      */
-    function getDelegationsForContract(address vault, address contract_) external view override returns (address[] memory delegates) {
+    function getDelegatesForContract(address vault, address contract_) external view override returns (address[] memory delegates) {
         EnumerableSet.AddressSet storage potentialDelegates = delegationsForContract[vault][vaultVersion[vault]][contract_];
         uint256 potentialDelegatesLength = potentialDelegates.length();
         uint256 delegateCount = 0;
@@ -254,7 +254,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /** 
      * @inheritdoc IDelegationRegistry
      */
-    function getDelegationsForToken(address vault, address contract_, uint256 tokenId) external view override returns (address[] memory delegates) {
+    function getDelegatesForToken(address vault, address contract_, uint256 tokenId) external view override returns (address[] memory delegates) {
         // Since we cannot easily invalidate delegates on the enumeration (see revokeDelegates)
         // we will need to filter out invalid entries
         EnumerableSet.AddressSet storage potentialDelegates = delegationsForToken[vault][vaultVersion[vault]][contract_][tokenId];
