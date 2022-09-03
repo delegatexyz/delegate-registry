@@ -14,6 +14,16 @@ contract DelegationRegistryTest is Test {
         reg = new DelegationRegistry();
     }
 
+    function getInitHash() public pure returns(bytes32) {
+        bytes memory bytecode = type(DelegationRegistry).creationCode;
+        return keccak256(abi.encodePacked(bytecode));
+    }
+
+    function testInitHash() public {
+        bytes32 initHash = getInitHash();
+        emit log_bytes32(initHash);
+    }
+
     function testApproveAndRevokeForAll(address vault, address delegate) public {
         // Approve
         vm.startPrank(vault);

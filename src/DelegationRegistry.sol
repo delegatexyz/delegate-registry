@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
+import {IDelegationRegistry} from "./IDelegationRegistry.sol";
 import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
-import {IDelegationRegistry} from "./IDelegationRegistry.sol";
 
 /** 
  * @title DelegationRegistry
@@ -145,7 +145,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      * @inheritdoc IDelegationRegistry
      */
     function revokeAllDelegates() external override {
-        vaultVersion[msg.sender]++;
+        ++vaultVersion[msg.sender];
         emit IDelegationRegistry.RevokeAllDelegates(msg.sender);
     }
 
@@ -167,7 +167,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      * @dev Revoke the `delegate` hotwallet from the `vault` coldwallet.
      */
     function _revokeDelegate(address delegate, address vault) internal {
-        delegateVersion[vault][delegate]++;
+        ++delegateVersion[vault][delegate];
         // Remove delegate from enumerations
         delegationsForAll[vault][vaultVersion[vault]].remove(delegate);
         // For delegationsForContract and delegationsForToken, filter in the view functions
@@ -204,8 +204,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
                 }
             }
             if (valid) {
-                info[delegationCount] = delegationInfo_;
-                delegationCount++;
+                info[delegationCount++] = delegationInfo_;
             }
             unchecked {
                 ++i;
@@ -236,8 +235,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         delegates = new address[](potentialDelegatesLength);
         for (uint256 i = 0; i < potentialDelegatesLength;) {
             if (checkDelegateForContract(potentialDelegates.at(i), vault, contract_)) {
-                delegates[delegateCount] = potentialDelegates.at(i);
-                delegateCount++;
+                delegates[delegateCount++] = potentialDelegates.at(i);
             }
             unchecked {
                 ++i;
@@ -263,8 +261,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         delegates = new address[](potentialDelegatesLength);
         for (uint256 i = 0; i < potentialDelegatesLength;) {
             if (checkDelegateForToken(potentialDelegates.at(i), vault, contract_, tokenId)) {
-                delegates[delegateCount] = potentialDelegates.at(i);
-                delegateCount++;
+                delegates[delegateCount++] = potentialDelegates.at(i);
             }
             unchecked {
                 ++i;

@@ -45,7 +45,7 @@ wenew's approach via [HotWalletProxy](https://github.com/wenewlabs/public/blob/m
 
 ## How do I use it?
 
-Check out the [IDelegationRegistry.sol](src/DelegationRegistry.sol) file. This is the interface to interact with, and contains the following methods:
+Check out the [IDelegationRegistry.sol](src/IDelegationRegistry.sol) file. This is the interface to interact with, and contains the following methods:
 
 ```code
 /// Write
@@ -65,4 +65,4 @@ Check out the [IDelegationRegistry.sol](src/DelegationRegistry.sol) file. This i
     function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId) external view returns (bool);
 ```
 
-As an NFT creator, the important ones to pay attention to are `getDelegationsByDelegate()`, which you can use on the website frontend to enumerate which vaults a specific hotwallet is delegated to act on behalf of, and `checkDelegateForAll/Contract/Token()`, which can be called in your smart contract to ensure a hotwallet is acting on behalf of the proper vaults.
+As an NFT creator, the important ones to pay attention to are `getDelegationsByDelegate()`, which you can use on the website frontend to enumerate which vaults a specific hotwallet is delegated to act on behalf of, and `checkDelegateForToken()`, which can be called in your smart contract to ensure a hotwallet is acting on behalf of the proper vaults.
