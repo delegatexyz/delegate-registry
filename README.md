@@ -43,10 +43,26 @@ ENS delegation via [EIP-5131](https://eips.ethereum.org/EIPS/eip-5131): ENS is a
 
 wenew's approach via [HotWalletProxy](https://github.com/wenewlabs/public/blob/main/HotWalletProxy/HotWalletProxy.sol): This is the right directional approach, with an onchain registry that can be set via either a vault transaction or a vault signature submitted from a hot wallet. However it doesn't provide enough generalizability of drilling down into specific collections or specific tokens, the `ownerOf()` method naming overlaps with existing standards, and doesn't generalize to other types of delegation such as governance-specific standards. Delegation should be explicit rather than overwriting existing ERC721 method names.
 
-### Open Questions
-Please open an issue or pull request if you have ideas or code for how to address these issues, or thoughts on how important they are compared to a simple interface.
+## How do I use it?
 
-Can we get onchain enumeration?  
-Can we get multiple delegation?  
-Can we get timelocked delegation?  
-Does the ENS fuse wrapper match what we're doing here?  
+Check out the [IDelegationRegistry.sol](src/DelegationRegistry.sol) file. This is the interface to interact with, and contains the following methods:
+
+```code
+/// Write
+    function delegateForAll(address delegate, bool value) external;
+    function delegateForContract(address delegate, address contract_, bool value) external;
+    function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value) external;
+    function revokeAllDelegates() external;
+    function revokeDelegate(address delegate) external;
+    function revokeSelf(address vault) external;
+/// Read
+    function getDelegationsByDelegate(address delegate) external view returns (DelegationInfo[] memory);
+    function getDelegatesForAll(address vault) external view returns (address[] memory);
+    function getDelegatesForContract(address vault, address contract_) external view returns (address[] memory);
+    function getDelegatesForToken(address vault, address contract_, uint256 tokenId) external view returns (address[] memory);
+    function checkDelegateForAll(address delegate, address vault) external view returns (bool);
+    function checkDelegateForContract(address delegate, address vault, address contract_) external view returns (bool);
+    function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId) external view returns (bool);
+```
+
+As an NFT creator, the important ones to pay attention to are `getDelegationsByDelegate()`, which you can use on the website frontend to enumerate which vaults a specific hotwallet is delegated to act on behalf of, and `checkDelegateForAll/Contract/Token()`, which can be called in your smart contract to ensure a hotwallet is acting on behalf of the proper vaults.
