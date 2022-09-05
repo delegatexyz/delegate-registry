@@ -1,20 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import { Test } from "forge-std/Test.sol";
-import { console2 } from "forge-std/console2.sol";
-import { DelegationRegistry } from "src/DelegationRegistry.sol";
-import { IDelegationRegistry } from "src/IDelegationRegistry.sol";
+import {Test} from "forge-std/Test.sol";
+import {console2} from "forge-std/console2.sol";
+import {DelegationRegistry} from "src/DelegationRegistry.sol";
+import {IDelegationRegistry} from "src/IDelegationRegistry.sol";
 
 contract DelegationRegistryTest is Test {
-
     DelegationRegistry reg;
 
     function setUp() public {
         reg = new DelegationRegistry();
     }
 
-    function getInitHash() public pure returns(bytes32) {
+    function getInitHash() public pure returns (bytes32) {
         bytes memory bytecode = type(DelegationRegistry).creationCode;
         return keccak256(abi.encodePacked(bytecode));
     }
@@ -73,7 +72,9 @@ contract DelegationRegistryTest is Test {
         assertEq(delegates.length, 1);
     }
 
-    function testRevokeDelegates(address vault0, address vault1, address delegate, address contract_, uint256 tokenId) public {
+    function testRevokeDelegates(address vault0, address vault1, address delegate, address contract_, uint256 tokenId)
+        public
+    {
         vm.assume(delegate != vault0);
         vm.assume(vault0 != vault1);
         vm.startPrank(vault0);
@@ -112,7 +113,9 @@ contract DelegationRegistryTest is Test {
         assertTrue(reg.checkDelegateForToken(delegate, vault1, contract_, tokenId));
     }
 
-    function testRevokeDelegate(address vault, address delegate0, address delegate1, address contract_, uint256 tokenId) public {
+    function testRevokeDelegate(address vault, address delegate0, address delegate1, address contract_, uint256 tokenId)
+        public
+    {
         vm.assume(vault != delegate0);
         vm.assume(delegate0 != delegate1);
         vm.startPrank(vault);
@@ -122,7 +125,7 @@ contract DelegationRegistryTest is Test {
         reg.delegateForAll(delegate1, true);
         reg.delegateForContract(delegate1, contract_, true);
         reg.delegateForToken(delegate1, contract_, tokenId, true);
-        
+
         // Revoke delegate0
         reg.revokeDelegate(delegate0);
         vm.stopPrank();
@@ -145,7 +148,9 @@ contract DelegationRegistryTest is Test {
         assertTrue(reg.checkDelegateForToken(delegate1, vault, contract_, tokenId));
     }
 
-    function testRevokeSelf(address vault, address delegate0, address delegate1, address contract_, uint256 tokenId) public {
+    function testRevokeSelf(address vault, address delegate0, address delegate1, address contract_, uint256 tokenId)
+        public
+    {
         vm.assume(vault != delegate0);
         vm.assume(delegate0 != delegate1);
         vm.startPrank(vault);
@@ -155,7 +160,7 @@ contract DelegationRegistryTest is Test {
         reg.delegateForAll(delegate1, true);
         reg.delegateForContract(delegate1, contract_, true);
         reg.delegateForToken(delegate1, contract_, tokenId, true);
-        
+
         // delegate 0 revoke self from being a delegate for vault
         changePrank(delegate0);
         reg.revokeSelf(vault);
@@ -179,7 +184,18 @@ contract DelegationRegistryTest is Test {
         assertTrue(reg.checkDelegateForToken(delegate1, vault, contract_, tokenId));
     }
 
-    function testDelegateEnumeration(address vault0, address vault1, address delegate0, address delegate1, address contract0, address contract1, uint256 tokenId0, uint256 tokenId1) public {
+    function testDelegateEnumeration(
+        address vault0,
+        address vault1,
+        address delegate0,
+        address delegate1,
+        address contract0,
+        address contract1,
+        uint256 tokenId0,
+        uint256 tokenId1
+    )
+        public
+    {
         vm.assume(vault0 != vault1);
         vm.assume(vault0 != delegate0);
         vm.assume(vault0 != delegate1);
@@ -254,6 +270,5 @@ contract DelegationRegistryTest is Test {
         assertEq(info[0].vault, vault0);
         assertEq(info[1].vault, vault0);
         assertEq(info[2].vault, vault0);
-
     }
 }
