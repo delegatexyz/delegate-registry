@@ -16,6 +16,9 @@ jobs:
       - name: Install dependencies
         run: forge install
 
+      - name: Check formatting
+        run: forge fmt --check
+
       - name: Run forge tests
         # env:
         #   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
