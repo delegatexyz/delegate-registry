@@ -3,11 +3,10 @@ pragma solidity ^0.8.16;
 
 /**
  * @title An immutable registry contract to be deployed as a standalone primitive
- * @dev New project launches can read previous cold wallet -> hot wallet delegations 
-        from here and integrate those permissions into their flow
+ * @dev New project launches can read previous cold wallet -> hot wallet delegations
+ * from here and integrate those permissions into their flow
  */
 interface IDelegationRegistry {
-
     /// @notice Delegation type
     enum DelegationType {
         NONE,
@@ -26,7 +25,7 @@ interface IDelegationRegistry {
 
     /// @notice Emitted when a user delegates their entire wallet
     event DelegateForAll(address vault, address delegate, bool value);
-    
+
     /// @notice Emitted when a user delegates a specific contract
     event DelegateForContract(address vault, address delegate, address contract_, bool value);
 
@@ -39,16 +38,18 @@ interface IDelegationRegistry {
     /// @notice Emitted when a user revoes all delegations for a given delegate
     event RevokeDelegate(address vault, address delegate);
 
-    /** -----------  WRITE ----------- */
+    /**
+     * -----------  WRITE -----------
+     */
 
-    /** 
+    /**
      * @notice Allow the delegate to act on your behalf for all contracts
      * @param delegate The hotwallet to act on your behalf
      * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
      */
     function delegateForAll(address delegate, bool value) external;
 
-    /** 
+    /**
      * @notice Allow the delegate to act on your behalf for a specific contract
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address for the contract you're delegating
@@ -56,7 +57,7 @@ interface IDelegationRegistry {
      */
     function delegateForContract(address delegate, address contract_, bool value) external;
 
-    /** 
+    /**
      * @notice Allow the delegate to act on your behalf for a specific token, supports 721 and 1155
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address for the contract you're delegating
@@ -82,7 +83,9 @@ interface IDelegationRegistry {
      */
     function revokeSelf(address vault) external;
 
-    /** -----------  READ ----------- */
+    /**
+     * -----------  READ -----------
+     */
 
     /**
      * @notice Returns all active delegations a given delegate is able to claim on behalf of
@@ -95,7 +98,7 @@ interface IDelegationRegistry {
      * @notice Returns an array of wallet-level delegates for a given vault
      * @param vault The cold wallet who issued the delegation
      * @return addresses Array of wallet-level delegates for a given vault
-    */
+     */
     function getDelegatesForAll(address vault) external view returns (address[] memory);
 
     /**
@@ -113,29 +116,38 @@ interface IDelegationRegistry {
      * @param tokenId The token id for the token you're delegating
      * @return addresses Array of contract-level delegates for a given vault's token
      */
-    function getDelegatesForToken(address vault, address contract_, uint256 tokenId) external view returns (address[] memory);
+    function getDelegatesForToken(address vault, address contract_, uint256 tokenId)
+        external
+        view
+        returns (address[] memory);
 
-    /** 
+    /**
      * @notice Returns true if the address is delegated to act on your behalf for all tokens
      * @param delegate The hotwallet to act on your behalf
      * @param vault The cold wallet who issued the delegation
      */
     function checkDelegateForAll(address delegate, address vault) external view returns (bool);
 
-    /** 
+    /**
      * @notice Returns true if the address is delegated to act on your behalf for a token contract
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address for the contract you're delegating
      * @param vault The cold wallet who issued the delegation
-     */ 
-    function checkDelegateForContract(address delegate, address vault, address contract_) external view returns (bool);
-    
-    /** 
+     */
+    function checkDelegateForContract(address delegate, address vault, address contract_)
+        external
+        view
+        returns (bool);
+
+    /**
      * @notice Returns true if the address is delegated to act on your behalf for an specific token
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address for the contract you're delegating
      * @param tokenId The token id for the token you're delegating
      * @param vault The cold wallet who issued the delegation
      */
-    function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId) external view returns (bool);
+    function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId)
+        external
+        view
+        returns (bool);
 }
