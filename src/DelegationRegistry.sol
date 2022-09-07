@@ -26,6 +26,7 @@ import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC16
 contract DelegationRegistry is IDelegationRegistry, ERC165 {
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableSet for EnumerableSet.Bytes32Set;
+    using EnumerableSet for EnumerableSet.UintSet;
 
     /// @notice The global mapping and single source of truth for delegations
     mapping(bytes32 => bool) internal delegations;
@@ -338,6 +339,20 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
                 mstore(delegates, sub(mload(delegates), decrease))
             }
         }
+    }
+
+    /**
+     * @inheritdoc IDelegationRegistry
+     */
+    function getContractsWithContractDelegations(address vault) external view returns (address[] memory contracts) {
+        revert("not implemented");
+    }
+
+    /**
+     * @inheritdoc IDelegationRegistry
+     */
+    function getTokensWithActiveTokenDelegations(address vault) external view returns (address[] memory contracts, uint256[] memory tokenIds) {
+        revert("not implemented");
     }
 
     /**
