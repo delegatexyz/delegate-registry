@@ -134,7 +134,7 @@ interface IDelegationRegistry {
      * @return contracts Array of all token contracts a vault has active token-level delegations on. Aligned by index
      * with `tokenIds`.
      * @return tokenIds Array of all token ids a vault has active token-level delegations on. Aligned by index with
-     * `addresses`.
+     * `contracts`.
      */
     function getTokensWithTokenDelegations(address vault) external view returns (address[] memory contracts, uint256[] memory tokenIds);
 
