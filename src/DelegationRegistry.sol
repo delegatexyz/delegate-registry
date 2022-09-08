@@ -14,6 +14,7 @@ import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC16
  * @custom:coauthor foobar (0xfoobar)
  * @custom:coauthor wwchung (manifoldxyz)
  * @custom:coauthor purplehat (artblocks)
+ * @custom:coauthor ryley-o (artblocks)
  * @custom:coauthor andy8052 (tessera)
  * @custom:coauthor punk6529 (open metaverse)
  * @custom:coauthor loopify (loopiverse)
