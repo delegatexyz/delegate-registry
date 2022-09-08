@@ -272,7 +272,7 @@ contract DelegationRegistryTest is Test {
         assertEq(info[2].vault, vault0);
     }
 
-    function testContractLevelEnumeration(
+    function testContractLevelEnumerations(
         address vault,
         address delegate0,
         address delegate1,
@@ -294,62 +294,73 @@ contract DelegationRegistryTest is Test {
         reg.delegateForContract(delegate1, contract0, true);
 
         // Read
-        address[] memory contractsWithDelegations;
-        contractsWithDelegations = reg.getContractsWithContractDelegations(vault);
-        assertEq(contractsWithDelegations[0], contract0);
-        assertEq(contractsWithDelegations.length, 1);
+        address[] memory contracts;
+        address[] memory delegates;
+        (contracts, delegates) = reg.getContractLevelDelegations(vault);
+        assertEq(contracts.length, 2);
+        assertEq(contracts[0], contract0);
+        assertEq(contracts[1], contract0);
+        assertEq(delegates.length, contracts.length);
+        assertEq(delegates[0], delegate0);
+        assertEq(delegates[1], delegate1);
 
         // Delegate for another contract
         reg.delegateForContract(delegate0, contract1, true);
 
         // Read
-        contractsWithDelegations = reg.getContractsWithContractDelegations(vault);
-        assertTrue(contractsWithDelegations[0] == contract0 || contractsWithDelegations[0] == contract1);
-        assertTrue(contractsWithDelegations[1] == contract0 || contractsWithDelegations[1] == contract1);
-        assertEq(contractsWithDelegations.length, 2);
+        (contracts, delegates) = reg.getContractLevelDelegations(vault);
+        assertEq(contracts.length, 3);
+        assertEq(contracts[0], contract0);
+        assertEq(contracts[1], contract0);
+        assertEq(contracts[2], contract1);
+        assertEq(delegates.length, contracts.length);
+        assertEq(delegates[0], delegate0);
+        assertEq(delegates[1], delegate1);
+        assertEq(delegates[2], delegate0);
 
-        // Revoke duplicate
+        // Revoke single contract
         reg.delegateForContract(delegate0, contract0, false);
 
         // Read
-        contractsWithDelegations = reg.getContractsWithContractDelegations(vault);
-        assertTrue(contractsWithDelegations[0] == contract0 || contractsWithDelegations[0] == contract1);
-        assertTrue(contractsWithDelegations[1] == contract0 || contractsWithDelegations[1] == contract1);
-        assertTrue(contractsWithDelegations[0] != contractsWithDelegations[1]);
-        assertEq(contractsWithDelegations.length, 2);
-
-        // Revoke non-duplicate
-        reg.delegateForContract(delegate0, contract1, false);
-
-        // Read
-        contractsWithDelegations = reg.getContractsWithContractDelegations(vault);
-        assertEq(contractsWithDelegations[0], contract0);
-        assertEq(contractsWithDelegations.length, 1);
+        (contracts, delegates) = reg.getContractLevelDelegations(vault);
+        assertEq(contracts.length, 2);
+        assertEq(contracts[0], contract1);
+        assertEq(contracts[1], contract0);
+        assertEq(delegates.length, contracts.length);
+        assertEq(delegates[0], delegate0);
+        assertEq(delegates[1], delegate1);
 
         // Revoke Delegate
         reg.revokeDelegate(delegate1);
 
         // Read
-        contractsWithDelegations = reg.getContractsWithContractDelegations(vault);
-        assertEq(contractsWithDelegations.length, 0);
+        (contracts, delegates) = reg.getContractLevelDelegations(vault);
+        assertEq(contracts.length, 1);
+        assertEq(contracts[0], contract1);
+        assertEq(delegates.length, contracts.length);
+        assertEq(delegates[0], delegate0);
 
         // Add back delegate
-        reg.delegateForContract(delegate0, contract0, true);
+        reg.delegateForContract(delegate1, contract1, true);
 
         // Read
-        contractsWithDelegations = reg.getContractsWithContractDelegations(vault);
-        assertEq(contractsWithDelegations[0], contract0);
-        assertEq(contractsWithDelegations.length, 1);
+        (contracts, delegates) = reg.getContractLevelDelegations(vault);
+        assertEq(contracts.length, 2);
+        assertEq(contracts[0], contract1);
+        assertEq(contracts[1], contract1);
+        assertEq(delegates.length, contracts.length);
+        assertEq(delegates[0], delegate0);
+        assertEq(delegates[1], delegate1);
 
         // Revoke all
         reg.revokeAllDelegates();
 
         // Read
-        contractsWithDelegations = reg.getContractsWithContractDelegations(vault);
-        assertEq(contractsWithDelegations.length, 0);
+        (contracts, delegates) = reg.getContractLevelDelegations(vault);
+        assertEq(contracts.length, 0);
     }
 
-    function testTokenLevelEnumeration(
+    function testTokenLevelEnumerations(
         address vault,
         address delegate0,
         address delegate1,
@@ -374,81 +385,93 @@ contract DelegationRegistryTest is Test {
 
         // Read
         address[] memory contracts;
-        uint256[] memory tokens;
-        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
+        uint256[] memory tokenIds;
+        address[] memory delegates;
+        (contracts, tokenIds, delegates) = reg.getTokenLevelDelegations(vault);
+        assertEq(contracts.length, 2);
         assertEq(contracts[0], contract0);
-        assertEq(contracts.length, 1);
-        assertTrue(tokens[0] == tokenId0);
-        assertEq(tokens.length, 1);
+        assertEq(contracts[1], contract0);
+        assertEq(tokenIds.length, contracts.length);
+        assertEq(tokenIds[0], tokenId0);
+        assertEq(tokenIds[1], tokenId0);
+        assertEq(delegates.length, contracts.length);
+        assertEq(delegates[0], delegate0);
+        assertEq(delegates[1], delegate1);
 
         // Delegate for another token
         reg.delegateForToken(delegate0, contract0, tokenId1, true);
 
         // Read
-        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
+        (contracts, tokenIds, delegates) = reg.getTokenLevelDelegations(vault);
+        assertEq(contracts.length, 3);
         assertEq(contracts[0], contract0);
         assertEq(contracts[1], contract0);
-        assertEq(contracts.length, 2);
-        assertTrue(tokens[0] == tokenId0 || tokens[0] == tokenId1);
-        assertTrue(tokens[1] == tokenId0 || tokens[1] == tokenId1);
-        assertTrue(tokens[0] != tokens[1]);
-        assertEq(tokens.length, 2);
+        assertEq(contracts[2], contract0);
+        assertEq(tokenIds.length, contracts.length);
+        assertEq(tokenIds[0], tokenId0);
+        assertEq(tokenIds[1], tokenId0);
+        assertEq(tokenIds[2], tokenId1);
+        assertEq(delegates.length, contracts.length);
+        assertEq(delegates[0], delegate0);
+        assertEq(delegates[1], delegate1);
+        assertEq(delegates[2], delegate0);
 
-        // Revoke duplicate
+        // Revoke token
         reg.delegateForToken(delegate0, contract0, tokenId0, false);
 
         // Read
-        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
+        (contracts, tokenIds, delegates) = reg.getTokenLevelDelegations(vault);
+        assertEq(contracts.length, 2);
         assertEq(contracts[0], contract0);
         assertEq(contracts[1], contract0);
-        assertEq(contracts.length, 2);
-        assertTrue(tokens[0] == tokenId0);
-        assertTrue(tokens[1] == tokenId1);
-        assertEq(tokens.length, 2);
+        assertEq(tokenIds.length, contracts.length);
+        assertEq(tokenIds[0], tokenId1);
+        assertEq(tokenIds[1], tokenId0);
+        assertEq(delegates.length, contracts.length);
+        assertEq(delegates[0], delegate0);
+        assertEq(delegates[1], delegate1);
 
         // Add token on different contract
         reg.delegateForToken(delegate0, contract1, tokenId0, true);
 
         // Read
-        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
+        (contracts, tokenIds, delegates) = reg.getTokenLevelDelegations(vault);
+        assertEq(contracts.length, 3);
         assertEq(contracts[0], contract0);
         assertEq(contracts[1], contract0);
         assertEq(contracts[2], contract1);
-        assertEq(contracts.length, 3);
-        assertTrue(tokens[0] == tokenId0);
-        assertTrue(tokens[1] == tokenId1);
-        assertTrue(tokens[2] == tokenId0);
-        assertEq(tokens.length, 3);
-
-        // Revoke non-duplicate
-        reg.delegateForToken(delegate0, contract0, tokenId1, false);
-
-        // // Read
-        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
-        assertEq(contracts[0], contract0);
-        assertEq(contracts[1], contract1);
-        assertEq(contracts.length, 2);
-        assertTrue(tokens[0] == tokenId0);
-        assertTrue(tokens[1] == tokenId0);
-        assertEq(tokens.length, 2);
+        assertEq(tokenIds.length, contracts.length);
+        assertEq(tokenIds[0], tokenId1);
+        assertEq(tokenIds[1], tokenId0);
+        assertEq(tokenIds[2], tokenId0);
+        assertEq(delegates.length, contracts.length);
+        assertEq(delegates[0], delegate0);
+        assertEq(delegates[1], delegate1);
+        assertEq(delegates[2], delegate0);
 
         // Revoke Delegate
         reg.revokeDelegate(delegate1);
 
         // Read
-        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
-        assertEq(contracts[0], contract1);
-        assertEq(contracts.length, 1);
-        assertTrue(tokens[0] == tokenId0);
-        assertEq(tokens.length, 1);
+        (contracts, tokenIds, delegates) = reg.getTokenLevelDelegations(vault);
+        assertEq(contracts.length, 2);
+        assertEq(contracts[0], contract0);
+        assertEq(contracts[1], contract1);
+        assertEq(tokenIds.length, contracts.length);
+        assertEq(tokenIds[0], tokenId1);
+        assertEq(tokenIds[1], tokenId0);
+        assertEq(delegates.length, contracts.length);
+        assertEq(delegates[0], delegate0);
+        assertEq(delegates[1], delegate0);
 
         // Add back delegate, then revoke all
         reg.delegateForToken(delegate1, contract0, tokenId0, true);
         reg.revokeAllDelegates();
 
         // Read
-        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
+        (contracts, tokenIds, delegates) = reg.getTokenLevelDelegations(vault);
         assertEq(contracts.length, 0);
-        assertEq(tokens.length, 0);
+        assertEq(tokenIds.length, contracts.length);
+        assertEq(delegates.length, contracts.length);
     }
 }
