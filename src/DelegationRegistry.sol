@@ -58,6 +58,18 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /// @dev delegationHash -> DelegateInfo
     mapping(bytes32 => IDelegationRegistry.DelegationInfo) internal delegationInfo;
 
+    /// @notice A secondary mapping used to return onchain enumerability of all contracts w/contract-level delegations
+    /// @dev vault -> vaultVersion -> contracts
+    mapping(address => mapping(uint256 => EnumerableSet.AddressSet)) internal contractsWithContractDelegations;
+
+    /// @notice A secondary mapping used to return onchain enumerability of all contracts w/token-level delegations
+    /// @dev vault -> vaultVersion -> contracts
+    mapping(address => mapping(uint256 => EnumerableSet.AddressSet)) internal contractsWithTokenDelegations;
+
+    /// @notice A secondary mapping used to return onchain enumerability of a contract's tokens w/token-level delegations
+    /// @dev vault -> vaultVersion -> contract -> tokens
+    mapping(address => mapping(uint256 => mapping(address => EnumerableSet.UintSet))) internal tokensWithTokenDelegations;
+
     /**
      * @inheritdoc ERC165
      */
@@ -144,6 +156,12 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
             delegationInfo[delegateHash] =
                 DelegationInfo({vault: vault, type_: type_, contract_: contract_, tokenId: tokenId});
             enumerationSet.add(delegate);
+            if (type_ == IDelegationRegistry.DelegationType.CONTRACT) {
+                contractsWithContractDelegations[vault][vaultVersion[vault]].add(contract_);
+            } else if (type_ == IDelegationRegistry.DelegationType.TOKEN) {
+                contractsWithTokenDelegations[vault][vaultVersion[vault]].add(contract_);
+                tokensWithTokenDelegations[vault][vaultVersion[vault]][contract_].add(tokenId);
+            }
         } else {
             delegationHashes[delegate].remove(delegateHash);
             delete delegationInfo[delegateHash];
@@ -344,15 +362,126 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function getContractsWithContractDelegations(address vault) external view returns (address[] memory contracts) {
-        revert("not implemented");
+    function getContractsWithContractDelegations(address vault)
+        external
+        view
+        returns (address[] memory contracts)
+    {
+        EnumerableSet.AddressSet storage potentialContracts =
+            contractsWithContractDelegations[vault][vaultVersion[vault]];
+        uint256 potentialContractsLength = potentialContracts.length();
+        uint256 contractsCount = 0;
+        contracts = new address[](potentialContractsLength);
+        for (uint256 i = 0; i < potentialContractsLength;) {
+            // if contract has any active delegates, add it to the list
+            if (_anyActiveDelegatesForContract(vault, potentialContracts.at(i))) {
+                contracts[contractsCount++] = potentialContracts.at(i);
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        if (potentialContractsLength > contractsCount) {
+            assembly {
+                let decrease := sub(potentialContractsLength, contractsCount)
+                mstore(contracts, sub(mload(contracts), decrease))
+            }
+        }
+    }
+
+    /**
+     * @dev helper function that returns if any delegates are active for a contract
+     */
+    function _anyActiveDelegatesForContract(address vault, address contract_)
+        internal
+        view
+        returns (bool)
+    {
+        EnumerableSet.AddressSet storage potentialDelegates =
+            delegationsForContract[vault][vaultVersion[vault]][contract_];
+        uint256 potentialDelegatesLength = potentialDelegates.length();
+        for (uint256 i = 0; i < potentialDelegatesLength;) {
+            if (checkDelegateForContract(potentialDelegates.at(i), vault, contract_)) {
+                return true;
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        return false;
     }
 
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function getTokensWithActiveTokenDelegations(address vault) external view returns (address[] memory contracts, uint256[] memory tokenIds) {
-        revert("not implemented");
+    function getTokensWithTokenDelegations(address vault)
+        external
+        view
+        returns (address[] memory contracts, uint256[] memory tokenIds)
+    {
+        EnumerableSet.AddressSet storage potentialContracts =
+            contractsWithTokenDelegations[vault][vaultVersion[vault]];
+        // build potential delegates length by iterating over potential contracts
+        uint256 potentialContractsLength = potentialContracts.length();
+        uint256 potentialTokensLength = 0;
+        for (uint256 i = 0; i < potentialContractsLength;) {
+            potentialTokensLength +=
+                tokensWithTokenDelegations[vault][vaultVersion[vault]][potentialContracts.at(i)].length();
+            unchecked {
+                ++i;
+            }
+        }
+        // build the list of active contracts and tokenIds
+        uint256 tokensCount = 0;
+        contracts = new address[](potentialTokensLength);
+        tokenIds = new uint256[](potentialTokensLength);
+        for (uint256 i = 0; i < potentialContractsLength;) {
+            address contract_ = potentialContracts.at(i);
+            EnumerableSet.UintSet storage potentialTokens = 
+                tokensWithTokenDelegations[vault][vaultVersion[vault]][contract_];
+            for (uint256 j = 0; j < potentialTokens.length();) {
+                uint256 token = potentialTokens.at(j);
+                if (_anyActiveDelegatesForToken(vault, contract_, token)) {
+                    contracts[tokensCount] = contract_;
+                    tokenIds[tokensCount++] = token;
+                }
+                unchecked {
+                    ++j;
+                }
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        if (potentialTokensLength > tokensCount) {
+            assembly {
+                let decrease := sub(potentialTokensLength, tokensCount)
+                mstore(contracts, sub(mload(contracts), decrease))
+                mstore(tokenIds, sub(mload(tokenIds), decrease))
+            }
+        }
+    }
+
+    /**
+     * @dev helper function that returns if any delegates are active for a token
+     */
+    function _anyActiveDelegatesForToken(address vault, address contract_, uint256 tokenId)
+        internal
+        view
+        returns (bool)
+    {
+        EnumerableSet.AddressSet storage potentialDelegates =
+            delegationsForToken[vault][vaultVersion[vault]][contract_][tokenId];
+        uint256 potentialDelegatesLength = potentialDelegates.length();
+        for (uint256 i = 0; i < potentialDelegatesLength;) {
+            if (checkDelegateForToken(potentialDelegates.at(i), vault, contract_, tokenId)) {
+                return true;
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        return false;
     }
 
     /**
