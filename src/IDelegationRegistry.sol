@@ -120,7 +120,7 @@ interface IDelegationRegistry {
         external
         view
         returns (address[] memory);
-    
+
     /**
      * @notice Returns an array of all contracts a vault has active contract-level delegations on
      * @param vault The cold wallet who issued the delegation
@@ -136,7 +136,10 @@ interface IDelegationRegistry {
      * @return tokenIds Array of all token ids a vault has active token-level delegations on. Aligned by index with
      * `contracts`.
      */
-    function getTokensWithTokenDelegations(address vault) external view returns (address[] memory contracts, uint256[] memory tokenIds);
+    function getTokensWithTokenDelegations(address vault)
+        external
+        view
+        returns (address[] memory contracts, uint256[] memory tokenIds);
 
     /**
      * @notice Returns true if the address is delegated to act on your behalf for all tokens

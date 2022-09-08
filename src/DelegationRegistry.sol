@@ -69,7 +69,8 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
 
     /// @notice A secondary mapping used to return onchain enumerability of a contract's tokens w/token-level delegations
     /// @dev vault -> vaultVersion -> contract -> tokens
-    mapping(address => mapping(uint256 => mapping(address => EnumerableSet.UintSet))) internal tokensWithTokenDelegations;
+    mapping(address => mapping(uint256 => mapping(address => EnumerableSet.UintSet))) internal
+        tokensWithTokenDelegations;
 
     /**
      * @inheritdoc ERC165
@@ -363,11 +364,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function getContractsWithContractDelegations(address vault)
-        external
-        view
-        returns (address[] memory contracts)
-    {
+    function getContractsWithContractDelegations(address vault) external view returns (address[] memory contracts) {
         EnumerableSet.AddressSet storage potentialContracts =
             contractsWithContractDelegations[vault][vaultVersion[vault]];
         uint256 potentialContractsLength = potentialContracts.length();
@@ -393,11 +390,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @dev helper function that returns if any delegates are active for a contract
      */
-    function _anyActiveDelegatesForContract(address vault, address contract_)
-        internal
-        view
-        returns (bool)
-    {
+    function _anyActiveDelegatesForContract(address vault, address contract_) internal view returns (bool) {
         EnumerableSet.AddressSet storage potentialDelegates =
             delegationsForContract[vault][vaultVersion[vault]][contract_];
         uint256 potentialDelegatesLength = potentialDelegates.length();
@@ -420,8 +413,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         view
         returns (address[] memory contracts, uint256[] memory tokenIds)
     {
-        EnumerableSet.AddressSet storage potentialContracts =
-            contractsWithTokenDelegations[vault][vaultVersion[vault]];
+        EnumerableSet.AddressSet storage potentialContracts = contractsWithTokenDelegations[vault][vaultVersion[vault]];
         // build potential delegates length by iterating over potential contracts
         uint256 potentialContractsLength = potentialContracts.length();
         uint256 potentialTokensLength = 0;
@@ -438,7 +430,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         tokenIds = new uint256[](potentialTokensLength);
         for (uint256 i = 0; i < potentialContractsLength;) {
             address contract_ = potentialContracts.at(i);
-            EnumerableSet.UintSet storage potentialTokens = 
+            EnumerableSet.UintSet storage potentialTokens =
                 tokensWithTokenDelegations[vault][vaultVersion[vault]][contract_];
             for (uint256 j = 0; j < potentialTokens.length();) {
                 uint256 token = potentialTokens.at(j);

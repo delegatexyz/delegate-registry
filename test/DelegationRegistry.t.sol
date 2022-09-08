@@ -375,7 +375,7 @@ contract DelegationRegistryTest is Test {
         // Read
         address[] memory contracts;
         uint256[] memory tokens;
-        (contracts, tokens)  = reg.getTokensWithTokenDelegations(vault);
+        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
         assertEq(contracts[0], contract0);
         assertEq(contracts.length, 1);
         assertTrue(tokens[0] == tokenId0);
@@ -385,7 +385,7 @@ contract DelegationRegistryTest is Test {
         reg.delegateForToken(delegate0, contract0, tokenId1, true);
 
         // Read
-        (contracts, tokens)  = reg.getTokensWithTokenDelegations(vault);
+        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
         assertEq(contracts[0], contract0);
         assertEq(contracts[1], contract0);
         assertEq(contracts.length, 2);
@@ -398,7 +398,7 @@ contract DelegationRegistryTest is Test {
         reg.delegateForToken(delegate0, contract0, tokenId0, false);
 
         // Read
-        (contracts, tokens)  = reg.getTokensWithTokenDelegations(vault);
+        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
         assertEq(contracts[0], contract0);
         assertEq(contracts[1], contract0);
         assertEq(contracts.length, 2);
@@ -410,7 +410,7 @@ contract DelegationRegistryTest is Test {
         reg.delegateForToken(delegate0, contract1, tokenId0, true);
 
         // Read
-        (contracts, tokens)  = reg.getTokensWithTokenDelegations(vault);
+        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
         assertEq(contracts[0], contract0);
         assertEq(contracts[1], contract0);
         assertEq(contracts[2], contract1);
@@ -424,7 +424,7 @@ contract DelegationRegistryTest is Test {
         reg.delegateForToken(delegate0, contract0, tokenId1, false);
 
         // // Read
-        (contracts, tokens)  = reg.getTokensWithTokenDelegations(vault);
+        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
         assertEq(contracts[0], contract0);
         assertEq(contracts[1], contract1);
         assertEq(contracts.length, 2);
@@ -436,7 +436,7 @@ contract DelegationRegistryTest is Test {
         reg.revokeDelegate(delegate1);
 
         // Read
-        (contracts, tokens)  = reg.getTokensWithTokenDelegations(vault);
+        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
         assertEq(contracts[0], contract1);
         assertEq(contracts.length, 1);
         assertTrue(tokens[0] == tokenId0);
@@ -447,7 +447,7 @@ contract DelegationRegistryTest is Test {
         reg.revokeAllDelegates();
 
         // Read
-        (contracts, tokens)  = reg.getTokensWithTokenDelegations(vault);
+        (contracts, tokens) = reg.getTokensWithTokenDelegations(vault);
         assertEq(contracts.length, 0);
         assertEq(tokens.length, 0);
     }
