@@ -19,6 +19,7 @@ interface IDelegationRegistry {
     struct DelegationInfo {
         DelegationType type_;
         address vault;
+        address delegate;
         address contract_;
         uint256 tokenId;
     }
@@ -120,6 +121,32 @@ interface IDelegationRegistry {
         external
         view
         returns (address[] memory);
+
+    /**
+     * @notice Returns arrays defining all contract-level delegations
+     * @param vault The cold wallet who issued the delegation
+     * @return contracts Array of all contracts a vault has active contract-level delegations on. Aligned by index with
+     * `delegates`.
+     * @return delegates Array of delegates associated with `contracts`, aligned by index.
+     */
+    function getContractLevelDelegations(address vault)
+        external
+        view
+        returns (address[] memory contracts, address[] memory delegates);
+
+    /**
+     * @notice Returns an array defining all token-level delegations
+     * @param vault The cold wallet who issued the delegation
+     * @return contracts Array of all token contracts a vault has active token-level delegations on. Aligned by index
+     * with `tokenIds`.
+     * @return tokenIds Array of all token ids a vault has active token-level delegations on. Aligned by index with
+     * `contracts`.
+     * @return delegates Array of delegates associated with `contracts` and `tokenIds`, aligned by index.
+     */
+    function getTokenLevelDelegations(address vault)
+        external
+        view
+        returns (address[] memory contracts, uint256[] memory tokenIds, address[] memory delegates);
 
     /**
      * @notice Returns true if the address is delegated to act on your behalf for all tokens
