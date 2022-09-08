@@ -27,7 +27,6 @@ import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC16
 contract DelegationRegistry is IDelegationRegistry, ERC165 {
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableSet for EnumerableSet.Bytes32Set;
-    using EnumerableSet for EnumerableSet.UintSet;
 
     /// @notice The global mapping and single source of truth for delegations
     /// @dev vault -> vaultVersion -> delegationHash
