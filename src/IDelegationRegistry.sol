@@ -59,7 +59,7 @@ interface IDelegationRegistry {
     function delegateForContract(address delegate, address contract_, bool value) external;
 
     /**
-     * @notice Allow the delegate to act on your behalf for a specific token, supports 721 and 1155
+     * @notice Allow the delegate to act on your behalf for a specific token
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address for the contract you're delegating
      * @param tokenId The token id for the token you're delegating
@@ -149,14 +149,14 @@ interface IDelegationRegistry {
         returns (address[] memory contracts, uint256[] memory tokenIds, address[] memory delegates);
 
     /**
-     * @notice Returns true if the address is delegated to act on your behalf for all tokens
+     * @notice Returns true if the address is delegated to act on the entire vault
      * @param delegate The hotwallet to act on your behalf
      * @param vault The cold wallet who issued the delegation
      */
     function checkDelegateForAll(address delegate, address vault) external view returns (bool);
 
     /**
-     * @notice Returns true if the address is delegated to act on your behalf for a token contract
+     * @notice Returns true if the address is delegated to act on your behalf for a token contract or an entire vault
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address for the contract you're delegating
      * @param vault The cold wallet who issued the delegation
@@ -167,7 +167,7 @@ interface IDelegationRegistry {
         returns (bool);
 
     /**
-     * @notice Returns true if the address is delegated to act on your behalf for an specific token
+     * @notice Returns true if the address is delegated to act on your behalf for a specific token, the token's contract or an entire vault
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address for the contract you're delegating
      * @param tokenId The token id for the token you're delegating
