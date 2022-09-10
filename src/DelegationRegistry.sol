@@ -380,7 +380,9 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
                 // check delegate version by validating the hash
                 if (
                     delegationHash
-                        == _computeTokenDelegationHash(vault, delegationInfo_.delegate, delegationInfo_.contract_, delegationInfo_.tokenId)
+                        == _computeTokenDelegationHash(
+                            vault, delegationInfo_.delegate, delegationInfo_.contract_, delegationInfo_.tokenId
+                        )
                 ) {
                     tokenDelegations[delegationCount++] = IDelegationRegistry.TokenDelegation({
                         contract_: delegationInfo_.contract_,
@@ -421,7 +423,10 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     {
         bytes32 delegateHash =
             keccak256(abi.encode(delegate, vault, contract_, vaultVersion[vault], delegateVersion[vault][delegate]));
-        return delegations[vault][vaultVersion[vault]].contains(delegateHash) ? true : checkDelegateForAll(delegate, vault);
+        return
+            delegations[vault][vaultVersion[vault]].contains(delegateHash)
+            ? true
+            : checkDelegateForAll(delegate, vault);
     }
 
     /**
