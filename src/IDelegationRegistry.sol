@@ -24,6 +24,19 @@ interface IDelegationRegistry {
         uint256 tokenId;
     }
 
+    /// @notice Info about a single contract-level delegation
+    struct ContractDelegation {
+        address contract_;
+        address delegate;
+    }
+
+    /// @notice Info about a single token-level delegation
+    struct TokenDelegation {
+        address contract_;
+        uint256 tokenId;
+        address delegate;
+    }
+
     /// @notice Emitted when a user delegates their entire wallet
     event DelegateForAll(address vault, address delegate, bool value);
 
@@ -123,30 +136,21 @@ interface IDelegationRegistry {
         returns (address[] memory);
 
     /**
-     * @notice Returns arrays defining all contract-level delegations
-     * @param vault The cold wallet who issued the delegation
-     * @return contracts Array of all contracts a vault has active contract-level delegations on. Aligned by index with
-     * `delegates`.
-     * @return delegates Array of delegates associated with `contracts`, aligned by index.
+     * @notice Returns all contract-level delegations for a given vault
+     * @param vault The cold wallet who issued the delegations
+     * @return delegations Array of ContractDelegation structs
      */
     function getContractLevelDelegations(address vault)
         external
         view
-        returns (address[] memory contracts, address[] memory delegates);
+        returns (ContractDelegation[] memory delegations);
 
     /**
-     * @notice Returns an array defining all token-level delegations
-     * @param vault The cold wallet who issued the delegation
-     * @return contracts Array of all token contracts a vault has active token-level delegations on. Aligned by index
-     * with `tokenIds`.
-     * @return tokenIds Array of all token ids a vault has active token-level delegations on. Aligned by index with
-     * `contracts`.
-     * @return delegates Array of delegates associated with `contracts` and `tokenIds`, aligned by index.
+     * @notice Returns all token-level delegations for a given vault
+     * @param vault The cold wallet who issued the delegations
+     * @return delegations Array of TokenDelegation structs
      */
-    function getTokenLevelDelegations(address vault)
-        external
-        view
-        returns (address[] memory contracts, uint256[] memory tokenIds, address[] memory delegates);
+    function getTokenLevelDelegations(address vault) external view returns (TokenDelegation[] memory delegations);
 
     /**
      * @notice Returns true if the address is delegated to act on the entire vault
