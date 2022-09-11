@@ -2,6 +2,13 @@
 
 <img src="vault.png" width="300" />
 
+## Beta Deployment
+
+|Chain|Address|
+|---|---|
+|Mainnet|[0x00000000b1BBFe1BF5C5934c4bb9c30FEF15E57A](https://etherscan.io/address/0x00000000b1bbfe1bf5c5934c4bb9c30fef15e57a)
+|Goerli|[0x00000000b1BBFe1BF5C5934c4bb9c30FEF15E57A](https://goerli.etherscan.io/address/0x00000000b1bbfe1bf5c5934c4bb9c30fef15e57a)
+
 ## Overview
 
 Welcome! If you're a programmer, view [the specific registry code here](src/DelegationRegistry.sol). If you want to discuss specific open questions, click on the "Issues" tab to leave a comment. If you're interested in integrating this standard into your token project or marketplace, we're in the process of creating example templates - or reach out directly via a [Twitter DM](https://twitter.com/0xfoobar).
