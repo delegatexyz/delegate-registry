@@ -16,6 +16,9 @@ Welcome! If you're a programmer, view [the specific registry code here](src/Dele
 
 We have an exciting group of initial people circling around this standard, including foobar (hi!), punk6529 (open metaverse), loopify (loopiverse), andy8052 (fractional), purplehat (artblocks), emiliano (nftrentals), arran (proof), james (collabland), john (gnosis safe), wwhchung (manifoldxyz) tally labs and many more. The dream is to move from a fragmented world where no individual deployment gets serious use to a global registry where users can register their vault once and use it safely for a variety of airdrops & other claims! Please reach out if interested in helping make this a reality on either the technical, social, or integration side.
 
+## Standardization
+
+In the interest of broader visibility and adoption around this registry, we've started the process for considering this effort for an EIP (Ethereum Improvement Proposal), which can be found here: https://eips.ethereum.org/EIPS/eip-5639
 
 ## Why delegation?
 
