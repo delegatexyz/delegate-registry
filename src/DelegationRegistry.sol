@@ -101,9 +101,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         address vault,
         address contract_,
         uint256 tokenId
-    )
-        internal
-    {
+    ) internal {
         if (value) {
             delegations[vault][vaultVersion[vault]].add(delegateHash);
             delegationHashes[delegate].add(delegateHash);
@@ -271,11 +269,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         IDelegationRegistry.DelegationType delegationType,
         address contract_,
         uint256 tokenId
-    )
-        internal
-        view
-        returns (address[] memory delegates)
-    {
+    ) internal view returns (address[] memory delegates) {
         EnumerableSet.Bytes32Set storage delegationHashes_ = delegations[vault][vaultVersion[vault]];
         uint256 potentialDelegatesLength = delegationHashes_.length();
         uint256 delegatesCount = 0;
@@ -423,8 +417,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     {
         bytes32 delegateHash =
             keccak256(abi.encode(delegate, vault, contract_, vaultVersion[vault], delegateVersion[vault][delegate]));
-        return
-            delegations[vault][vaultVersion[vault]].contains(delegateHash)
+        return delegations[vault][vaultVersion[vault]].contains(delegateHash)
             ? true
             : checkDelegateForAll(delegate, vault);
     }
@@ -441,8 +434,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         bytes32 delegateHash = keccak256(
             abi.encode(delegate, vault, contract_, tokenId, vaultVersion[vault], delegateVersion[vault][delegate])
         );
-        return
-            delegations[vault][vaultVersion[vault]].contains(delegateHash)
+        return delegations[vault][vaultVersion[vault]].contains(delegateHash)
             ? true
             : checkDelegateForContract(delegate, vault, contract_);
     }

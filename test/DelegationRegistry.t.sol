@@ -193,9 +193,7 @@ contract DelegationRegistryTest is Test {
         address contract1,
         uint256 tokenId0,
         uint256 tokenId1
-    )
-        public
-    {
+    ) public {
         vm.assume(vault0 != vault1);
         vm.assume(vault0 != delegate0);
         vm.assume(vault0 != delegate1);
@@ -279,9 +277,7 @@ contract DelegationRegistryTest is Test {
         address contract0,
         address contract1,
         uint256 tokenId
-    )
-        public
-    {
+    ) public {
         vm.assume(vault != delegate0);
         vm.assume(vault != delegate1);
         vm.assume(delegate0 != delegate1);
@@ -362,9 +358,7 @@ contract DelegationRegistryTest is Test {
         address contract1,
         uint256 tokenId0,
         uint256 tokenId1
-    )
-        public
-    {
+    ) public {
         vm.assume(vault != delegate0);
         vm.assume(vault != delegate1);
         vm.assume(delegate0 != delegate1);
