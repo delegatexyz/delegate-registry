@@ -1,14 +1,16 @@
-# token-delegation
+# delegation-registry
 
 <img src="vault.png" width="300" />
 
-## Beta Deployment
+## Finalized Deployment
 
 |Chain|Address|
 |---|---|
 |Mainnet|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Goerli|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://goerli.etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Polygon|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://polygonscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
+
+If you'd like to get the DelegationRegistry on another EVM chain, anyone in the community can deploy to the same address! Simply run the script in [Deploy.s.sol](script/Deploy.s.sol) with the specified seed. The CREATE2 factory must be deployed at `0x0000000000FFe8B47B3e2130213B802212439497`, but this factory exists on 19 separate chains so shouldn't be an issue. If you've run a community deployment, open a PR adding the link to the above table.
 
 ## Overview
 
@@ -59,21 +61,21 @@ wenew's approach via [HotWalletProxy](https://github.com/wenewlabs/public/blob/m
 Check out the [IDelegationRegistry.sol](src/IDelegationRegistry.sol) file. This is the interface to interact with, and contains the following methods:
 
 ```code
-/// Write
-    function delegateForAll(address delegate, bool value) external;
-    function delegateForContract(address delegate, address contract_, bool value) external;
-    function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value) external;
-    function revokeAllDelegates() external;
-    function revokeDelegate(address delegate) external;
-    function revokeSelf(address vault) external;
-/// Read
-    function getDelegationsByDelegate(address delegate) external view returns (DelegationInfo[] memory);
-    function getDelegatesForAll(address vault) external view returns (address[] memory);
-    function getDelegatesForContract(address vault, address contract_) external view returns (address[] memory);
-    function getDelegatesForToken(address vault, address contract_, uint256 tokenId) external view returns (address[] memory);
-    function checkDelegateForAll(address delegate, address vault) external view returns (bool);
-    function checkDelegateForContract(address delegate, address vault, address contract_) external view returns (bool);
-    function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId) external view returns (bool);
+/// WRITE ///
+function delegateForAll(address delegate, bool value) external;
+function delegateForContract(address delegate, address contract_, bool value) external;
+function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value) external;
+function revokeAllDelegates() external;
+function revokeDelegate(address delegate) external;
+function revokeSelf(address vault) external;
+/// READ ///
+function getDelegationsByDelegate(address delegate) external view returns (DelegationInfo[] memory);
+function getDelegatesForAll(address vault) external view returns (address[] memory);
+function getDelegatesForContract(address vault, address contract_) external view returns (address[] memory);
+function getDelegatesForToken(address vault, address contract_, uint256 tokenId) external view returns (address[] memory);
+function checkDelegateForAll(address delegate, address vault) external view returns (bool);
+function checkDelegateForContract(address delegate, address vault, address contract_) external view returns (bool);
+function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId) external view returns (bool);
 ```
 
 As an NFT creator, the important ones to pay attention to are `getDelegationsByDelegate()`, which you can use on the website frontend to enumerate which vaults a specific hotwallet is delegated to act on behalf of, and `checkDelegateForToken()`, which can be called in your smart contract to ensure a hotwallet is acting on behalf of the proper vaults.
