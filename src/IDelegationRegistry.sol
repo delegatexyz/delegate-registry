@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: CC0-1.0
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.17;
 
 /**
  * @title An immutable registry contract to be deployed as a standalone primitive
- * @dev New project launches can read previous cold wallet -> hot wallet delegations
+ * @dev See EIP-5639, new project launches can read previous cold wallet -> hot wallet delegations
  * from here and integrate those permissions into their flow
  */
 interface IDelegationRegistry {

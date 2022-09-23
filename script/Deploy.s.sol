@@ -20,13 +20,14 @@ interface ImmutableCreate2Factory {
 contract Deploy is Script {
     ImmutableCreate2Factory immutable factory = ImmutableCreate2Factory(0x0000000000FFe8B47B3e2130213B802212439497);
     bytes initCode = type(DelegationRegistry).creationCode;
-    bytes32 salt = 0x000000000000000000000000000000000000000033fb01ce30bf08030c000000;
+    bytes32 salt = 0x00000000000000000000000000000000000000008b99e5a778edb02572010000;
 
     function run() external {
         vm.startBroadcast();
 
         address registryAddress = factory.safeCreate2(salt, initCode);
         DelegationRegistry registry = DelegationRegistry(registryAddress);
+        console2.log(address(registry));
 
         vm.stopBroadcast();
     }

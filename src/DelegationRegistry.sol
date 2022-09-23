@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: CC0-1.0
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.17;
 
 import {IDelegationRegistry} from "./IDelegationRegistry.sol";
 import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
@@ -7,9 +7,9 @@ import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC16
 
 /**
  * @title DelegationRegistry
- * @custom:version 0.2
+ * @custom:version 1.0
  * @notice An immutable registry contract to be deployed as a standalone primitive.
- * New project launches can read previous cold wallet -> hot wallet delegations
+ * @dev See EIP-5639, new project launches can read previous cold wallet -> hot wallet delegations
  * from here and integrate those permissions into their flow.
  * @custom:coauthor foobar (0xfoobar)
  * @custom:coauthor wwchung (manifoldxyz)
