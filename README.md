@@ -4,13 +4,26 @@
 
 ## Finalized Deployment
 
+**Mainnets**
+
 |Chain|Address|
 |---|---|
 |Ethereum|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Polygon|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://polygonscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
+|Optimism|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://optimistic.etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Celo|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://explorer.celo.org/mainnet/address/0x00000000000076A84feF008CDAbe6409d2FE638B)|
+|Avalanche|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://snowtrace.io/address/0x00000000000076A84feF008CDAbe6409d2FE638B)|
+
+**Testnets**
+
+|Chain|Address|
+|---|---|
 |Goerli|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://goerli.etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Mumbai|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://mumbai.polygonscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
+|Optimism (Goerli)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://goerli-optimism.etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
+|Alfajores|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://alfajores-forno.celo-testnet.org/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
+|Avalanche (Fuji)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://testnet.snowtrace.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
+
 
 If you'd like to get the DelegationRegistry on another EVM chain, anyone in the community can deploy to the same address! Simply run the script in [Deploy.s.sol](script/Deploy.s.sol) with the specified salt. The CREATE2 factory must be deployed at `0x0000000000FFe8B47B3e2130213B802212439497`, but this factory exists on 19 separate chains so shouldn't be an issue. If you've run a community deployment, open a PR adding the link to the above table.
 
