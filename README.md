@@ -4,9 +4,7 @@
 
 ## Finalized Deployment
 
-**Mainnets**
-
-|Chain|Address|
+|Mainnet Chain|Address|
 |---|---|
 |Ethereum|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Polygon|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://polygonscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
@@ -14,9 +12,7 @@
 |Celo|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://explorer.celo.org/mainnet/address/0x00000000000076A84feF008CDAbe6409d2FE638B)|
 |Avalanche|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://snowtrace.io/address/0x00000000000076A84feF008CDAbe6409d2FE638B)|
 
-**Testnets**
-
-|Chain|Address|
+|Testnet Chain|Address|
 |---|---|
 |Goerli|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://goerli.etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Mumbai|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://mumbai.polygonscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
