@@ -38,19 +38,19 @@ interface IDelegationRegistry {
     }
 
     /// @notice Emitted when a user delegates their entire wallet
-    event DelegateForAll(address vault, address delegate, bool value);
+    event DelegateForAll(address indexed vault, address indexed delegate, bool value);
 
     /// @notice Emitted when a user delegates a specific contract
-    event DelegateForContract(address vault, address delegate, address contract_, bool value);
+    event DelegateForContract(address indexed vault, address indexed delegate, address indexed contract_, bool value);
 
     /// @notice Emitted when a user delegates a specific token
-    event DelegateForToken(address vault, address delegate, address contract_, uint256 tokenId, bool value);
+    event DelegateForToken(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bool value);
 
     /// @notice Emitted when a user revokes all delegations
-    event RevokeAllDelegates(address vault);
+    event RevokeAllDelegates(address indexed vault);
 
     /// @notice Emitted when a user revoes all delegations for a given delegate
-    event RevokeDelegate(address vault, address delegate);
+    event RevokeDelegate(address indexed vault, address indexed delegate);
 
     /**
      * -----------  WRITE -----------
