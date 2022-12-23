@@ -7,7 +7,7 @@ import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC16
 
 /**
  * @title DelegationRegistry
- * @custom:version 1.0
+ * @custom:version 1.1
  * @notice An immutable registry contract to be deployed as a standalone primitive.
  * @dev See EIP-5639, new project launches can read previous cold wallet -> hot wallet delegations
  * from here and integrate those permissions into their flow.
