@@ -11,7 +11,7 @@
 |Optimism|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://optimistic.etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Celo|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://explorer.celo.org/mainnet/address/0x00000000000076A84feF008CDAbe6409d2FE638B)|
 |Avalanche|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://snowtrace.io/address/0x00000000000076A84feF008CDAbe6409d2FE638B)|
-|BSC|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://bscscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b#code)|
+|BSC|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://bscscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Gnosis|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://gnosisscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Fantom|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://ftmscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Arbitrum|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://arbiscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
@@ -24,7 +24,7 @@
 |Optimism (Goerli)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://goerli-optimism.etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Celo (Alfajores)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://alfajores-forno.celo-testnet.org/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Avalanche (Fuji)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://testnet.snowtrace.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|BSC (testnet)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://testnet.bscscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b#code)|
+|BSC (testnet)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://testnet.bscscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 |Gnosis (Chiado)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://blockscout.chiadochain.net/address/0x00000000000076A84feF008CDAbe6409d2FE638B)|
 |Fantom (testnet)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://testnet.ftmscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
 
