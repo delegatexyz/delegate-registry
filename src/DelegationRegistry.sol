@@ -49,7 +49,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc ERC165
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override (ERC165) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165) returns (bool) {
         return interfaceId == type(IDelegationRegistry).interfaceId || super.supportsInterface(interfaceId);
     }
 
@@ -417,9 +417,8 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     {
         bytes32 delegateHash =
             keccak256(abi.encode(delegate, vault, contract_, vaultVersion[vault], delegateVersion[vault][delegate]));
-        return delegations[vault][vaultVersion[vault]].contains(delegateHash)
-            ? true
-            : checkDelegateForAll(delegate, vault);
+        return
+            delegations[vault][vaultVersion[vault]].contains(delegateHash) ? true : checkDelegateForAll(delegate, vault);
     }
 
     /**
