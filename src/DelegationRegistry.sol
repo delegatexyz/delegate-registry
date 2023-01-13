@@ -54,7 +54,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     }
 
     /**
-     * -----------  WRITE -----------
+     * ----------- WRITE -----------
      */
 
     /**
@@ -181,7 +181,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     }
 
     /**
-     * -----------  READ -----------
+     * ----------- READ -----------
      */
 
     /**
