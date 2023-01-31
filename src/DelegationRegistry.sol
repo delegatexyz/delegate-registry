@@ -177,7 +177,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     function _revokeDelegate(address delegate, address vault) internal {
         ++delegateVersion[vault][delegate];
         // For enumerations, filter in the view functions
-        emit IDelegationRegistry.RevokeDelegate(vault, msg.sender);
+        emit IDelegationRegistry.RevokeDelegate(vault, delegate);
     }
 
     /**
