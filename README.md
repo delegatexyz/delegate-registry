@@ -53,7 +53,7 @@ While a technical solution that "just works" may appear easy to code up, there's
 ## What features does this include?
 
 ### Fully Onchain, No EIP 712 signatures
-Why? This is critical for smart contract composability, which cannot produce a private key signature. And while we could have two separate paths for delegation setup, one with smart contract calls and one with signature calls, this fragments adoption and developer use. Not to mention that allowing offchain signatures encourages people to interact with their vault and hotwallet in rapid succession, and accidental signatures can float around offchain with no easy way to revoke as we saw with the OpenSea "old ape offer" attack vector. More thoughts in [this tweet](https://twitter.com/0xfoobar/status/1557035539752181762).
+Why? This is critical for smart contract composability, which cannot produce a private key signature. And while we could have two separate paths for delegation setup, one with smart contract calls and one with signature calls, this fragments adoption and developer use. Not to mention that allowing offchain signatures encourages people to interact with their vault and hotwallet in rapid succession, and accidental signatures can float around offchain with no easy way to revoke as we saw with the OpenSea "old ape offer" attack vector. 
 
 ### Fully Immutable, No Admin Powers
 Why? Because governance is an attack vector. There should be none of it in a neutral trustless delegation standard. The standard is designed to be as flexible as possible, but upgrades are always possible by deploying a new registry with different functionality.
