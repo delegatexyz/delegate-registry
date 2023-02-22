@@ -44,7 +44,9 @@ interface IDelegationRegistry {
     event DelegateForContract(address indexed vault, address indexed delegate, address indexed contract_, bool value);
 
     /// @notice Emitted when a user delegates a specific token
-    event DelegateForToken(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bool value);
+    event DelegateForToken(
+        address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bool value
+    );
 
     /// @notice Emitted when a user revokes all delegations
     event RevokeAllDelegates(address indexed vault);
