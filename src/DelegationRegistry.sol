@@ -2,8 +2,8 @@
 pragma solidity ^0.8.18;
 
 import {IDelegationRegistry} from "./IDelegationRegistry.sol";
-import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
+import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 
 /**
  * @title DelegationRegistry
@@ -265,13 +265,13 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
             DelegationInfo storage delegationInfo_ = delegationInfo[delegationHash];
             if (delegationInfo_.type_ == delegationType) {
                 if (delegationType == IDelegationRegistry.DelegationType.ALL) {
-                    // check delegate version by validating the hash
+                    // Check delegate version by validating the hash
                     if (delegationHash == _computeAllDelegationHash(vault, delegationInfo_.delegate)) {
                         delegates[delegatesCount++] = delegationInfo_.delegate;
                     }
                 } else if (delegationType == IDelegationRegistry.DelegationType.CONTRACT) {
                     if (delegationInfo_.contract_ == contract_) {
-                        // check delegate version by validating the hash
+                        // Check delegate version by validating the hash
                         if (
                             delegationHash == _computeContractDelegationHash(vault, delegationInfo_.delegate, contract_)
                         ) {
@@ -280,7 +280,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
                     }
                 } else if (delegationType == IDelegationRegistry.DelegationType.TOKEN) {
                     if (delegationInfo_.contract_ == contract_ && delegationInfo_.tokenId == tokenId) {
-                        // check delegate version by validating the hash
+                        // Check delegate version by validating the hash
                         if (
                             delegationHash
                                 == _computeTokenDelegationHash(vault, delegationInfo_.delegate, contract_, tokenId)
@@ -318,7 +318,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
             bytes32 delegationHash = delegationHashes_.at(i);
             DelegationInfo storage delegationInfo_ = delegationInfo[delegationHash];
             if (delegationInfo_.type_ == IDelegationRegistry.DelegationType.CONTRACT) {
-                // check delegate version by validating the hash
+                // Check delegate version by validating the hash
                 if (
                     delegationHash
                         == _computeContractDelegationHash(vault, delegationInfo_.delegate, delegationInfo_.contract_)
@@ -357,7 +357,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
             bytes32 delegationHash = delegationHashes_.at(i);
             DelegationInfo storage delegationInfo_ = delegationInfo[delegationHash];
             if (delegationInfo_.type_ == IDelegationRegistry.DelegationType.TOKEN) {
-                // check delegate version by validating the hash
+                // Check delegate version by validating the hash
                 if (
                     delegationHash
                         == _computeTokenDelegationHash(
