@@ -8,21 +8,10 @@ import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC16
 /**
  * @title DelegationRegistry
  * @custom:version 1.1
+ * @custom:author foobar (0xfoobar)
  * @notice An immutable registry contract to be deployed as a standalone primitive.
  * @dev See EIP-5639, new project launches can read previous cold wallet -> hot wallet delegations
  * from here and integrate those permissions into their flow.
- * @custom:coauthor foobar (0xfoobar)
- * @custom:coauthor wwchung (manifoldxyz)
- * @custom:coauthor purplehat (artblocks)
- * @custom:coauthor ryley-o (artblocks)
- * @custom:coauthor andy8052 (tessera)
- * @custom:coauthor punk6529 (open metaverse)
- * @custom:coauthor loopify (loopiverse)
- * @custom:coauthor emiliano (nftrentals)
- * @custom:coauthor arran (proof)
- * @custom:coauthor james (collabland)
- * @custom:coauthor john (gnosis safe)
- * @custom:coauthor 0xrusowsky
  */
 contract DelegationRegistry is IDelegationRegistry, ERC165 {
     using EnumerableSet for EnumerableSet.AddressSet;
