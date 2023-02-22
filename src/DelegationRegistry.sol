@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: CC0-1.0
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.18;
 
 import {IDelegationRegistry} from "./IDelegationRegistry.sol";
 import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
@@ -29,22 +29,19 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
     /// @notice The global mapping and single source of truth for delegations
-    /// @dev vault -> vaultVersion -> delegationHash
-    mapping(address => mapping(uint256 => EnumerableSet.Bytes32Set)) internal delegations;
+    mapping(address vault => mapping(uint256 version => EnumerableSet.Bytes32Set delegationHashes)) internal delegations;
 
     /// @notice A mapping of wallets to versions (for cheap revocation)
-    mapping(address => uint256) internal vaultVersion;
+    mapping(address vault => uint256 version) internal vaultVersion;
 
     /// @notice A mapping of wallets to delegates to versions (for cheap revocation)
-    mapping(address => mapping(address => uint256)) internal delegateVersion;
+    mapping(address vault => mapping(address delegate => uint256 version)) internal delegateVersion;
 
     /// @notice A secondary mapping to return onchain enumerability of delegations that a given address can perform
-    /// @dev delegate -> delegationHashes
-    mapping(address => EnumerableSet.Bytes32Set) internal delegationHashes;
+    mapping(address delegate => EnumerableSet.Bytes32Set delegationHashes) internal delegationHashes;
 
     /// @notice A secondary mapping used to return delegation information about a delegation
-    /// @dev delegationHash -> DelegateInfo
-    mapping(bytes32 => IDelegationRegistry.DelegationInfo) internal delegationInfo;
+    mapping(bytes32 delegationHash => IDelegationRegistry.DelegationInfo delegateInfo) internal delegationInfo;
 
     /**
      * @inheritdoc ERC165
