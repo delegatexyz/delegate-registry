@@ -1,0 +1,20 @@
+| src/DelegationRegistry.sol:DelegationRegistry contract |                 |        |        |        |         |
+|--------------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                        | Deployment Size |        |        |        |         |
+| 1247295                                                | 6262            |        |        |        |         |
+| Function Name                                          | min             | avg    | median | max    | # calls |
+| checkDelegateForAll                                    | 1588            | 2338   | 1588   | 3588   | 8       |
+| checkDelegateForContract                               | 1706            | 3417   | 4786   | 4786   | 9       |
+| checkDelegateForToken                                  | 1978            | 4594   | 5645   | 8186   | 10      |
+| delegateForAll                                         | 5216            | 150923 | 167237 | 190137 | 20      |
+| delegateForContract                                    | 5553            | 139465 | 162658 | 210458 | 19      |
+| delegateForToken                                       | 5940            | 157903 | 183041 | 230841 | 20      |
+| getContractLevelDelegations                            | 3221            | 7964   | 8211   | 10534  | 6       |
+| getDelegatesForAll                                     | 3273            | 5350   | 5026   | 7730   | 6       |
+| getDelegatesForContract                                | 1353            | 5728   | 6649   | 8260   | 4       |
+| getDelegatesForToken                                   | 1377            | 6140   | 7140   | 8906   | 4       |
+| getDelegationsByDelegate                               | 9526            | 13364  | 13917  | 18051  | 8       |
+| getTokenLevelDelegations                               | 3200            | 9378   | 10121  | 11861  | 6       |
+| revokeAllDelegates                                     | 21478           | 21478  | 21478  | 21478  | 4       |
+| revokeDelegate                                         | 22131           | 22131  | 22131  | 22131  | 4       |
+| revokeSelf                                             | 22133           | 22133  | 22133  | 22133  | 1       |
