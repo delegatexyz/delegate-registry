@@ -6,6 +6,12 @@ import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC16
 import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 
 /**
+TODO:
+- delegation batching
+- zk attestations
+ */
+
+/**
  * @title DelegationRegistry
  * @custom:version 1.1
  * @custom:author foobar (0xfoobar)
