@@ -19,6 +19,9 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * - zk attestations
  * - add native ERC1155 support
  * - the interaction point is the hotwallet, not the delegate. offchain enumeration should focus on that. we can do vault forward connections on our frontend
+ * - rename the internal mappings to be more understandable
+ * - rewrite tests to use new enumerations
+ * - add new test for batch delegation
  */
 
 /**
@@ -62,7 +65,10 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function batchDelegate(IDelegationRegistry.DelegationInfo[] calldata delegations, bool[] calldata values) external override {
+    function batchDelegate(IDelegationRegistry.DelegationInfo[] calldata delegations, bool[] calldata values)
+        external
+        override
+    {
         uint256 delegationsLength = delegations.length;
         for (uint256 i = 0; i < delegationsLength;) {
             IDelegationRegistry.DelegationInfo memory delegation = delegations[i];
@@ -198,7 +204,6 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      */
     function _revokeDelegate(address vault, address delegate) internal {
         ++delegateVersion[vault][delegate];
-        // For enumerations, filter in the view functions
         emit IDelegationRegistry.RevokeDelegate(vault, delegate);
     }
 

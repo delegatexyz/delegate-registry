@@ -5,4 +5,7 @@ libs = ['lib']
 solc_version = "0.8.19"
 optimizer_runs = 1000000
 
+[fmt]
+line_length = 120
+
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
