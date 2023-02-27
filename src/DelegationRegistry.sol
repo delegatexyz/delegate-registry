@@ -183,20 +183,20 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      * @inheritdoc IDelegationRegistry
      */
     function revokeDelegate(address delegate) external override {
-        _revokeDelegate(delegate, msg.sender);
+        _revokeDelegate(msg.sender, delegate);
     }
 
     /**
      * @inheritdoc IDelegationRegistry
      */
     function revokeSelf(address vault) external override {
-        _revokeDelegate(msg.sender, vault);
+        _revokeDelegate(vault, msg.sender);
     }
 
     /**
      * @dev Revoke the `delegate` hotwallet from the `vault` coldwallet.
      */
-    function _revokeDelegate(address delegate, address vault) internal {
+    function _revokeDelegate(address vault, address delegate) internal {
         ++delegateVersion[vault][delegate];
         // For enumerations, filter in the view functions
         emit IDelegationRegistry.RevokeDelegate(vault, delegate);
