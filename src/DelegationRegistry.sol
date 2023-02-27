@@ -9,6 +9,11 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * TODO:
  * - delegation batching
  * - zk attestations
+ * - remove getDelegatesForAll/Contract/Token, we need to query getDelegatesForDelegate and parse offchain
+ * - have a getDelegatesByVault in addition to getDelegatesByDelegate method, cleaner offchain parsing
+ * - add native ERC1155 support
+ * - the interaction point is the hotwallet, not the delegate. offchain enumeration should focus on that. we can do vault forward connections on our frontend
+ * - if token bubbles up, then we shouldn't expose an interface to get just contract-level delegations
  */
 
 /**
@@ -228,6 +233,23 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
+    function getDelegationsByVault(address vault)
+        external
+        view
+        returns (IDelegationRegistry.DelegationInfo[] memory info)
+    {
+        EnumerableSet.Bytes32Set storage delegationHashes_ = delegations[vault][vaultVersion[vault]];
+        uint256 delegatesLength = delegationHashes_.length();
+        uint256 delegatesCount = 0;
+        info = new IDelegationRegistry.DelegationInfo[](delegatesLength);
+        for (uint256 i = 0; i < delegatesLength;) {
+            info[i++] = delegationInfo[delegationHashes_.at(i)];
+        }
+    }
+
+    /**
+     * @inheritdoc IDelegationRegistry
+     */
     function getDelegatesForAll(address vault) external view returns (address[] memory delegates) {
         return _getDelegatesForLevel(vault, IDelegationRegistry.DelegationType.ALL, address(0), 0);
     }
@@ -417,7 +439,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      * @inheritdoc IDelegationRegistry
      */
     function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId)
-        public
+        external
         view
         override
         returns (bool)

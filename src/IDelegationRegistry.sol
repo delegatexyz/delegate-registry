@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: CC0-1.0
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.19;
 
 /**
  * @title An immutable registry contract to be deployed as a standalone primitive
@@ -109,6 +109,13 @@ interface IDelegationRegistry {
      * @return info Array of DelegationInfo structs
      */
     function getDelegationsByDelegate(address delegate) external view returns (DelegationInfo[] memory);
+
+    /**
+     * @notice Returns all active delegations a vault has given out
+     * @param vault The vault that you would like to retrieve delegations for
+     * @return info Array of DelegationInfo structs
+     */
+    function getDelegationsByVault(address vault) external view returns (DelegationInfo[] memory);
 
     /**
      * @notice Returns an array of wallet-level delegates for a given vault
