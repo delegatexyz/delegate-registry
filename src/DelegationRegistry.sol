@@ -6,15 +6,19 @@ import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC16
 import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 
 /**
- * TODO:
- * - delegation batching
- * - zk attestations
- * - remove getDelegatesForAll/Contract/Token, we need to query getDelegatesForDelegate and parse offchain
- * - have a getDelegatesByVault in addition to getDelegatesByDelegate method, cleaner offchain parsing
+ * DONE:
+ * - batching
+ * - rename getDelegatesByDelegate method to getDelegatesForDelegate
+ * - add getDelegatesForVault method
+ * - remove getDelegatesForAll/Contract/Token
  * - remove getContractLevelDelegations and getTokenLevelDelegations
+ * - bump compiler version and compiler runs
+ * - named mappings
+ * - fixed broken event param
+ * TODO:
+ * - zk attestations
  * - add native ERC1155 support
  * - the interaction point is the hotwallet, not the delegate. offchain enumeration should focus on that. we can do vault forward connections on our frontend
- * - if token bubbles up, then we shouldn't expose an interface to get just contract-level delegations
  */
 
 /**
@@ -219,25 +223,21 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
             IDelegationRegistry.DelegationInfo memory delegationInfo_ = delegationInfo[delegateHash];
             address vault = delegationInfo_.vault;
             IDelegationRegistry.DelegationType type_ = delegationInfo_.type_;
-            bool valid = false;
             if (type_ == IDelegationRegistry.DelegationType.ALL) {
                 if (delegateHash == _computeAllDelegationHash(vault, delegate)) {
-                    valid = true;
+                    info[delegationCount++] = delegationInfo_;
                 }
             } else if (type_ == IDelegationRegistry.DelegationType.CONTRACT) {
                 if (delegateHash == _computeContractDelegationHash(vault, delegate, delegationInfo_.contract_)) {
-                    valid = true;
+                    info[delegationCount++] = delegationInfo_;
                 }
             } else if (type_ == IDelegationRegistry.DelegationType.TOKEN) {
                 if (
                     delegateHash
                         == _computeTokenDelegationHash(vault, delegate, delegationInfo_.contract_, delegationInfo_.tokenId)
                 ) {
-                    valid = true;
+                    info[delegationCount++] = delegationInfo_;
                 }
-            }
-            if (valid) {
-                info[delegationCount++] = delegationInfo_;
             }
             unchecked {
                 ++i;
