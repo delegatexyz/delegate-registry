@@ -143,9 +143,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      * @dev Helper function to compute delegation hash for wallet delegation
      */
     function _computeAllDelegationHash(address vault, address delegate) internal view returns (bytes32) {
-        uint256 vaultVersion_ = vaultVersion[vault];
-        uint256 delegateVersion_ = delegateVersion[vault][delegate];
-        return keccak256(abi.encode(delegate, vault, vaultVersion_, delegateVersion_));
+        return keccak256(abi.encode(delegate, vault, vaultVersion[vault], delegateVersion[vault][delegate]));
     }
 
     /**
@@ -156,9 +154,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         view
         returns (bytes32)
     {
-        uint256 vaultVersion_ = vaultVersion[vault];
-        uint256 delegateVersion_ = delegateVersion[vault][delegate];
-        return keccak256(abi.encode(delegate, vault, contract_, vaultVersion_, delegateVersion_));
+        return keccak256(abi.encode(delegate, vault, contract_, vaultVersion[vault], delegateVersion[vault][delegate]));
     }
 
     /**
@@ -169,16 +165,15 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         view
         returns (bytes32)
     {
-        uint256 vaultVersion_ = vaultVersion[vault];
-        uint256 delegateVersion_ = delegateVersion[vault][delegate];
-        return keccak256(abi.encode(delegate, vault, contract_, tokenId, vaultVersion_, delegateVersion_));
+        return keccak256(abi.encode(delegate, vault, contract_, tokenId, vaultVersion[vault], delegateVersion[vault][delegate]));
     }
 
     /**
      * @inheritdoc IDelegationRegistry
      */
     function revokeAllDelegates() external override {
-        ++vaultVersion[msg.sender];
+        // Gas refund from deleting the old EnumerableSet before incrementing to the new one
+        delete vaultDelegationHashes[msg.sender][vaultVersion[msg.sender]++];
         emit IDelegationRegistry.RevokeAllDelegates(msg.sender);
     }
 
