@@ -118,33 +118,6 @@ interface IDelegationRegistry {
     function getDelegationsByVault(address vault) external view returns (DelegationInfo[] memory);
 
     /**
-     * @notice Returns an array of wallet-level delegates for a given vault
-     * @param vault The cold wallet who issued the delegation
-     * @return addresses Array of wallet-level delegates for a given vault
-     */
-    function getDelegatesForAll(address vault) external view returns (address[] memory);
-
-    /**
-     * @notice Returns an array of contract-level delegates for a given vault and contract
-     * @param vault The cold wallet who issued the delegation
-     * @param contract_ The address for the contract you're delegating
-     * @return addresses Array of contract-level delegates for a given vault and contract
-     */
-    function getDelegatesForContract(address vault, address contract_) external view returns (address[] memory);
-
-    /**
-     * @notice Returns an array of contract-level delegates for a given vault's token
-     * @param vault The cold wallet who issued the delegation
-     * @param contract_ The address for the contract holding the token
-     * @param tokenId The token id for the token you're delegating
-     * @return addresses Array of contract-level delegates for a given vault's token
-     */
-    function getDelegatesForToken(address vault, address contract_, uint256 tokenId)
-        external
-        view
-        returns (address[] memory);
-
-    /**
      * @notice Returns all contract-level delegations for a given vault
      * @param vault The cold wallet who issued the delegations
      * @return delegations Array of ContractDelegation structs
