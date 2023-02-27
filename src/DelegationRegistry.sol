@@ -7,7 +7,7 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
 
 /**
  * DONE:
- * - batching
+ * - batch delegation and test
  * - rename getDelegatesByDelegate method to getDelegatesForDelegate
  * - add getDelegatesForVault method
  * - remove getDelegatesForAll/Contract/Token
@@ -21,7 +21,6 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * - zk attestations
  * - add native ERC1155 support
  * - rewrite tests to use new enumerations
- * - add new test for batch delegation
  * - explore potential DDoS vector on delegateDelegationHashes never incrementing
  */
 

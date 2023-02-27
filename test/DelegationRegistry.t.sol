@@ -72,6 +72,37 @@ contract DelegationRegistryTest is Test {
         // assertEq(delegates.length, 1);
     }
 
+    function testBatchDelegationForAll(address vault, address delegate0, address delegate1) public {
+        vm.assume(delegate0 != delegate1);
+        vm.startPrank(vault);
+        IDelegationRegistry.DelegationInfo[] memory info = new IDelegationRegistry.DelegationInfo[](2);
+        info[0] = IDelegationRegistry.DelegationInfo({
+            type_: IDelegationRegistry.DelegationType.ALL,
+            vault: vault,
+            delegate: delegate0,
+            contract_: address(0),
+            tokenId: 0
+        });
+        info[1] = IDelegationRegistry.DelegationInfo({
+            type_: IDelegationRegistry.DelegationType.ALL,
+            vault: vault,
+            delegate: delegate1,
+            contract_: address(0),
+            tokenId: 0
+        });
+        bool[] memory values = new bool[](2);
+        values[0] = true;
+        values[0] = true;
+        reg.batchDelegate(info, values);
+
+        IDelegationRegistry.DelegationInfo[] memory delegations = reg.getDelegationsForVault(vault);
+        assertEq(info.length, 2);
+        assertEq(info[0].vault, vault);
+        assertEq(info[1].vault, vault);
+        assertEq(info[0].delegate, delegate0);
+        assertEq(info[1].delegate, delegate1);
+    }
+
     function testRevokeDelegates(address vault0, address vault1, address delegate, address contract_, uint256 tokenId)
         public
     {
