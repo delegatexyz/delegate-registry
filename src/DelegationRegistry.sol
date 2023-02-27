@@ -11,6 +11,7 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * - zk attestations
  * - remove getDelegatesForAll/Contract/Token, we need to query getDelegatesForDelegate and parse offchain
  * - have a getDelegatesByVault in addition to getDelegatesByDelegate method, cleaner offchain parsing
+ * - remove getContractLevelDelegations and getTokenLevelDelegations
  * - add native ERC1155 support
  * - the interaction point is the hotwallet, not the delegate. offchain enumeration should focus on that. we can do vault forward connections on our frontend
  * - if token bubbles up, then we shouldn't expose an interface to get just contract-level delegations
@@ -244,87 +245,6 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         info = new IDelegationRegistry.DelegationInfo[](delegatesLength);
         for (uint256 i = 0; i < delegatesLength;) {
             info[i++] = delegationInfo[delegationHashes_.at(i)];
-        }
-    }
-
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
-    function getContractLevelDelegations(address vault)
-        external
-        view
-        returns (IDelegationRegistry.ContractDelegation[] memory contractDelegations)
-    {
-        EnumerableSet.Bytes32Set storage delegationHashes_ = delegations[vault][vaultVersion[vault]];
-        uint256 potentialLength = delegationHashes_.length();
-        uint256 delegationCount = 0;
-        contractDelegations = new IDelegationRegistry.ContractDelegation[](potentialLength);
-        for (uint256 i = 0; i < potentialLength;) {
-            bytes32 delegationHash = delegationHashes_.at(i);
-            DelegationInfo storage delegationInfo_ = delegationInfo[delegationHash];
-            if (delegationInfo_.type_ == IDelegationRegistry.DelegationType.CONTRACT) {
-                // Check delegate version by validating the hash
-                if (
-                    delegationHash
-                        == _computeContractDelegationHash(vault, delegationInfo_.delegate, delegationInfo_.contract_)
-                ) {
-                    contractDelegations[delegationCount++] = IDelegationRegistry.ContractDelegation({
-                        contract_: delegationInfo_.contract_,
-                        delegate: delegationInfo_.delegate
-                    });
-                }
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        if (potentialLength > delegationCount) {
-            assembly {
-                let decrease := sub(potentialLength, delegationCount)
-                mstore(contractDelegations, sub(mload(contractDelegations), decrease))
-            }
-        }
-    }
-
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
-    function getTokenLevelDelegations(address vault)
-        external
-        view
-        returns (IDelegationRegistry.TokenDelegation[] memory tokenDelegations)
-    {
-        EnumerableSet.Bytes32Set storage delegationHashes_ = delegations[vault][vaultVersion[vault]];
-        uint256 potentialLength = delegationHashes_.length();
-        uint256 delegationCount = 0;
-        tokenDelegations = new IDelegationRegistry.TokenDelegation[](potentialLength);
-        for (uint256 i = 0; i < potentialLength;) {
-            bytes32 delegationHash = delegationHashes_.at(i);
-            DelegationInfo storage delegationInfo_ = delegationInfo[delegationHash];
-            if (delegationInfo_.type_ == IDelegationRegistry.DelegationType.TOKEN) {
-                // Check delegate version by validating the hash
-                if (
-                    delegationHash
-                        == _computeTokenDelegationHash(
-                            vault, delegationInfo_.delegate, delegationInfo_.contract_, delegationInfo_.tokenId
-                        )
-                ) {
-                    tokenDelegations[delegationCount++] = IDelegationRegistry.TokenDelegation({
-                        contract_: delegationInfo_.contract_,
-                        tokenId: delegationInfo_.tokenId,
-                        delegate: delegationInfo_.delegate
-                    });
-                }
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        if (potentialLength > delegationCount) {
-            assembly {
-                let decrease := sub(potentialLength, delegationCount)
-                mstore(tokenDelegations, sub(mload(tokenDelegations), decrease))
-            }
         }
     }
 
