@@ -46,6 +46,13 @@ interface IDelegationRegistry {
      */
 
     /**
+     * @notice Batch several delegations into a single transactions
+     * @param delegations An array of DelegationInfo structs
+     * @param values A parallel array of booleans for whether to enable or disable the delegation
+     */
+    function batchDelegate(DelegationInfo[] memory delegations, bool[] memory values) external;
+
+    /**
      * @notice Allow the delegate to act on your behalf for all contracts
      * @param delegate The hotwallet to act on your behalf
      * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking

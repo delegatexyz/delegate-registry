@@ -58,18 +58,22 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    // function batchDelegate(IDelegationRegistry.DelegationInfo[] memory delegations) external override {
-    //     uint256 delegationsLength = delegations.length();
-    //     for (uint256 i = 0; i < delegations.length;) {
-    //         IDelegationRegistry.DelegationInfo delegation = delegations[i];
-    //         if (type_ == IDelegationRegistry.DelegationType.ALL) {
-    //             delegateForAll(delegation.delegate, )
-    //         }
-    //         unchecked {
-    //             ++i;
-    //         }
-    //     }
-    // }
+    function batchDelegate(IDelegationRegistry.DelegationInfo[] calldata delegations, bool[] calldata values) external override {
+        uint256 delegationsLength = delegations.length;
+        for (uint256 i = 0; i < delegationsLength;) {
+            IDelegationRegistry.DelegationInfo memory delegation = delegations[i];
+            if (delegation.type_ == IDelegationRegistry.DelegationType.ALL) {
+                delegateForAll(delegation.delegate, values[i]);
+            } else if (delegation.type_ == IDelegationRegistry.DelegationType.CONTRACT) {
+                delegateForContract(delegation.delegate, delegation.contract_, values[i]);
+            } else if (delegation.type_ == IDelegationRegistry.DelegationType.TOKEN) {
+                delegateForToken(delegation.delegate, delegation.contract_, delegation.tokenId, values[i]);
+            }
+            unchecked {
+                ++i;
+            }
+        }
+    }
 
     /**
      * @inheritdoc IDelegationRegistry
