@@ -290,7 +290,7 @@ contract DelegationRegistryTest is Test {
         reg.delegateForContract(delegate1, contract0, true);
 
         // Read
-        IDelegationRegistry.ContractDelegation[] memory contractDelegations;
+        // IDelegationRegistry.ContractDelegation[] memory contractDelegations;
         // contractDelegations = reg.getContractLevelDelegations(vault);
         // assertEq(contractDelegations.length, 2);
         // assertEq(contractDelegations[0].contract_, contract0);
@@ -372,7 +372,7 @@ contract DelegationRegistryTest is Test {
         reg.delegateForToken(delegate1, contract0, tokenId0, true);
 
         // Read
-        IDelegationRegistry.TokenDelegation[] memory tokenDelegations;
+        // IDelegationRegistry.TokenDelegation[] memory tokenDelegations;
         // tokenDelegations = reg.getTokenLevelDelegations(vault);
         // assertEq(tokenDelegations.length, 2);
         // assertEq(tokenDelegations[0].contract_, contract0);

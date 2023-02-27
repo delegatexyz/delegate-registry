@@ -58,7 +58,23 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function delegateForAll(address delegate, bool value) external override {
+    // function batchDelegate(IDelegationRegistry.DelegationInfo[] memory delegations) external override {
+    //     uint256 delegationsLength = delegations.length();
+    //     for (uint256 i = 0; i < delegations.length;) {
+    //         IDelegationRegistry.DelegationInfo delegation = delegations[i];
+    //         if (type_ == IDelegationRegistry.DelegationType.ALL) {
+    //             delegateForAll(delegation.delegate, )
+    //         }
+    //         unchecked {
+    //             ++i;
+    //         }
+    //     }
+    // }
+
+    /**
+     * @inheritdoc IDelegationRegistry
+     */
+    function delegateForAll(address delegate, bool value) public override {
         bytes32 delegationHash = _computeAllDelegationHash(msg.sender, delegate);
         _setDelegationValues(
             delegate, delegationHash, value, IDelegationRegistry.DelegationType.ALL, msg.sender, address(0), 0
@@ -69,7 +85,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function delegateForContract(address delegate, address contract_, bool value) external override {
+    function delegateForContract(address delegate, address contract_, bool value) public override {
         bytes32 delegationHash = _computeContractDelegationHash(msg.sender, delegate, contract_);
         _setDelegationValues(
             delegate, delegationHash, value, IDelegationRegistry.DelegationType.CONTRACT, msg.sender, contract_, 0
@@ -80,7 +96,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value) external override {
+    function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value) public override {
         bytes32 delegationHash = _computeTokenDelegationHash(msg.sender, delegate, contract_, tokenId);
         _setDelegationValues(
             delegate, delegationHash, value, IDelegationRegistry.DelegationType.TOKEN, msg.sender, contract_, tokenId

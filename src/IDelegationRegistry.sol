@@ -24,19 +24,6 @@ interface IDelegationRegistry {
         uint256 tokenId;
     }
 
-    /// @notice Info about a single contract-level delegation
-    struct ContractDelegation {
-        address contract_;
-        address delegate;
-    }
-
-    /// @notice Info about a single token-level delegation
-    struct TokenDelegation {
-        address contract_;
-        uint256 tokenId;
-        address delegate;
-    }
-
     /// @notice Emitted when a user delegates their entire wallet
     event DelegateForAll(address indexed vault, address indexed delegate, bool value);
 
