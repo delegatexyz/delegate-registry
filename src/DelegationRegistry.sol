@@ -22,6 +22,7 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * - add native ERC1155 support
  * - rewrite tests to use new enumerations
  * - add new test for batch delegation
+ * - explore potential DDoS vector on delegateDelegationHashes never incrementing
  */
 
 /**
@@ -43,7 +44,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     mapping(address vault => mapping(uint256 version => EnumerableSet.Bytes32Set delegationHashes)) internal vaultDelegationHashes;
 
     /// @dev A secondary mapping to enumerate a delegate's incoming delegations, should be filtered for validity via vaultDelegationHashes
-    mapping(address delegate => EnumerableSet.Bytes32Set delegateHashes) internal delegateDelegationHashes;
+    mapping(address delegate => EnumerableSet.Bytes32Set delegationHashes) internal delegateDelegationHashes;
 
     /// @dev Vault versions are monotonically increasing and used to revoke all delegations for a vault at once
     mapping(address vault => uint256 version) internal vaultVersion;

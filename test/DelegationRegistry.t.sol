@@ -254,6 +254,8 @@ contract DelegationRegistryTest is Test {
         assertEq(info[0].vault, vault0);
         assertEq(info[1].vault, vault0);
         assertEq(info[2].vault, vault0);
+        info = reg.getDelegationsForVault(vault0);
+        assertEq(info.length, 6);
 
         // vault1 revokes all delegates
         vm.startPrank(vault1);
