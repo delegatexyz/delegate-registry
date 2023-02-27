@@ -108,14 +108,14 @@ interface IDelegationRegistry {
      * @param delegate The delegate that you would like to retrieve delegations for
      * @return info Array of DelegationInfo structs
      */
-    function getDelegationsByDelegate(address delegate) external view returns (DelegationInfo[] memory);
+    function getDelegationsForDelegate(address delegate) external view returns (DelegationInfo[] memory);
 
     /**
      * @notice Returns all active delegations a vault has given out
      * @param vault The vault that you would like to retrieve delegations for
      * @return info Array of DelegationInfo structs
      */
-    function getDelegationsByVault(address vault) external view returns (DelegationInfo[] memory);
+    function getDelegationsForVault(address vault) external view returns (DelegationInfo[] memory);
 
     /**
      * @notice Returns true if the address is delegated to act on the entire vault

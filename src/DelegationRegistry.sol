@@ -185,7 +185,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function getDelegationsByDelegate(address delegate)
+    function getDelegationsForDelegate(address delegate)
         external
         view
         returns (IDelegationRegistry.DelegationInfo[] memory info)
@@ -234,7 +234,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function getDelegationsByVault(address vault)
+    function getDelegationsForVault(address vault)
         external
         view
         returns (IDelegationRegistry.DelegationInfo[] memory info)
