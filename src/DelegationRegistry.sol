@@ -28,7 +28,14 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * - arbitrary data attached to the delegation, for licensing usecases
  * - segmenting rights within a token, for licensing usecases
  * - account abstraction
+ * - identity clusters require that one vault only points to one delegate, not many. how to enforce? similar to the ERC20 splitting problem
  */
+
+ /**
+For NFTs, we did a specific separate method that specifies a tokenId. And then the app can mark that one as "used" when they claim utility.
+How does Snapshot distinguish amounts that have been voted? Either a snapshot or a lockup. For a lockup you would need to mark certain tokens as used. 
+How would you split something in half? Could run a percentage basis. But then the amounts can change. 
+  */
 
 /**
  * @title DelegationRegistry
