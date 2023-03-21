@@ -17,13 +17,13 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * - fixed broken event param
  * - added indexing to event params
  * - clearer naming for internal mappings
+ * - combined duplicate logic into _filterHash internal function
+ * - rewrite tests to use new enumerations
  * TODO:
  * - zk attestations
  * - add native ERC1155 support, splitting
  * - add native ERC20 support, splitting
- * - rewrite tests to use new enumerations
  * - explore potential DDoS vector on delegateDelegationHashes never incrementing
- * - remove revoked delegates in getDelegationsForVault
  * - how to support fungible token governance? split up assets
  * - arbitrary data attached to the delegation, for licensing usecases
  * - segmenting rights within a token, for licensing usecases
@@ -31,15 +31,15 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * - identity clusters require that one vault only points to one delegate, not many. how to enforce? similar to the ERC20 splitting problem
  */
 
- /**
-For NFTs, we did a specific separate method that specifies a tokenId. And then the app can mark that one as "used" when they claim utility.
-How does Snapshot distinguish amounts that have been voted? Either a snapshot or a lockup. For a lockup you would need to mark certain tokens as used. 
-How would you split something in half? Could run a percentage basis. But then the amounts can change. 
-  */
+/**
+ * For NFTs, we did a specific separate method that specifies a tokenId. And then the app can mark that one as "used" when they claim utility.
+ * How does Snapshot distinguish amounts that have been voted? Either a snapshot or a lockup. For a lockup you would need to mark certain tokens as used.
+ * How would you split something in half? Could run a percentage basis. But then the amounts can change.
+ */
 
 /**
  * @title DelegationRegistry
- * @custom:version 1.1
+ * @custom:version 2.0
  * @custom:author foobar (0xfoobar)
  * @notice An immutable registry contract to be deployed as a standalone primitive.
  * @dev See EIP-5639, new project launches can read previous cold wallet -> hot wallet vaultDelegationHashes
@@ -224,42 +224,9 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     function getDelegationsForDelegate(address delegate)
         external
         view
-        returns (IDelegationRegistry.DelegationInfo[] memory info)
+        returns (IDelegationRegistry.DelegationInfo[] memory)
     {
-        EnumerableSet.Bytes32Set storage potentialDelegationHashes = delegateDelegationHashes[delegate];
-        uint256 potentialDelegationHashesLength = potentialDelegationHashes.length();
-        uint256 delegationCount = 0;
-        info = new IDelegationRegistry.DelegationInfo[](potentialDelegationHashesLength);
-        for (uint256 i = 0; i < potentialDelegationHashesLength; ++i) {
-            bytes32 delegationHash = potentialDelegationHashes.at(i);
-            IDelegationRegistry.DelegationInfo memory delegationInfo_ = delegationInfo[delegationHash];
-            address vault = delegationInfo_.vault;
-            IDelegationRegistry.DelegationType type_ = delegationInfo_.type_;
-            if (type_ == IDelegationRegistry.DelegationType.ALL) {
-                if (delegationHash == _computeDelegationHashForAll(vault, delegate)) {
-                    info[delegationCount++] = delegationInfo_;
-                }
-            } else if (type_ == IDelegationRegistry.DelegationType.CONTRACT) {
-                if (delegationHash == _computeDelegationHashForContract(vault, delegate, delegationInfo_.contract_)) {
-                    info[delegationCount++] = delegationInfo_;
-                }
-            } else if (type_ == IDelegationRegistry.DelegationType.TOKEN) {
-                if (
-                    delegationHash
-                        == _computeDelegationHashForToken(
-                            vault, delegate, delegationInfo_.contract_, delegationInfo_.tokenId
-                        )
-                ) {
-                    info[delegationCount++] = delegationInfo_;
-                }
-            }
-        }
-        if (potentialDelegationHashesLength > delegationCount) {
-            assembly {
-                let decrease := sub(potentialDelegationHashesLength, delegationCount)
-                mstore(info, sub(mload(info), decrease))
-            }
-        }
+        return _filterHashes(delegateDelegationHashes[delegate]);
     }
 
     /**
@@ -268,14 +235,49 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     function getDelegationsForVault(address vault)
         external
         view
-        returns (IDelegationRegistry.DelegationInfo[] memory info)
+        returns (IDelegationRegistry.DelegationInfo[] memory)
     {
-        EnumerableSet.Bytes32Set storage delegateDelegationHashes_ = vaultDelegationHashes[vault][vaultVersion[vault]];
-        uint256 delegatesLength = delegateDelegationHashes_.length();
-        uint256 delegatesCount = 0;
-        info = new IDelegationRegistry.DelegationInfo[](delegatesLength);
-        for (uint256 i = 0; i < delegatesLength;) {
-            info[i++] = delegationInfo[delegateDelegationHashes_.at(i)];
+        return _filterHashes(vaultDelegationHashes[vault][vaultVersion[vault]]);
+    }
+
+    function _filterHashes(EnumerableSet.Bytes32Set storage potentialDelegationHashes)
+        internal
+        view
+        returns (IDelegationRegistry.DelegationInfo[] memory validDelegations)
+    {
+        uint256 potentialDelegationHashesLength = potentialDelegationHashes.length();
+        uint256 delegationCount = 0;
+        validDelegations = new IDelegationRegistry.DelegationInfo[](potentialDelegationHashesLength);
+        for (uint256 i = 0; i < potentialDelegationHashesLength; ++i) {
+            bytes32 delegationHash = potentialDelegationHashes.at(i);
+            IDelegationRegistry.DelegationInfo memory delegationInfo_ = delegationInfo[delegationHash];
+            address vault = delegationInfo_.vault;
+            address delegate = delegationInfo_.delegate;
+            IDelegationRegistry.DelegationType type_ = delegationInfo_.type_;
+            if (type_ == IDelegationRegistry.DelegationType.ALL) {
+                if (delegationHash == _computeDelegationHashForAll(vault, delegate)) {
+                    validDelegations[delegationCount++] = delegationInfo_;
+                }
+            } else if (type_ == IDelegationRegistry.DelegationType.CONTRACT) {
+                if (delegationHash == _computeDelegationHashForContract(vault, delegate, delegationInfo_.contract_)) {
+                    validDelegations[delegationCount++] = delegationInfo_;
+                }
+            } else if (type_ == IDelegationRegistry.DelegationType.TOKEN) {
+                if (
+                    delegationHash
+                        == _computeDelegationHashForToken(
+                            vault, delegate, delegationInfo_.contract_, delegationInfo_.tokenId
+                        )
+                ) {
+                    validDelegations[delegationCount++] = delegationInfo_;
+                }
+            }
+        }
+        if (potentialDelegationHashesLength > delegationCount) {
+            assembly {
+                let decrease := sub(potentialDelegationHashesLength, delegationCount)
+                mstore(validDelegations, sub(mload(validDelegations), decrease))
+            }
         }
     }
 
