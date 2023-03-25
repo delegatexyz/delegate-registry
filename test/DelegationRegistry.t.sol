@@ -94,17 +94,17 @@ contract DelegationRegistryTest is Test {
         });
         bool[] memory values = new bool[](2);
         values[0] = true;
-        values[0] = true;
+        values[1] = true;
         reg.batchDelegate(info, values);
 
         IDelegationRegistry.DelegationInfo[] memory delegations = reg.getDelegationsForVault(vault);
-        assertEq(info.length, 2);
-        assertEq(info[0].vault, vault);
-        assertEq(info[1].vault, vault);
-        assertEq(info[0].delegate, delegate0);
-        assertEq(info[1].delegate, delegate1);
-        assertTrue(info[0].type_ == IDelegationRegistry.DelegationType.ALL);
-        assertTrue(info[1].type_ == IDelegationRegistry.DelegationType.ALL);
+        assertEq(delegations.length, 2);
+        assertEq(delegations[0].vault, vault);
+        assertEq(delegations[1].vault, vault);
+        assertEq(delegations[0].delegate, delegate0);
+        assertEq(delegations[1].delegate, delegate1);
+        assertTrue(delegations[0].type_ == IDelegationRegistry.DelegationType.ALL);
+        assertTrue(delegations[1].type_ == IDelegationRegistry.DelegationType.ALL);
     }
 
     function testRevokeAllDelegates(
