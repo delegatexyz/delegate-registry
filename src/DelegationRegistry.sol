@@ -40,30 +40,30 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * For NFTs, we did a specific separate method that specifies a tokenId. And then the app can mark that one as "used" when they claim utility.
  * How does Snapshot distinguish amounts that have been voted? Either a snapshot or a lockup. For a lockup you would need to mark certain tokens as used.
  * How would you split something in half? Could run a percentage basis. But then the amounts can change.
- * 
- *  More broadly speaking, snapshot requires a snapshot in time. Sudo did a lockdrop. 
- * 
+ *
+ *  More broadly speaking, snapshot requires a snapshot in time. Sudo did a lockdrop.
+ *
  * For arbitrary data, do we want it to be machine-readable? for staking usecases, yes. so strings won't work. But we also want strings for licensing usecases
- *  
- *  You could snapshot user balances and then decrement it as delegations get used piecemeal. 
+ *
+ *  You could snapshot user balances and then decrement it as delegations get used piecemeal.
  *  The ERC20 usecase is actually identical to ERC721 if you take a snapshot approach, just decrement balances once used
  *  Delegate *amounts* for ERC20/ERC1155
  *  Another adjustment is that ERC721s are FCFS, while snapshots let you change your vote. if both holder & delegate vote then delegate overridden
  *  this is only possible bc there's no tradeable result while voting is happening, unlike NFT mint
  *  escrow could guarantee you play by the rules
  *  We just need a "balance" parameter. How to make it work for 721s, 20s, and 1155s?
- * 
- *  Ontology is more important than implementation details right now. Don't wory about how to revoke. 
+ *
+ *  Ontology is more important than implementation details right now. Don't wory about how to revoke.
  *  There are tiers like identity/wallet/contract/token
  *  But also overlapping attributes. Balance can apply to contract + token. And we want to apply arbitrary data to each
  *  And identity is a way of restricting one-to-one, while subdelegations are a way of splitting up one delegation into many parts
  *  Maybe we bitmask to apply balances?
- * 
- * Need a generalizable data schema. Study the history of past successes. Not sure where to start. 
+ *
+ * Need a generalizable data schema. Study the history of past successes. Not sure where to start.
  * Add an "exclusive" bool parameter to delegations, if true then pushes out the rest.
  * subdelegations would also want an exclusivity parameter
  * Is one-to-many that useful?
- * 
+ *
  * There should be a data field attached to each delegation. That means there can be two delegations with same params but diff data, must return both.
  *  Maybe we just hardcode ERC20, ERC721, ERC1155 usecases. There aren't that many standards. delegateForERC20, delegateForERC721, delegateForERC1155
  */
@@ -262,9 +262,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         returns (bool)
     {
         bytes32 delegationHash = keccak256(abi.encode(delegate, vault, contract_));
-        return vaultDelegationHashes[vault].contains(delegationHash)
-            ? true
-            : checkDelegateForAll(delegate, vault);
+        return vaultDelegationHashes[vault].contains(delegationHash) ? true : checkDelegateForAll(delegate, vault);
     }
 
     /**
