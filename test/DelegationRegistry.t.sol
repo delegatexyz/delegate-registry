@@ -128,7 +128,7 @@ contract DelegationRegistryTest is Test {
         vm.stopPrank();
         // Revoke delegates for vault0
         vm.startPrank(vault0);
-        reg.revokeAllDelegates();
+        reg.revokeAllDelegations();
         vm.stopPrank();
         // Read
         IDelegationRegistry.DelegationInfo[] memory info0 = reg.getDelegationsForVault(vault0);
@@ -229,7 +229,7 @@ contract DelegationRegistryTest is Test {
         assertTrue(vaultDelegations[1].type_ == IDelegationRegistry.DelegationType.CONTRACT);
 
         // Revoke all
-        reg.revokeAllDelegates();
+        reg.revokeAllDelegations();
         assertEq(reg.getDelegationsForVault(vault).length, 0);
     }
 }

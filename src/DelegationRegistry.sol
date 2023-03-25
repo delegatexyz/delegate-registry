@@ -215,7 +215,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function revokeAllDelegates() external override {
+    function revokeAllDelegations() external override {
         // Gas refund from deleting the old EnumerableSet before incrementing to the new one
         delete vaultDelegationHashes[msg.sender][vaultVersion[msg.sender]++];
         emit IDelegationRegistry.RevokeAllDelegates(msg.sender);

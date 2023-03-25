@@ -78,9 +78,9 @@ interface IDelegationRegistry {
     function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value) external;
 
     /**
-     * @notice Revoke all delegates
+     * @notice Revoke all delegations that exist for msg.sender
      */
-    function revokeAllDelegates() external;
+    function revokeAllDelegations() external;
 
     /**
      * -----------  READ -----------
