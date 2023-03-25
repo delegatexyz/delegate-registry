@@ -218,7 +218,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         view
         returns (IDelegationRegistry.DelegationInfo[] memory)
     {
-        return _filterHashes(delegateDelegationHashes[delegate]);
+        return _lookupHashes(delegateDelegationHashes[delegate]);
     }
 
     /**
@@ -229,47 +229,18 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         view
         returns (IDelegationRegistry.DelegationInfo[] memory)
     {
-        return _filterHashes(vaultDelegationHashes[vault]);
+        return _lookupHashes(vaultDelegationHashes[vault]);
     }
 
-    function _filterHashes(EnumerableSet.Bytes32Set storage potentialDelegationHashes)
+    function _lookupHashes(EnumerableSet.Bytes32Set storage delegationHashes)
         internal
         view
         returns (IDelegationRegistry.DelegationInfo[] memory validDelegations)
     {
-        uint256 potentialDelegationHashesLength = potentialDelegationHashes.length();
-        uint256 delegationCount = 0;
-        validDelegations = new IDelegationRegistry.DelegationInfo[](potentialDelegationHashesLength);
-        for (uint256 i = 0; i < potentialDelegationHashesLength; ++i) {
-            bytes32 delegationHash = potentialDelegationHashes.at(i);
-            IDelegationRegistry.DelegationInfo memory delegationInfo_ = delegationInfo[delegationHash];
-            address vault = delegationInfo_.vault;
-            address delegate = delegationInfo_.delegate;
-            IDelegationRegistry.DelegationType type_ = delegationInfo_.type_;
-            if (type_ == IDelegationRegistry.DelegationType.ALL) {
-                if (delegationHash == _computeDelegationHashForAll(vault, delegate)) {
-                    validDelegations[delegationCount++] = delegationInfo_;
-                }
-            } else if (type_ == IDelegationRegistry.DelegationType.CONTRACT) {
-                if (delegationHash == _computeDelegationHashForContract(vault, delegate, delegationInfo_.contract_)) {
-                    validDelegations[delegationCount++] = delegationInfo_;
-                }
-            } else if (type_ == IDelegationRegistry.DelegationType.TOKEN) {
-                if (
-                    delegationHash
-                        == _computeDelegationHashForToken(
-                            vault, delegate, delegationInfo_.contract_, delegationInfo_.tokenId
-                        )
-                ) {
-                    validDelegations[delegationCount++] = delegationInfo_;
-                }
-            }
-        }
-        if (potentialDelegationHashesLength > delegationCount) {
-            assembly {
-                let decrease := sub(potentialDelegationHashesLength, delegationCount)
-                mstore(validDelegations, sub(mload(validDelegations), decrease))
-            }
+        uint256 length = delegationHashes.length();
+        validDelegations = new IDelegationRegistry.DelegationInfo[](length);
+        for (uint256 i = 0; i < length; ++i) {
+            validDelegations[i] = delegationInfo[delegationHashes.at(i)];
         }
     }
 
