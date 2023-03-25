@@ -22,8 +22,8 @@ interface IDelegationRegistry {
         address delegate;
         address contract_;
         uint256 tokenId;
-        // bytes32 data;
     }
+    // bytes32 data;
 
     /// @notice Emitted when a user delegates their entire wallet
     event DelegateForAll(address indexed vault, address indexed delegate, bool value);
