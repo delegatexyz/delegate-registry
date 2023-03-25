@@ -107,44 +107,6 @@ contract DelegationRegistryTest is Test {
         assertTrue(delegations[1].type_ == IDelegationRegistry.DelegationType.ALL);
     }
 
-    function testRevokeAllDelegates(
-        address vault0,
-        address vault1,
-        address delegate,
-        address contract_,
-        uint256 tokenId
-    ) public {
-        vm.assume(delegate != vault0);
-        vm.assume(vault0 != vault1);
-        vm.startPrank(vault0);
-        reg.delegateForAll(delegate, true);
-        reg.delegateForContract(delegate, contract_, true);
-        reg.delegateForToken(delegate, contract_, tokenId, true);
-        vm.stopPrank();
-        vm.startPrank(vault1);
-        reg.delegateForAll(delegate, true);
-        reg.delegateForContract(delegate, contract_, true);
-        reg.delegateForToken(delegate, contract_, tokenId, true);
-        vm.stopPrank();
-        // Revoke delegates for vault0
-        vm.startPrank(vault0);
-        reg.revokeAllDelegations();
-        vm.stopPrank();
-        // Read
-        IDelegationRegistry.DelegationInfo[] memory info0 = reg.getDelegationsForVault(vault0);
-        assertEq(info0.length, 0);
-        IDelegationRegistry.DelegationInfo[] memory info1 = reg.getDelegationsForVault(vault1);
-        assertEq(info1.length, 3);
-        // TODO: Add helper methods that filter by contract or token and get proper enumeration lengths there
-
-        assertFalse(reg.checkDelegateForAll(delegate, vault0));
-        assertTrue(reg.checkDelegateForAll(delegate, vault1));
-        assertFalse(reg.checkDelegateForContract(delegate, vault0, contract_));
-        assertTrue(reg.checkDelegateForContract(delegate, vault1, contract_));
-        assertFalse(reg.checkDelegateForToken(delegate, vault0, contract_, tokenId));
-        assertTrue(reg.checkDelegateForToken(delegate, vault1, contract_, tokenId));
-    }
-
     function testDelegateEnumeration(
         address vault0,
         address vault1,
@@ -227,9 +189,5 @@ contract DelegationRegistryTest is Test {
         vaultDelegations = reg.getDelegationsForVault(vault);
         assertEq(vaultDelegations.length, 5);
         assertTrue(vaultDelegations[1].type_ == IDelegationRegistry.DelegationType.CONTRACT);
-
-        // Revoke all
-        reg.revokeAllDelegations();
-        assertEq(reg.getDelegationsForVault(vault).length, 0);
     }
 }

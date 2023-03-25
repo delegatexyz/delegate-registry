@@ -36,9 +36,6 @@ interface IDelegationRegistry {
         address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bool value
     );
 
-    /// @notice Emitted when a user revokes all delegations
-    event RevokeAllDelegations(address indexed vault);
-
     /**
      * -----------  WRITE -----------
      */
@@ -73,11 +70,6 @@ interface IDelegationRegistry {
      * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
      */
     function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value) external;
-
-    /**
-     * @notice Revoke all delegations that exist for msg.sender
-     */
-    function revokeAllDelegations() external;
 
     /**
      * -----------  READ -----------
