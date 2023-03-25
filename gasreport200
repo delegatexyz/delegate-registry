@@ -1,20 +1,15 @@
 | src/DelegationRegistry.sol:DelegationRegistry contract |                 |        |        |        |         |
 |--------------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                        | Deployment Size |        |        |        |         |
-| 1241888                                                | 6235            |        |        |        |         |
+| 1170614                                                | 5879            |        |        |        |         |
 | Function Name                                          | min             | avg    | median | max    | # calls |
-| checkDelegateForAll                                    | 1588            | 2338   | 1588   | 3588   | 8       |
-| checkDelegateForContract                               | 1706            | 3417   | 4786   | 4786   | 9       |
-| checkDelegateForToken                                  | 1978            | 4594   | 5645   | 8186   | 10      |
-| delegateForAll                                         | 5385            | 151128 | 167448 | 190348 | 20      |
-| delegateForContract                                    | 5836            | 139808 | 163012 | 210812 | 19      |
-| delegateForToken                                       | 6194            | 154232 | 183359 | 231159 | 20      |
-| getContractLevelDelegations                            | 3221            | 7964   | 8211   | 10534  | 6       |
-| getDelegatesForAll                                     | 3273            | 5350   | 5026   | 7730   | 6       |
-| getDelegatesForContract                                | 1353            | 5728   | 6649   | 8260   | 4       |
-| getDelegatesForToken                                   | 1377            | 6140   | 7140   | 8906   | 4       |
-| getDelegationsByDelegate                               | 9526            | 13364  | 13917  | 18051  | 8       |
-| getTokenLevelDelegations                               | 3200            | 9378   | 10121  | 11861  | 6       |
-| revokeAllDelegates                                     | 21570           | 21570  | 21570  | 21570  | 4       |
-| revokeDelegate                                         | 22340           | 22340  | 22340  | 22340  | 4       |
-| revokeSelf                                             | 22342           | 22342  | 22342  | 22342  | 1       |
+| batchDelegate                                          | 206332          | 206332 | 206332 | 206332 | 1       |
+| checkDelegateForAll                                    | 1212            | 1712   | 1212   | 3212   | 4       |
+| checkDelegateForContract                               | 1369            | 3046   | 4164   | 4164   | 5       |
+| checkDelegateForToken                                  | 1440            | 4069   | 4685   | 7083   | 6       |
+| delegateForAll                                         | 5102            | 136228 | 165064 | 187964 | 14      |
+| delegateForContract                                    | 5481            | 136778 | 162538 | 208338 | 11      |
+| delegateForToken                                       | 5760            | 150456 | 182786 | 228586 | 10      |
+| getDelegationsForDelegate                              | 8654            | 12515  | 12579  | 16312  | 6       |
+| getDelegationsForVault                                 | 3247            | 6123   | 3703   | 13914  | 7       |
+| revokeAllDelegates                                     | 18065           | 18184  | 18184  | 18304  | 2       |

@@ -22,6 +22,7 @@ interface IDelegationRegistry {
         address delegate;
         address contract_;
         uint256 tokenId;
+        // bytes32 data;
     }
 
     /// @notice Emitted when a user delegates their entire wallet
@@ -82,31 +83,19 @@ interface IDelegationRegistry {
     function revokeAllDelegates() external;
 
     /**
-     * @notice Revoke a specific delegate for all their permissions
-     * @param delegate The hotwallet to revoke
-     */
-    function revokeDelegate(address delegate) external;
-
-    /**
-     * @notice Remove yourself as a delegate for a specific vault
-     * @param vault The vault which delegated to the msg.sender, and should be removed
-     */
-    function revokeSelf(address vault) external;
-
-    /**
      * -----------  READ -----------
      */
 
     /**
      * @notice Returns all active delegations a given delegate is able to claim on behalf of
-     * @param delegate The delegate that you would like to retrieve delegations for
+     * @param delegate The delegate to retrieve delegations for
      * @return info Array of DelegationInfo structs
      */
     function getDelegationsForDelegate(address delegate) external view returns (DelegationInfo[] memory);
 
     /**
      * @notice Returns all active delegations a vault has given out
-     * @param vault The vault that you would like to retrieve delegations for
+     * @param vault The vault to to retrieve delegations for
      * @return info Array of DelegationInfo structs
      */
     function getDelegationsForVault(address vault) external view returns (DelegationInfo[] memory);
