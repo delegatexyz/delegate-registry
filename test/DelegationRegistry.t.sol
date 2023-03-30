@@ -8,7 +8,7 @@ import {IDelegationRegistry} from "src/IDelegationRegistry.sol";
 
 contract DelegationRegistryTest is Test {
     DelegationRegistry reg;
-    bytes32 data = bytes32(0x69);
+    bytes32 data = bytes32(0x0);
 
     function setUp() public {
         reg = new DelegationRegistry();
@@ -27,41 +27,41 @@ contract DelegationRegistryTest is Test {
     function testApproveAndRevokeForAll(address vault, address delegate) public {
         // Approve
         vm.startPrank(vault);
-        reg.delegateForAll(delegate, true);
-        assertTrue(reg.checkDelegateForAll(delegate, vault));
-        assertTrue(reg.checkDelegateForContract(delegate, vault, address(0x0)));
-        assertTrue(reg.checkDelegateForToken(delegate, vault, address(0x0), 0));
+        reg.delegateForAll(delegate, true, data);
+        assertTrue(reg.checkDelegateForAll(delegate, vault, data));
+        assertTrue(reg.checkDelegateForContract(delegate, vault, address(0x0), data));
+        assertTrue(reg.checkDelegateForToken(delegate, vault, address(0x0), 0, data));
         // Revoke
-        reg.delegateForAll(delegate, false);
-        assertFalse(reg.checkDelegateForAll(delegate, vault));
+        reg.delegateForAll(delegate, false, data);
+        assertFalse(reg.checkDelegateForAll(delegate, vault, data));
     }
 
     function testApproveAndRevokeForContract(address vault, address delegate, address contract_) public {
         // Approve
         vm.startPrank(vault);
-        reg.delegateForContract(delegate, contract_, true);
-        assertTrue(reg.checkDelegateForContract(delegate, vault, contract_));
-        assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, 0));
+        reg.delegateForContract(delegate, contract_, true, data);
+        assertTrue(reg.checkDelegateForContract(delegate, vault, contract_, data));
+        assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, 0, data));
         // Revoke
-        reg.delegateForContract(delegate, contract_, false);
-        assertFalse(reg.checkDelegateForContract(delegate, vault, contract_));
+        reg.delegateForContract(delegate, contract_, false, data);
+        assertFalse(reg.checkDelegateForContract(delegate, vault, contract_, data));
     }
 
     function testApproveAndRevokeForToken(address vault, address delegate, address contract_, uint256 tokenId) public {
         // Approve
         vm.startPrank(vault);
-        reg.delegateForToken(delegate, contract_, tokenId, true);
-        assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, tokenId));
+        reg.delegateForToken(delegate, contract_, tokenId, true, data);
+        assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, tokenId, data));
         // Revoke
-        reg.delegateForToken(delegate, contract_, tokenId, false);
-        assertFalse(reg.checkDelegateForToken(delegate, vault, contract_, tokenId));
+        reg.delegateForToken(delegate, contract_, tokenId, false, data);
+        assertFalse(reg.checkDelegateForToken(delegate, vault, contract_, tokenId, data));
     }
 
     function testMultipleDelegationForAll(address vault, address delegate0, address delegate1) public {
         vm.assume(delegate0 != delegate1);
         vm.startPrank(vault);
-        reg.delegateForAll(delegate0, true);
-        reg.delegateForAll(delegate1, true);
+        reg.delegateForAll(delegate0, true, data);
+        reg.delegateForAll(delegate1, true, data);
         // Read
         IDelegationRegistry.DelegationInfo[] memory info = reg.getDelegationsForVault(vault);
         assertEq(info.length, 2);
@@ -70,7 +70,7 @@ contract DelegationRegistryTest is Test {
         assertEq(info[1].vault, vault);
         assertEq(info[1].delegate, delegate1);
         // Remove
-        reg.delegateForAll(delegate0, false);
+        reg.delegateForAll(delegate0, false, data);
         info = reg.getDelegationsForVault(vault);
         assertEq(info.length, 1);
     }
@@ -84,14 +84,16 @@ contract DelegationRegistryTest is Test {
             vault: vault,
             delegate: delegate0,
             contract_: address(0),
-            tokenId: 0
+            tokenId: 0,
+            data: data
         });
         info[1] = IDelegationRegistry.DelegationInfo({
             type_: IDelegationRegistry.DelegationType.ALL,
             vault: vault,
             delegate: delegate1,
             contract_: address(0),
-            tokenId: 0
+            tokenId: 0,
+            data: data
         });
         bool[] memory values = new bool[](2);
         values[0] = true;
@@ -133,35 +135,35 @@ contract DelegationRegistryTest is Test {
 
         // vault0 delegates all three tiers to delegate0, and all three tiers to delegate1
         vm.startPrank(vault0);
-        reg.delegateForAll(delegate0, true);
-        reg.delegateForContract(delegate0, contract0, true);
-        reg.delegateForToken(delegate0, contract0, tokenId0, true);
-        reg.delegateForAll(delegate1, true);
-        reg.delegateForContract(delegate1, contract1, true);
-        reg.delegateForToken(delegate1, contract1, tokenId1, true);
+        reg.delegateForAll(delegate0, true, data);
+        reg.delegateForContract(delegate0, contract0, true, data);
+        reg.delegateForToken(delegate0, contract0, tokenId0, true, data);
+        reg.delegateForAll(delegate1, true, data);
+        reg.delegateForContract(delegate1, contract1, true, data);
+        reg.delegateForToken(delegate1, contract1, tokenId1, true, data);
 
         // vault1 delegates all three tiers to delegate0
         changePrank(vault1);
-        reg.delegateForAll(delegate0, true);
-        reg.delegateForContract(delegate0, contract0, true);
-        reg.delegateForToken(delegate0, contract0, tokenId0, true);
+        reg.delegateForAll(delegate0, true, data);
+        reg.delegateForContract(delegate0, contract0, true, data);
+        reg.delegateForToken(delegate0, contract0, tokenId0, true, data);
 
         // vault0 revokes all three tiers for delegate0, check incremental decrease in delegate enumerations
         changePrank(vault0);
         // check six in total, three from vault0 and three from vault1
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 6);
-        reg.delegateForAll(delegate0, false);
+        reg.delegateForAll(delegate0, false, data);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 5);
-        reg.delegateForContract(delegate0, contract0, false);
+        reg.delegateForContract(delegate0, contract0, false, data);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 4);
-        reg.delegateForToken(delegate0, contract0, tokenId0, false);
+        reg.delegateForToken(delegate0, contract0, tokenId0, false, data);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 3);
 
         // vault0 re-delegates to delegate0
         changePrank(vault0);
-        reg.delegateForAll(delegate0, true);
-        reg.delegateForContract(delegate0, contract0, true);
-        reg.delegateForToken(delegate0, contract0, tokenId0, true);
+        reg.delegateForAll(delegate0, true, data);
+        reg.delegateForContract(delegate0, contract0, true, data);
+        reg.delegateForToken(delegate0, contract0, tokenId0, true, data);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 6);
         assertEq(reg.getDelegationsForDelegate(delegate1).length, 3);
     }
@@ -179,11 +181,11 @@ contract DelegationRegistryTest is Test {
         vm.assume(delegate0 != delegate1);
         vm.assume(contract0 != contract1);
         vm.startPrank(vault);
-        reg.delegateForAll(delegate0, true);
-        reg.delegateForContract(delegate0, contract0, true);
-        reg.delegateForToken(delegate0, contract1, tokenId, true);
-        reg.delegateForAll(delegate1, true);
-        reg.delegateForContract(delegate1, contract0, true);
+        reg.delegateForAll(delegate0, true, data);
+        reg.delegateForContract(delegate0, contract0, true, data);
+        reg.delegateForToken(delegate0, contract1, tokenId, true, data);
+        reg.delegateForAll(delegate1, true, data);
+        reg.delegateForContract(delegate1, contract0, true, data);
 
         // Read
         IDelegationRegistry.DelegationInfo[] memory vaultDelegations;
