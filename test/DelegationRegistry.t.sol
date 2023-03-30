@@ -8,6 +8,7 @@ import {IDelegationRegistry} from "src/IDelegationRegistry.sol";
 
 contract DelegationRegistryTest is Test {
     DelegationRegistry reg;
+    bytes32 data = bytes32(0x69);
 
     function setUp() public {
         reg = new DelegationRegistry();
