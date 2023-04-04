@@ -3,9 +3,10 @@ src = 'src'
 out = 'out'
 libs = ['lib']
 solc_version = "0.8.19"
-optimizer_runs = 1000000
+optimizer_runs = 100000000
+# via_ir = true
 
 [fmt]
-line_length = 120
+line_length = 160
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

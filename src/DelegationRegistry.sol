@@ -22,16 +22,12 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * - delegateDelegationHashes isn't a strong DDoS vector bc users can call `revokeVault()`
  * - remove revokeDelegate() & revokeSelf() bc mainnet usage misunderstands it, batching mostly replaces this
  * - remove revokeAllDelegations() bc batching gets you similar costs on revocation and far cheaper to not fetch vaultVersions from storage
+ * - data param attached to the delegation for splitting up rights like licensing, governance, and yield to different people
  * TODO:
- * - default calls with data param set to 0?
- * - let people delegate specific amounts that snapshot can mark as used
  * - arbitrary data attached to the delegation, for licensing and governance/yield splitting
- * - add native ERC1155 support, splitting
- * - add native ERC20 support, splitting
- * - how to support fungible token governance? split up assets
- * - identity clusters require that one vault only points to one delegate, not many
- * - hard to check validity of a delegation in one go
- * - gas optimization important for end users like metastreet
+ * - delegation balance splitting for ERC20s and ERC1155s
+ * - identity clusters
+ * - we could bitmask contract address, token id, balance, data into a hash func? brings us back to onchain enumerability
  * STRETCH
  * - zk attestations
  * - account abstraction
@@ -44,29 +40,34 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  *
  *  More broadly speaking, snapshot requires a snapshot in time. Sudo did a lockdrop.
  *
- * For arbitrary data, do we want it to be machine-readable? for staking usecases, yes. so strings won't work. But we also want strings for licensing usecases
- *
- *  You could snapshot user balances and then decrement it as delegations get used piecemeal.
  *  The ERC20 usecase is actually identical to ERC721 if you take a snapshot approach, just decrement balances once used
- *  Delegate *amounts* for ERC20/ERC1155
  *  Another adjustment is that ERC721s are FCFS, while snapshots let you change your vote. if both holder & delegate vote then delegate overridden
  *  this is only possible bc there's no tradeable result while voting is happening, unlike NFT mint
  *  escrow could guarantee you play by the rules
- *  We just need a "balance" parameter. How to make it work for 721s, 20s, and 1155s?
  *
  *  Ontology is more important than implementation details right now. Don't wory about how to revoke.
  *  There are tiers like identity/wallet/contract/token
- *  But also overlapping attributes. Balance can apply to contract + token. And we want to apply arbitrary data to each
  *  And identity is a way of restricting one-to-one, while subdelegations are a way of splitting up one delegation into many parts
  *  Maybe we bitmask to apply balances?
  *
- * Need a generalizable data schema. Study the history of past successes. Not sure where to start.
- * Add an "exclusive" bool parameter to delegations, if true then pushes out the rest.
- * subdelegations would also want an exclusivity parameter
- * Is one-to-many that useful?
+ * Add an "exclusive" bool parameter to delegations, if true then pushes out the rest. Liquid Delegates does exclusivity. Vault can always transfer. Apps shouldn't depend on this.
+ * Many-to-one is used for account aggregation. What about one-to-many, what's this used for?
  *
- * There should be a data field attached to each delegation. That means there can be two delegations with same params but diff data, must return both.
- *  Maybe we just hardcode ERC20, ERC721, ERC1155 usecases. There aren't that many standards. delegateForERC20, delegateForERC721, delegateForERC1155
+ * Maybe we just hardcode ERC20, ERC721, ERC1155 usecases. There aren't that many standards. delegateForERC20, delegateForERC721, delegateForERC1155
+ *
+ * Liquid Delegate could enable the user to create multiple delegations with the data param being set differently.
+ * Maybe one principal token and many delegation tokens. Whoever owns the principal can create new delegation tokens expiring later in the future.
+ *
+ * There could be an extension contract letting people register their own definitions for keys and values?
+ * Having numerical (balance 3600) and string ("IP licensing for bookstore") values in same slot feels ugly
+ *
+ * DATA ONTOLOGY
+ * balance will always be capped at a uint256, same with tokenId
+ * ERC20 = no tokenId, yes balance
+ * ERC721: yes tokenId, no balance
+ * ERC1155: yes tokenId, yes balance
+ *
+ * Bubbling specific data fields into "all" feels messy, if someone delegates for all then it shouldn't matter which param gets passed
  */
 
 /**
@@ -104,10 +105,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function batchDelegate(IDelegationRegistry.DelegationInfo[] calldata details, bool[] calldata values)
-        external
-        override
-    {
+    function batchDelegate(IDelegationRegistry.DelegationInfo[] calldata details, bool[] calldata values) external override {
         uint256 detailsLength = details.length;
         for (uint256 i = 0; i < detailsLength; ++i) {
             IDelegationRegistry.DelegationInfo memory info = details[i];
@@ -126,10 +124,8 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      */
     function delegateForAll(address delegate, bool value, bytes32 data) public override {
         bytes32 delegationHash = _computeDelegationHashForAll(msg.sender, delegate, data);
-        _setDelegationValues(
-            delegate, delegationHash, value, IDelegationRegistry.DelegationType.ALL, msg.sender, address(0), 0, data
-        );
-        emit IDelegationRegistry.DelegateForAll(msg.sender, delegate, value);
+        _setDelegationValues(delegate, delegationHash, value, IDelegationRegistry.DelegationType.ALL, msg.sender, address(0), 0, data);
+        emit IDelegationRegistry.DelegateForAll(msg.sender, delegate, value, data);
     }
 
     /**
@@ -137,32 +133,29 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      */
     function delegateForContract(address delegate, address contract_, bool value, bytes32 data) public override {
         bytes32 delegationHash = _computeDelegationHashForContract(msg.sender, delegate, contract_, data);
-        _setDelegationValues(
-            delegate, delegationHash, value, IDelegationRegistry.DelegationType.CONTRACT, msg.sender, contract_, 0, data
-        );
-        emit IDelegationRegistry.DelegateForContract(msg.sender, delegate, contract_, value);
+        _setDelegationValues(delegate, delegationHash, value, IDelegationRegistry.DelegationType.CONTRACT, msg.sender, contract_, 0, data);
+        emit IDelegationRegistry.DelegateForContract(msg.sender, delegate, contract_, value, data);
+    }
+
+    function delegateForContract2(address delegate, address contract_, uint256 tokenId, uint256 amount, bool value, bytes32 data) public {
+        // what can we use for our placeholder value? 0 or max(uint256)
     }
 
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value, bytes32 data)
-        public
-        override
-    {
+    function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value, bytes32 data) public override {
         bytes32 delegationHash = _computeDelegationHashForToken(msg.sender, delegate, contract_, tokenId, data);
-        _setDelegationValues(
-            delegate,
-            delegationHash,
-            value,
-            IDelegationRegistry.DelegationType.TOKEN,
-            msg.sender,
-            contract_,
-            tokenId,
-            data
-        );
-        emit IDelegationRegistry.DelegateForToken(msg.sender, delegate, contract_, tokenId, value);
+        _setDelegationValues(delegate, delegationHash, value, IDelegationRegistry.DelegationType.TOKEN, msg.sender, contract_, tokenId, data);
+        emit IDelegationRegistry.DelegateForToken(msg.sender, delegate, contract_, tokenId, value, data);
     }
+
+    // /**
+    //  * @notice Delegate for an ERC20
+    //  */
+    // function delegateForFungibleToken(address delegate, address contract_, uint256 amount, bool value, bytes32 data) public {
+    //     bytes32 delegationHash = _compute
+    // }
 
     /**
      * @dev Helper function to set all delegation values and enumeration sets
@@ -180,14 +173,8 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         if (value) {
             vaultDelegationHashes[vault].add(delegationHash);
             delegateDelegationHashes[delegate].add(delegationHash);
-            delegationInfo[delegationHash] = DelegationInfo({
-                vault: vault,
-                delegate: delegate,
-                type_: type_,
-                contract_: contract_,
-                tokenId: tokenId,
-                data: data
-            });
+            delegationInfo[delegationHash] =
+                DelegationInfo({vault: vault, delegate: delegate, type_: type_, contract_: contract_, tokenId: tokenId, data: data});
         } else {
             vaultDelegationHashes[vault].remove(delegationHash);
             delegateDelegationHashes[delegate].remove(delegationHash);
@@ -198,35 +185,25 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @dev Helper function to compute delegation hash for wallet delegation
      */
-    function _computeDelegationHashForAll(address vault, address delegate, bytes32 data)
-        internal
-        pure
-        returns (bytes32)
-    {
+    function _computeDelegationHashForAll(address vault, address delegate, bytes32 data) internal pure returns (bytes32) {
         return keccak256(abi.encode(delegate, vault, data));
     }
 
     /**
      * @dev Helper function to compute delegation hash for contract delegation
      */
-    function _computeDelegationHashForContract(address vault, address delegate, address contract_, bytes32 data)
-        internal
-        pure
-        returns (bytes32)
-    {
+    function _computeDelegationHashForContract(address vault, address delegate, address contract_, bytes32 data) internal pure returns (bytes32) {
         return keccak256(abi.encode(delegate, vault, contract_, data));
     }
 
     /**
      * @dev Helper function to compute delegation hash for token delegation
      */
-    function _computeDelegationHashForToken(
-        address vault,
-        address delegate,
-        address contract_,
-        uint256 tokenId,
-        bytes32 data
-    ) internal pure returns (bytes32) {
+    function _computeDelegationHashForToken(address vault, address delegate, address contract_, uint256 tokenId, bytes32 data)
+        internal
+        pure
+        returns (bytes32)
+    {
         return keccak256(abi.encode(delegate, vault, contract_, tokenId, data));
     }
 
@@ -237,22 +214,14 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function getDelegationsForDelegate(address delegate)
-        external
-        view
-        returns (IDelegationRegistry.DelegationInfo[] memory)
-    {
+    function getDelegationsForDelegate(address delegate) external view returns (IDelegationRegistry.DelegationInfo[] memory) {
         return _lookupHashes(delegateDelegationHashes[delegate]);
     }
 
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function getDelegationsForVault(address vault)
-        external
-        view
-        returns (IDelegationRegistry.DelegationInfo[] memory)
-    {
+    function getDelegationsForVault(address vault) external view returns (IDelegationRegistry.DelegationInfo[] memory) {
         return _lookupHashes(vaultDelegationHashes[vault]);
     }
 
@@ -279,12 +248,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function checkDelegateForContract(address delegate, address vault, address contract_, bytes32 data)
-        public
-        view
-        override
-        returns (bool)
-    {
+    function checkDelegateForContract(address delegate, address vault, address contract_, bytes32 data) public view override returns (bool) {
         bytes32 delegationHash = keccak256(abi.encode(delegate, vault, contract_, data));
         return vaultDelegationHashes[vault].contains(delegationHash) ? true : checkDelegateForAll(delegate, vault, data);
     }
@@ -292,15 +256,8 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data)
-        external
-        view
-        override
-        returns (bool)
-    {
+    function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data) external view override returns (bool) {
         bytes32 delegationHash = keccak256(abi.encode(delegate, vault, contract_, tokenId, data));
-        return vaultDelegationHashes[vault].contains(delegationHash)
-            ? true
-            : checkDelegateForContract(delegate, vault, contract_, data);
+        return vaultDelegationHashes[vault].contains(delegationHash) ? true : checkDelegateForContract(delegate, vault, contract_, data);
     }
 }

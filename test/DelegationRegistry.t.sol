@@ -168,14 +168,7 @@ contract DelegationRegistryTest is Test {
         assertEq(reg.getDelegationsForDelegate(delegate1).length, 3);
     }
 
-    function testVaultEnumerations(
-        address vault,
-        address delegate0,
-        address delegate1,
-        address contract0,
-        address contract1,
-        uint256 tokenId
-    ) public {
+    function testVaultEnumerations(address vault, address delegate0, address delegate1, address contract0, address contract1, uint256 tokenId) public {
         vm.assume(vault != delegate0);
         vm.assume(vault != delegate1);
         vm.assume(delegate0 != delegate1);

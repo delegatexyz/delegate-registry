@@ -14,6 +14,9 @@ interface IDelegationRegistry {
         CONTRACT,
         TOKEN
     }
+    // ERC20,
+    // ERC721,
+    // ERC1155
 
     /// @notice Info about a single delegation, used for onchain enumeration
     struct DelegationInfo {
@@ -26,15 +29,13 @@ interface IDelegationRegistry {
     }
 
     /// @notice Emitted when a user delegates their entire wallet
-    event DelegateForAll(address indexed vault, address indexed delegate, bool value);
+    event DelegateForAll(address indexed vault, address indexed delegate, bool value, bytes32 data);
 
     /// @notice Emitted when a user delegates a specific contract
-    event DelegateForContract(address indexed vault, address indexed delegate, address indexed contract_, bool value);
+    event DelegateForContract(address indexed vault, address indexed delegate, address indexed contract_, bool value, bytes32 data);
 
     /// @notice Emitted when a user delegates a specific token
-    event DelegateForToken(
-        address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bool value
-    );
+    event DelegateForToken(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bool value, bytes32 data);
 
     /**
      * -----------  WRITE -----------
@@ -69,8 +70,7 @@ interface IDelegationRegistry {
      * @param tokenId The token id for the token you're delegating
      * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
      */
-    function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value, bytes32 data)
-        external;
+    function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value, bytes32 data) external;
 
     /**
      * -----------  READ -----------
@@ -103,10 +103,7 @@ interface IDelegationRegistry {
      * @param contract_ The address for the contract you're delegating
      * @param vault The cold wallet who issued the delegation
      */
-    function checkDelegateForContract(address delegate, address vault, address contract_, bytes32 data)
-        external
-        view
-        returns (bool);
+    function checkDelegateForContract(address delegate, address vault, address contract_, bytes32 data) external view returns (bool);
 
     /**
      * @notice Returns true if the address is delegated to act on your behalf for a specific token, the token's contract or an entire vault
@@ -115,8 +112,5 @@ interface IDelegationRegistry {
      * @param tokenId The token id for the token you're delegating
      * @param vault The cold wallet who issued the delegation
      */
-    function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data)
-        external
-        view
-        returns (bool);
+    function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data) external view returns (bool);
 }
