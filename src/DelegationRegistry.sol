@@ -102,9 +102,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      * ----------- WRITE -----------
      */
 
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
+    /// @inheritdoc IDelegationRegistry
     function batchDelegate(IDelegationRegistry.DelegationInfo[] calldata details, bool[] calldata values) external override {
         uint256 detailsLength = details.length;
         for (uint256 i = 0; i < detailsLength; ++i) {
@@ -119,18 +117,14 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         }
     }
 
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
+    /// @inheritdoc IDelegationRegistry
     function delegateForAll(address delegate, bool value, bytes32 data) public override {
         bytes32 delegationHash = _computeDelegationHashForAll(msg.sender, delegate, data);
         _setDelegationValues(delegate, delegationHash, value, IDelegationRegistry.DelegationType.ALL, msg.sender, address(0), 0, data);
         emit IDelegationRegistry.DelegateForAll(msg.sender, delegate, value, data);
     }
 
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
+    /// @inheritdoc IDelegationRegistry
     function delegateForContract(address delegate, address contract_, bool value, bytes32 data) public override {
         bytes32 delegationHash = _computeDelegationHashForContract(msg.sender, delegate, contract_, data);
         _setDelegationValues(delegate, delegationHash, value, IDelegationRegistry.DelegationType.CONTRACT, msg.sender, contract_, 0, data);
@@ -141,9 +135,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         // what can we use for our placeholder value? 0 or max(uint256)
     }
 
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
+    /// @inheritdoc IDelegationRegistry
     function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value, bytes32 data) public override {
         bytes32 delegationHash = _computeDelegationHashForToken(msg.sender, delegate, contract_, tokenId, data);
         _setDelegationValues(delegate, delegationHash, value, IDelegationRegistry.DelegationType.TOKEN, msg.sender, contract_, tokenId, data);
