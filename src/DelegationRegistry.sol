@@ -106,13 +106,12 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     function batchDelegate(IDelegationRegistry.DelegationInfo[] calldata details, bool[] calldata values) external override {
         uint256 detailsLength = details.length;
         for (uint256 i = 0; i < detailsLength; ++i) {
-            IDelegationRegistry.DelegationInfo memory info = details[i];
-            if (info.type_ == IDelegationRegistry.DelegationType.ALL) {
-                delegateForAll(info.delegate, values[i], info.data);
-            } else if (info.type_ == IDelegationRegistry.DelegationType.CONTRACT) {
-                delegateForContract(info.delegate, info.contract_, values[i], info.data);
-            } else if (info.type_ == IDelegationRegistry.DelegationType.TOKEN) {
-                delegateForToken(info.delegate, info.contract_, info.tokenId, values[i], info.data);
+            if (details[i].type_ == IDelegationRegistry.DelegationType.ALL) {
+                delegateForAll(details[i].delegate, values[i], details[i].data);
+            } else if (details[i].type_ == IDelegationRegistry.DelegationType.CONTRACT) {
+                delegateForContract(details[i].delegate, details[i].contract_, values[i], details[i].data);
+            } else if (details[i].type_ == IDelegationRegistry.DelegationType.TOKEN) {
+                delegateForToken(details[i].delegate, details[i].contract_, details[i].tokenId, values[i], details[i].data);
             }
         }
     }
