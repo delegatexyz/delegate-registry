@@ -140,5 +140,5 @@ interface IDelegationRegistry {
      * @param contract_ The address for the contract you're delegating
      * @param vault The cold wallet who issued the delegation
      */
-    function checkDelegateForBalance(address delegate, address vault, address contract_, bytes32 data) external view returns (uint);
+    function checkDelegateForBalance(address delegate, address vault, address contract_, bytes32 data) external view returns (uint256);
 }

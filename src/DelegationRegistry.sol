@@ -199,7 +199,11 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      * @dev also being used by delegateForBalance hashes with tokenId encoded as 0
      * @dev collision with tokenId 0 shouldn't be meaningful but modify hash encoding structure to avoid
      */
-    function _computeDelegationHashForToken(address vault, address delegate, address contract_, uint256 tokenId, bytes32 data) internal pure returns (bytes32) {
+    function _computeDelegationHashForToken(address vault, address delegate, address contract_, uint256 tokenId, bytes32 data)
+        internal
+        pure
+        returns (bytes32)
+    {
         return keccak256(abi.encode(delegate, vault, contract_, tokenId, data));
     }
 
@@ -261,7 +265,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function checkDelegateForBalance(address delegate, address vault, address contract_, bytes32 data) external view override returns (uint) {
+    function checkDelegateForBalance(address delegate, address vault, address contract_, bytes32 data) external view override returns (uint256) {
         bytes32 delegationHash = _computeDelegationHashForToken(vault, delegate, contract_, 0, data);
         return vaultDelegationHashes[vault].contains(delegationHash)
             ? delegationInfo[delegationHash].balance
