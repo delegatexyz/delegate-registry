@@ -12,7 +12,8 @@ interface IDelegationRegistry {
         NONE,
         ALL,
         CONTRACT,
-        TOKEN
+        TOKEN,
+        BALANCE
     }
     // ERC20,
     // ERC721,
@@ -25,6 +26,7 @@ interface IDelegationRegistry {
         address delegate;
         address contract_;
         uint256 tokenId;
+        uint256 balance;
         bytes32 data;
     }
 
@@ -35,7 +37,10 @@ interface IDelegationRegistry {
     event DelegateForContract(address indexed vault, address indexed delegate, address indexed contract_, bool value, bytes32 data);
 
     /// @notice Emitted when a user delegates a specific token
-    event DelegateForToken(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bool value, bytes32 data);
+    event DelegateForToken(address indexed vault, address indexed delegate, address indexed contract_, uint256 number, bool value, bytes32 data);
+
+    /// @notice Emitted when a user delegates a fungible balance
+    event DelegateForBalance(address indexed vault, address indexed delegate, address indexed contract_, uint256 balance, bool value, bytes32 data);
 
     /**
      * -----------  WRITE -----------
@@ -71,6 +76,15 @@ interface IDelegationRegistry {
      * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
      */
     function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value, bytes32 data) external;
+
+    /**
+     * @notice Allow the delegate to act on your behalf for a specific fungible balance
+     * @param delegate The hotwallet to act on your behalf
+     * @param contract_ The address for the contract you're delegating
+     * @param balance The balance of the fungible you want to delegate
+     * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
+     */
+    function delegateForBalance(address delegate, address contract_, uint256 balance, bool value, bytes32 data) external;
 
     /**
      * -----------  READ -----------
@@ -113,4 +127,13 @@ interface IDelegationRegistry {
      * @param vault The cold wallet who issued the delegation
      */
     function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data) external view returns (bool);
+
+    /**
+     * @notice Returns true if the address is delegated to act on the behalf of a fungible balance, the token's contract, or an entire vault
+     * @param delegate The hotwallet to act on your behalf
+     * @param contract_ The address for the contract you're delegating
+     * @param balance The fungible balance being delegated
+     * @param vault The cold wallet who issued the delegation
+     */
+    function checkDelegateForBalance(address delegate, address vault, address contract_, uint256 balance, bytes32 data) external view returns (bool);
 }
