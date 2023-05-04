@@ -145,11 +145,13 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
 
     /**
      * @notice Delegate a specific balance of fungible tokens
+     * @dev collides with delegateForToken method, but shouldn't be problem given contract_ encoding
+     * @dev we could come up with a different way where balance hash is actually the result of a boolean and balance is the stored upper bound
      */
     function delegateForBalance(address delegate, address contract_, uint256 balance, bool value, bytes32 data) public {
         bytes32 delegationHash = _computeDelegationHashForUint(msg.sender, delegate, contract_, balance, data);
-        _setDelegationValues(delegate, delegationHash, value, IDelegationRegistry.DelegationType.TOKEN, msg.sender, contract_, 0, balance, data);
-        emit DelegateForBalance(msg.sender, delegate, contract_, balance, value, data);
+        _setDelegationValues(delegate, delegationHash, value, IDelegationRegistry.DelegationType.BALANCE, msg.sender, contract_, 0, balance, data);
+        emit IDelegationRegistry.DelegateForBalance(msg.sender, delegate, contract_, balance, value, data);
     }
 
     /**
@@ -194,7 +196,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
 
     /**
      * @dev Helper function to compute delegation hash for a delegation encoded with a a contract and a single uint
-     * @dev This can be used tokenID OR fungible token balance cases, contract_ encoding will prevent collision
+     * @dev This can be used for tokenID OR fungible token balance cases, contract_ encoding will prevent collision (is this something we want?)
      */
     function _computeDelegationHashForUint(address vault, address delegate, address contract_, uint256 number, bytes32 data) internal pure returns (bytes32) {
         return keccak256(abi.encode(delegate, vault, contract_, number, data));
@@ -249,7 +251,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data) external view override returns (bool) {
+    function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data) public view override returns (bool) {
         return vaultDelegationHashes[vault].contains(_computeDelegationHashForUint(vault, delegate, contract_, tokenId, data))
             ? true
             : checkDelegateForContract(delegate, vault, contract_, data);
