@@ -138,18 +138,18 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
 
     /// @inheritdoc IDelegationRegistry
     function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value, bytes32 data) public override {
-        bytes32 delegationHash = _computeDelegationHashForUint(msg.sender, delegate, contract_, tokenId, data);
+        bytes32 delegationHash = _computeDelegationHashForToken(msg.sender, delegate, contract_, tokenId, data);
         _setDelegationValues(delegate, delegationHash, value, IDelegationRegistry.DelegationType.TOKEN, msg.sender, contract_, tokenId, 0, data);
         emit IDelegationRegistry.DelegateForToken(msg.sender, delegate, contract_, tokenId, value, data);
     }
 
     /**
-     * @notice Delegate a specific balance of fungible tokens
-     * @dev collides with delegateForToken method, but shouldn't be problem given contract_ encoding
-     * @dev we could come up with a different way where balance hash is actually the result of a boolean and balance is the stored upper bound
+     * @dev collides with delegateForToken method with tokenId = 0, but shouldn't be problem given contract_ encoding
+     * @dev the actual balance is not encoded in the hash, just the existence of a balance (since it is an upper bound)
      */
+    /// @inheritdoc IDelegationRegistry
     function delegateForBalance(address delegate, address contract_, uint256 balance, bool value, bytes32 data) public {
-        bytes32 delegationHash = _computeDelegationHashForUint(msg.sender, delegate, contract_, balance, data);
+        bytes32 delegationHash = _computeDelegationHashForToken(msg.sender, delegate, contract_, 0, data);
         _setDelegationValues(delegate, delegationHash, value, IDelegationRegistry.DelegationType.BALANCE, msg.sender, contract_, 0, balance, data);
         emit IDelegationRegistry.DelegateForBalance(msg.sender, delegate, contract_, balance, value, data);
     }
@@ -195,11 +195,12 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     }
 
     /**
-     * @dev Helper function to compute delegation hash for a delegation encoded with a a contract and a single uint
-     * @dev This can be used for tokenID OR fungible token balance cases, contract_ encoding will prevent collision (is this something we want?)
+     * @dev Helper function to compute delegation hash for token delegation
+     * @dev also being used by delegateForBalance hashes with tokenId encoded as 0
+     * @dev collision with tokenId 0 shouldn't be meaningful but modify hash encoding structure to avoid
      */
-    function _computeDelegationHashForUint(address vault, address delegate, address contract_, uint256 number, bytes32 data) internal pure returns (bytes32) {
-        return keccak256(abi.encode(delegate, vault, contract_, number, data));
+    function _computeDelegationHashForToken(address vault, address delegate, address contract_, uint256 tokenId, bytes32 data) internal pure returns (bytes32) {
+        return keccak256(abi.encode(delegate, vault, contract_, tokenId, data));
     }
 
     /**
@@ -252,7 +253,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      * @inheritdoc IDelegationRegistry
      */
     function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data) public view override returns (bool) {
-        return vaultDelegationHashes[vault].contains(_computeDelegationHashForUint(vault, delegate, contract_, tokenId, data))
+        return vaultDelegationHashes[vault].contains(_computeDelegationHashForToken(vault, delegate, contract_, tokenId, data))
             ? true
             : checkDelegateForContract(delegate, vault, contract_, data);
     }
@@ -260,9 +261,10 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     /**
      * @inheritdoc IDelegationRegistry
      */
-    function checkDelegateForBalance(address delegate, address vault, address contract_, uint256 balance, bytes32 data) external view override returns (bool) {
-        return vaultDelegationHashes[vault].contains(_computeDelegationHashForUint(vault, delegate, contract_, balance, data))
-            ? true
-            : checkDelegateForContract(delegate, vault, contract_, data);
+    function checkDelegateForBalance(address delegate, address vault, address contract_, bytes32 data) external view override returns (uint) {
+        bytes32 delegationHash = _computeDelegationHashForToken(vault, delegate, contract_, 0, data);
+        return vaultDelegationHashes[vault].contains(delegationHash)
+            ? delegationInfo[delegationHash].balance
+            : (checkDelegateForContract(delegate, vault, contract_, data) ? type(uint256).max : 0);
     }
 }

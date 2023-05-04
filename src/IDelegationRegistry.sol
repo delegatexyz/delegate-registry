@@ -43,7 +43,9 @@ interface IDelegationRegistry {
     event DelegateForBalance(address indexed vault, address indexed delegate, address indexed contract_, uint256 balance, bool value, bytes32 data);
 
     /// @notice Emitted when a user delegates a specific token with a specific balance
-    event DelegateForTokenBalance(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, uint256 balance, bool value, bytes32 data);
+    event DelegateForTokenBalance(
+        address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, uint256 balance, bool value, bytes32 data
+    );
 
     /**
      * -----------  WRITE -----------
@@ -89,7 +91,6 @@ interface IDelegationRegistry {
      */
     function delegateForBalance(address delegate, address contract_, uint256 balance, bool value, bytes32 data) external;
 
-
     /**
      * -----------  READ -----------
      */
@@ -133,12 +134,11 @@ interface IDelegationRegistry {
     function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data) external view returns (bool);
 
     /**
-     * @notice Returns true if the address is delegated to act on the behalf of a specific fungible balance, the token's contract, or an entire vault
-     * @dev we may need to change this method or create another method since balance is an upper bound
+     * @notice Returns the balance of a contract_ that the address is delegated to act on the behalf, or max(uint256) if the the token's contract or entire vault has been delegated (and 0 otherwise)
+     * @dev we may need to change this method or create another method since this isn't providing truth of a balance, just returning it
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address for the contract you're delegating
-     * @param balance The fungible balance being delegated
      * @param vault The cold wallet who issued the delegation
      */
-    function checkDelegateForBalance(address delegate, address vault, address contract_, uint256 balance, bytes32 data) external view returns (bool);
+    function checkDelegateForBalance(address delegate, address vault, address contract_, bytes32 data) external view returns (uint);
 }

@@ -31,7 +31,7 @@ contract DelegationRegistryTest is Test {
         assertTrue(reg.checkDelegateForAll(delegate, vault, data));
         assertTrue(reg.checkDelegateForContract(delegate, vault, address(0x0), data));
         assertTrue(reg.checkDelegateForToken(delegate, vault, address(0x0), 0, data));
-        assertTrue(reg.checkDelegateForBalance(delegate, vault, address(0), 0, data));
+        assertEq(reg.checkDelegateForBalance(delegate, vault, address(0), data), type(uint256).max);
         // Revoke
         reg.delegateForAll(delegate, false, data);
         assertFalse(reg.checkDelegateForAll(delegate, vault, data));
@@ -43,7 +43,7 @@ contract DelegationRegistryTest is Test {
         reg.delegateForContract(delegate, contract_, true, data);
         assertTrue(reg.checkDelegateForContract(delegate, vault, contract_, data));
         assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, 0, data));
-        assertTrue(reg.checkDelegateForBalance(delegate, vault, contract_, 0, data));
+        assertEq(reg.checkDelegateForBalance(delegate, vault, contract_, data), type(uint256).max);
         // Revoke
         reg.delegateForContract(delegate, contract_, false, data);
         assertFalse(reg.checkDelegateForContract(delegate, vault, contract_, data));
@@ -63,10 +63,10 @@ contract DelegationRegistryTest is Test {
         // Approve
         vm.startPrank(vault);
         reg.delegateForBalance(delegate, contract_, balance, true, data_);
-        assertTrue(reg.checkDelegateForBalance(delegate, vault, contract_, balance, data_));
+        assertEq(reg.checkDelegateForBalance(delegate, vault, contract_, data_), balance);
         // Revoke
         reg.delegateForBalance(delegate, contract_, balance, false, data_);
-        assertFalse(reg.checkDelegateForBalance(delegate, vault, contract_, balance, data_));
+        assertEq(reg.checkDelegateForBalance(delegate, vault, contract_, data_), 0);
     }
 
     function testMultipleDelegationForAll(address vault, address delegate0, address delegate1) public {
@@ -194,8 +194,8 @@ contract DelegationRegistryTest is Test {
         vm.assume(vault != delegate0 && vault != delegate1);
         vm.assume(delegate0 != delegate1);
         vm.assume(contract0 != contract1);
-        // Assuming this to avoid collisions again
-        vm.assume(balance != tokenId);
+        // Assuming to avoid collision with delegate balance
+        vm.assume(tokenId != 0);
         vm.startPrank(vault);
         reg.delegateForAll(delegate0, true, data);
         reg.delegateForContract(delegate0, contract0, true, data);
