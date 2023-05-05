@@ -114,6 +114,8 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
                 delegateForToken(details[i].delegate, details[i].contract_, details[i].tokenId, values[i], details[i].data);
             } else if (details[i].type_ == IDelegationRegistry.DelegationType.BALANCE) {
                 delegateForBalance(details[i].delegate, details[i].contract_, details[i].balance, values[i], details[i].data);
+            } else if (details[i].type_ == IDelegationRegistry.DelegationType.TOKEN_BALANCE) {
+                delegateForTokenBalance(details[i].delegate, details[i].contract_, details[i].tokenId, details[i].balance, values[i], details[i].data);
             }
         }
     }
@@ -144,13 +146,24 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
     }
 
     /**
-     * @dev collides with delegateForToken method with tokenId = 0, but shouldn't be problem given contract_ encoding
+     * @inheritdoc IDelegationRegistry
+     * @dev collides with delegateForTokenBalance method with tokenId = 0, but shouldn't be problem given contract_ encoding
      * @dev the actual balance is not encoded in the hash, just the existence of a balance (since it is an upper bound)
      */
-    /// @inheritdoc IDelegationRegistry
-    function delegateForBalance(address delegate, address contract_, uint256 balance, bool value, bytes32 data) public {
-        bytes32 delegationHash = _computeDelegationHashForToken(msg.sender, delegate, contract_, 0, data);
+    function delegateForBalance(address delegate, address contract_, uint256 balance, bool value, bytes32 data) public override {
+        bytes32 delegationHash = _computeDelegationHashForTokenBalance(msg.sender, delegate, contract_, 0, data);
         _setDelegationValues(delegate, delegationHash, value, IDelegationRegistry.DelegationType.BALANCE, msg.sender, contract_, 0, balance, data);
+        emit IDelegationRegistry.DelegateForBalance(msg.sender, delegate, contract_, balance, value, data);
+    }
+
+    /**
+     * @inheritdoc IDelegationRegistry
+     * @dev collides with delegateForBalance method with tokenId = 0, but shouldn't be problem given contract_ encoding
+     * @dev the actual balance is not encoded in the hash, just the existence of a balance (since it is an upper bound)
+     */
+    function delegateForTokenBalance(address delegate, address contract_, uint256 tokenId, uint256 balance, bool value, bytes32 data) public override {
+        bytes32 delegationHash = _computeDelegationHashForTokenBalance(msg.sender, delegate, contract_, tokenId, data);
+        _setDelegationValues(delegate, delegationHash, value, IDelegationRegistry.DelegationType.BALANCE, msg.sender, contract_, tokenId, balance, data);
         emit IDelegationRegistry.DelegateForBalance(msg.sender, delegate, contract_, balance, value, data);
     }
 
@@ -196,8 +209,6 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
 
     /**
      * @dev Helper function to compute delegation hash for token delegation
-     * @dev also being used by delegateForBalance hashes with tokenId encoded as 0
-     * @dev collision with tokenId 0 shouldn't be meaningful but modify hash encoding structure to avoid
      */
     function _computeDelegationHashForToken(address vault, address delegate, address contract_, uint256 tokenId, bytes32 data)
         internal
@@ -205,6 +216,18 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         returns (bytes32)
     {
         return keccak256(abi.encode(delegate, vault, contract_, tokenId, data));
+    }
+
+    /**
+     * @dev Helper function to compute delegation hash for balance delegation
+     * @dev balance for erc20 encoded with tokenId 0, collision with tokenId 0 shouldn't be meaningful due to contract_ encoding
+     */
+    function _computeDelegationHashForTokenBalance(address vault, address delegate, address contract_, uint256 tokenId, bytes32 data)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return keccak256(abi.encode(delegate, vault, contract_, tokenId, 0, data));
     }
 
     /**
@@ -266,9 +289,24 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      * @inheritdoc IDelegationRegistry
      */
     function checkDelegateForBalance(address delegate, address vault, address contract_, bytes32 data) external view override returns (uint256) {
-        bytes32 delegationHash = _computeDelegationHashForToken(vault, delegate, contract_, 0, data);
+        bytes32 delegationHash = _computeDelegationHashForTokenBalance(vault, delegate, contract_, 0, data);
         return vaultDelegationHashes[vault].contains(delegationHash)
             ? delegationInfo[delegationHash].balance
             : (checkDelegateForContract(delegate, vault, contract_, data) ? type(uint256).max : 0);
+    }
+
+    /**
+     * @inheritdoc IDelegationRegistry
+     */
+    function checkDelegateForTokenBalance(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data)
+        external
+        view
+        override
+        returns (uint256)
+    {
+        bytes32 delegationHash = _computeDelegationHashForTokenBalance(vault, delegate, contract_, tokenId, data);
+        return vaultDelegationHashes[vault].contains(delegationHash)
+            ? delegationInfo[delegationHash].balance
+            : (checkDelegateForToken(delegate, vault, contract_, tokenId, data) ? type(uint256).max : 0);
     }
 }

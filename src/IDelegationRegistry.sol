@@ -13,7 +13,8 @@ interface IDelegationRegistry {
         ALL,
         CONTRACT,
         TOKEN,
-        BALANCE
+        BALANCE,
+        TOKEN_BALANCE
     }
     // ERC20,
     // ERC721,
@@ -85,11 +86,21 @@ interface IDelegationRegistry {
     /**
      * @notice Allow the delegate to act on your behalf for a specific fungible balance
      * @param delegate The hotwallet to act on your behalf
-     * @param contract_ The address for the contract you're delegating
-     * @param balance The balance of the fungible you want to delegate
+     * @param contract_ The address for the fungible token contract
+     * @param balance The balance you want to delegate
      * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
      */
     function delegateForBalance(address delegate, address contract_, uint256 balance, bool value, bytes32 data) external;
+
+    /**
+     * @notice Allow the delegate to act on your behalf for a specific balance for a specific token
+     * @param delegate The hotwallet to act on your behalf
+     * @param contract_ The address of the contract that holds the token
+     * @param tokenId, the id of the token you are delegating the balance of
+     * @param balance The balance you want to delegate
+     * @param value Whether to enable or disable delegation for this address, true for setting and false for revoking
+     */
+    function delegateForTokenBalance(address delegate, address contract_, uint256 tokenId, uint256 balance, bool value, bytes32 data) external;
 
     /**
      * -----------  READ -----------
@@ -134,11 +145,21 @@ interface IDelegationRegistry {
     function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data) external view returns (bool);
 
     /**
-     * @notice Returns the balance of a contract_ that the address is delegated to act on the behalf, or max(uint256) if the the token's contract or entire vault has been delegated (and 0 otherwise)
+     * @notice Returns the balance of a fungible token that the address is delegated to act on the behalf, or max(uint256) if the the token's contract or entire vault has been delegated (and 0 otherwise)
      * @dev we may need to change this method or create another method since this isn't providing truth of a balance, just returning it
      * @param delegate The hotwallet to act on your behalf
-     * @param contract_ The address for the contract you're delegating
+     * @param contract_ The address of the token contract
      * @param vault The cold wallet who issued the delegation
      */
     function checkDelegateForBalance(address delegate, address vault, address contract_, bytes32 data) external view returns (uint256);
+
+    /**
+     * @notice Returns the balance of a specific token that the address is delegated to act on the behalf, or max(uint256) if the the specific token, the token's contract or entire vault has been delegated (and 0 otherwise)
+     * @dev we may need to change this method or create another method since this isn't providing truth of a balance, just returning it
+     * @param delegate The hotwallet to act on your behalf
+     * @param contract_ The address of the token contract
+     * @param tokenId the token id for the token you're delegating the balance of
+     * @param vault The cold wallet who issued the delegation
+     */
+    function checkDelegateForTokenBalance(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data) external view returns (uint256);
 }
