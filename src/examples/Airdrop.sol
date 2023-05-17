@@ -22,7 +22,7 @@ contract Airdrop is ERC20 {
 
     error InvalidProof(bytes32 merkleRoot, bytes32[] merkleProof, bytes32 leaf);
 
-    error InsufficientDelegation(delegationAmount, alreadyClaimed);
+    error InsufficientDelegation(uint256 delegationAmount, uint256 alreadyClaimed);
 
     event Claim(address indexed claimant, uint256 indexed amount, address beneficiary, uint256 received);
 
@@ -45,8 +45,8 @@ contract Airdrop is ERC20 {
         if (msg.sender != claimant) {
             uint256 allowance = r.checkDelegateForBalance(msg.sender, claimant, referenceToken, "");
             uint256 alreadyClaimed = beneficiaryClaimed[claimant][msg.sender];
-            if (beneficiaryClaimed >= alreadyClaimed) {
-                revert InsufficientDelegation(delegationAmount, alreadyClaimed);
+            if (alreadyClaimed >= allowance) {
+                revert InsufficientDelegation(allowance, alreadyClaimed);
             }
             uint256 remainingLimit = allowance - alreadyClaimed;
             remainingTokens = Math.min(remainingTokens, remainingLimit);
