@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 
 import {Merkle} from "murky/Merkle.sol";
-import {Airdrop} from "../../src/examples/Airdrop.sol";
+import {Airdrop} from "src/examples/Airdrop.sol";
 import {DelegationRegistry} from "src/DelegationRegistry.sol";
 import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 
