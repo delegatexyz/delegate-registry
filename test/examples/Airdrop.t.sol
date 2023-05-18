@@ -90,12 +90,11 @@ contract AirdropTest is Test {
         // Test that total supply is expected
         assertEq(totalSupply_, a.balanceOf(address(a)));
         // Try to claim with bogus proof
-        for (uint256 i=0; i<n; i++) {
-            (uint256 bogusAmount, address bogusReceiver, bytes32 bogusData,) =
-            generateAirdropRecord(amountSeed, addressSeed, i);
+        for (uint256 i = 0; i < n; i++) {
+            (uint256 bogusAmount, address bogusReceiver, bytes32 bogusData,) = generateAirdropRecord(amountSeed, addressSeed, i);
             bytes32[] memory proof = m.getProof(airdropData, i);
             vm.startPrank(bogusReceiver);
-            vm.expectRevert(abi.encodeWithSelector(Airdrop.InvalidProof.selector, root,  proof, bogusData));
+            vm.expectRevert(abi.encodeWithSelector(Airdrop.InvalidProof.selector, root, proof, bogusData));
             a.claim(bogusReceiver, bogusAmount, proof);
             vm.stopPrank();
         }
