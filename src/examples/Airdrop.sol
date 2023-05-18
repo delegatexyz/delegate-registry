@@ -51,7 +51,7 @@ contract Airdrop is ERC20 {
             uint256 remainingLimit = allowance - alreadyClaimed;
             remainingTokens = Math.min(remainingTokens, remainingLimit);
             // Decrement beneficiaryClaimed
-            beneficiaryClaimed[claimant][msg.sender] -= remainingTokens;
+            beneficiaryClaimed[claimant][msg.sender] += remainingTokens;
         }
         // Increment claimed
         claimed[claimant] += remainingTokens;
