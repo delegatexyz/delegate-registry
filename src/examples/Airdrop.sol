@@ -8,17 +8,17 @@ import {ERC20} from "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 
 contract Airdrop is ERC20 {
-    Merkle m;
+    Merkle public m;
 
-    IDelegationRegistry r;
+    IDelegationRegistry public r;
 
     bytes32 public immutable merkleRoot;
 
     address public immutable referenceToken;
 
-    mapping(address claimant => uint256 claimed) claimed;
+    mapping(address claimant => uint256 claimed) public claimed;
 
-    mapping(address claimant => mapping(address beneficiary => uint256 claimed)) beneficiaryClaimed;
+    mapping(address claimant => mapping(address beneficiary => uint256 claimed)) public beneficiaryClaimed;
 
     error InvalidProof(bytes32 merkleRoot, bytes32[] merkleProof, bytes32 leaf);
 
@@ -26,11 +26,11 @@ contract Airdrop is ERC20 {
 
     event Claim(address indexed claimant, uint256 indexed amount, address beneficiary, uint256 received);
 
-    constructor(uint256 totalSupply_, bytes32 merkleRoot_, address referenceToken_, address registry) ERC20("Airdrop", "Air") {
+    constructor(address registry, uint256 totalSupply_, address referenceToken_, bytes32 merkleRoot_, address merkle) ERC20("Airdrop", "Air") {
         _mint(address(this), totalSupply_);
         merkleRoot = merkleRoot_;
         referenceToken = referenceToken_;
-        m = new Merkle();
+        m = Merkle(merkle);
         r = IDelegationRegistry(registry);
     }
 
