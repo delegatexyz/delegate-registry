@@ -26,7 +26,7 @@ contract DelegateAirdrop is ERC20 {
 
     event DelegateClaim(address indexed vault, uint256 indexed airdropSize, address indexed delegate, uint256 delegateClaimed);
 
-    event Claim(address indexed claimant, uint256 indexed airdropSize);
+    event Claim(address indexed claimant, uint256 indexed airdropSize, uint256 claimable);
 
     constructor(address registry_, uint256 totalSupply_, address referenceToken_, bytes32 merkleRoot_, address merkle_) ERC20("Airdrop", "Air") {
         _mint(address(this), totalSupply_);
@@ -61,7 +61,7 @@ contract DelegateAirdrop is ERC20 {
             delegateClaimed[vault][msg.sender] += claimable;
             emit DelegateClaim(vault, airdropSize, msg.sender, claimable);
         } else {
-            emit Claim(vault, airdropSize);
+            emit Claim(vault, airdropSize, claimable);
         }
         // Increment claimed
         claimed[vault] += claimable;
