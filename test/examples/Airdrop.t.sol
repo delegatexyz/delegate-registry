@@ -106,7 +106,7 @@ contract AirdropTest is Test {
             bytes32[] memory proof = merkle.getProof(airdropHashes, i);
             vm.startPrank(bogusReceiver);
             vm.expectRevert(abi.encodeWithSelector(DelegateAirdrop.InvalidProof.selector, merkleRoot, proof, bogusData));
-            airdrop.claim(bogusReceiver, bogusAmount, proof);
+            airdrop.claim(bogusAmount, bogusReceiver, bogusAmount, proof);
             vm.stopPrank();
         }
         // Claim airdrop for every receiver
@@ -115,9 +115,9 @@ contract AirdropTest is Test {
             uint256 amount = airdropData[i].amount;
             bytes32[] memory proof = merkle.getProof(airdropHashes, i);
             vm.startPrank(claimant);
-            airdrop.claim(claimant, amount, proof);
+            airdrop.claim(amount, claimant, amount, proof);
             // Claim again to ensure accounting is working
-            airdrop.claim(claimant, amount, proof);
+            airdrop.claim(amount, claimant, amount, proof);
             vm.stopPrank();
             // Check that tokens are received
             assertEq(amount, airdrop.balanceOf(claimant));
@@ -166,7 +166,7 @@ contract AirdropTest is Test {
             bytes32[] memory proof = merkle.getProof(airdropHashes, i);
             vm.startPrank(delegateData[i].delegate);
             vm.expectRevert(abi.encodeWithSelector(DelegateAirdrop.InsufficientDelegation.selector, 0, 0));
-            airdrop.claim(claimant, amount, proof);
+            airdrop.claim(amount, claimant, amount, proof);
             vm.stopPrank();
         }
         // Delegate and claim airdrop
@@ -178,7 +178,7 @@ contract AirdropTest is Test {
             // Delegate claims airdrop
             vm.startPrank(delegateData[i].delegate);
             bytes32[] memory proof = merkle.getProof(airdropHashes, i);
-            airdrop.claim(airdropData[i].receiver, airdropData[i].amount, proof);
+            airdrop.claim(airdropData[i].amount, airdropData[i].receiver, airdropData[i].amount, proof);
             vm.stopPrank();
             uint256 claimed = Math.min(delegateData[i].allowance, airdropData[i].amount);
             // Check that claimed is as expected
@@ -190,14 +190,14 @@ contract AirdropTest is Test {
             // If claimed is airdrop amount, delegate tries to claim again but they receive no further tokens
             if (claimed == airdropData[i].amount) {
                 vm.startPrank(delegateData[i].delegate);
-                airdrop.claim(airdropData[i].receiver, airdropData[i].amount, proof);
+                airdrop.claim(airdropData[i].amount, airdropData[i].receiver, airdropData[i].amount, proof);
                 vm.stopPrank();
             }
             // Otherwise expect insufficient delegation error on further claim attempts
             else {
                 vm.startPrank(delegateData[i].delegate);
                 vm.expectRevert(abi.encodeWithSelector(DelegateAirdrop.InsufficientDelegation.selector, delegateData[i].allowance, claimed));
-                airdrop.claim(airdropData[i].receiver, airdropData[i].amount, proof);
+                airdrop.claim(airdropData[i].amount, airdropData[i].receiver, airdropData[i].amount, proof);
                 vm.stopPrank();
             }
             // Check that claimed amounts are still the same for both cases
@@ -207,7 +207,7 @@ contract AirdropTest is Test {
             // Get vault to claim remaining tokens
             uint256 remainingClaim = airdropData[i].amount - airdrop.claimed(airdropData[i].receiver);
             vm.startPrank(airdropData[i].receiver);
-            airdrop.claim(airdropData[i].receiver, airdropData[i].amount, proof);
+            airdrop.claim(airdropData[i].amount, airdropData[i].receiver, airdropData[i].amount, proof);
             vm.stopPrank();
             // Check balances for vault and delegate (again)
             assertEq(claimed + remainingClaim, airdrop.claimed(airdropData[i].receiver));

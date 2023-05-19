@@ -36,14 +36,14 @@ contract DelegateAirdrop is ERC20 {
         registry = IDelegationRegistry(registry_);
     }
 
-    function claim(address vault, uint256 airdropSize, bytes32[] calldata merkleProof) external {
+    function claim(uint256 claimAmount, address vault, uint256 airdropSize, bytes32[] calldata merkleProof) external {
         // First verify that airdrop for vault of amount airdropSize exists
         if (!merkle.verifyProof(merkleRoot, merkleProof, keccak256(abi.encodePacked(vault, airdropSize)))) {
             revert InvalidProof(merkleRoot, merkleProof, keccak256(abi.encodePacked(vault, airdropSize)));
         }
-        // Now calculate remaining airdrop tokens that can be claimed by the vault
-        uint256 claimable = airdropSize - claimed[vault];
-        // If msg.sender != claimant, check balance delegation instead
+        // Set claimable to the minimum of claimAmount and the maximum remaining airdrop tokens that can be claimed by the vault
+        uint256 claimable = Math.min(claimAmount, airdropSize - claimed[vault]);
+        // If msg.sender != vault, check balance delegation instead
         if (msg.sender != vault) {
             // Fetch the referenceToken balance delegated by the vault to msg.sender from the delegate registry
             uint256 balance = registry.checkDelegateForBalance(msg.sender, vault, referenceToken, "");
@@ -53,7 +53,7 @@ contract DelegateAirdrop is ERC20 {
             if (alreadyClaimed >= balance) {
                 revert InsufficientDelegation(balance, alreadyClaimed);
             }
-            // The maximum further tokens that can be claimed by msg.sender on behalf of vault
+            // Calculate maximum further tokens that can be claimed by msg.sender on behalf of vault
             uint256 remainingLimit = balance - alreadyClaimed;
             // Reduce claimable to remainingLimit if the limit is smaller
             claimable = Math.min(claimable, remainingLimit);
