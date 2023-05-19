@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 
 import {Merkle} from "murky/Merkle.sol";
-import {DelegateAirdrop} from "src/examples/Airdrop.sol";
+import {Airdrop} from "src/examples/Airdrop.sol";
 import {DelegationRegistry} from "src/DelegationRegistry.sol";
 import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 
@@ -23,7 +23,7 @@ contract AirdropTest is Test {
 
     uint256 public constant MAX_AMOUNT = 2 ** 200;
 
-    DelegateAirdrop public airdrop;
+    Airdrop public airdrop;
 
     AirdropRecord[] public airdropData;
 
@@ -92,20 +92,20 @@ contract AirdropTest is Test {
             totalSupply_ += airdropData[i].amount;
         }
         // Create airdrop token
-        airdrop = new DelegateAirdrop(address(registry), totalSupply_, referenceToken, merkleRoot, address(merkle));
+        airdrop = new Airdrop(address(registry), referenceToken, totalSupply_, merkleRoot, address(merkle));
         // Check data is stored correctly in token
         assertEq(address(merkle), address(airdrop.merkle()));
-        assertEq(address(registry), address(airdrop.registry()));
+        assertEq(address(registry), address(airdrop.delegateRegistry()));
         assertEq(merkleRoot, airdrop.merkleRoot());
         assertEq(referenceToken, airdrop.referenceToken());
         // Test that total supply is expected
         assertEq(totalSupply_, airdrop.balanceOf(address(airdrop)));
         // Try to claim with bogus proof
         for (uint256 i = 0; i < n; i++) {
-            (uint256 bogusAmount, address bogusReceiver, bytes32 bogusData,) = _generateAirdropRecord(amountSeed, addressSeed, i);
+            (uint256 bogusAmount, address bogusReceiver,,) = _generateAirdropRecord(amountSeed, addressSeed, i);
             bytes32[] memory proof = merkle.getProof(airdropHashes, i);
             vm.startPrank(bogusReceiver);
-            vm.expectRevert(abi.encodeWithSelector(DelegateAirdrop.InvalidProof.selector, merkleRoot, proof, bogusData));
+            vm.expectRevert("Invalid Proof");
             airdrop.claim(bogusAmount, bogusReceiver, bogusAmount, proof);
             vm.stopPrank();
         }
@@ -155,7 +155,7 @@ contract AirdropTest is Test {
             totalSupply_ += airdropData[i].amount;
         }
         // Create airdrop token
-        airdrop = new DelegateAirdrop(address(registry), totalSupply_, referenceToken, merkleRoot, address(merkle));
+        airdrop = new Airdrop(address(registry), referenceToken, totalSupply_, merkleRoot, address(merkle));
         // Create delegates
         _createDelegates(delegateSeed, allowanceSeed, n);
         // Try to claim with delegate
@@ -165,7 +165,7 @@ contract AirdropTest is Test {
             uint256 amount = airdropData[i].amount;
             bytes32[] memory proof = merkle.getProof(airdropHashes, i);
             vm.startPrank(delegateData[i].delegate);
-            vm.expectRevert(abi.encodeWithSelector(DelegateAirdrop.InsufficientDelegation.selector, 0, 0));
+            vm.expectRevert("Insufficient Delegation");
             airdrop.claim(amount, claimant, amount, proof);
             vm.stopPrank();
         }
@@ -196,7 +196,7 @@ contract AirdropTest is Test {
             // Otherwise expect insufficient delegation error on further claim attempts
             else {
                 vm.startPrank(delegateData[i].delegate);
-                vm.expectRevert(abi.encodeWithSelector(DelegateAirdrop.InsufficientDelegation.selector, delegateData[i].allowance, claimed));
+                vm.expectRevert("Insufficient Delegation");
                 airdrop.claim(airdropData[i].amount, airdropData[i].receiver, airdropData[i].amount, proof);
                 vm.stopPrank();
             }
