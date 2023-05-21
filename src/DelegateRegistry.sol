@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import {IDelegateRegistry} from "./IDelegateRegistry.sol";
-import {ERC165} from "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 
 /**
@@ -79,7 +78,7 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * @custom:author foobar (0xfoobar)
  * @notice A standalone immutable registry storing delegated permissions from one wallet to another
  */
-contract DelegateRegistry is IDelegateRegistry, ERC165 {
+contract DelegateRegistry is IDelegateRegistry {
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
@@ -92,11 +91,10 @@ contract DelegateRegistry is IDelegateRegistry, ERC165 {
     /// @dev A secondary mapping to enumerate a delegate's incoming delegations
     mapping(address delegate => EnumerableSet.Bytes32Set hashes) internal delegateDelegationHashes;
 
-    /**
-     * @inheritdoc ERC165
-     */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165) returns (bool) {
-        return interfaceId == type(IDelegateRegistry).interfaceId || super.supportsInterface(interfaceId);
+    /// @notice Query if a contract implements an ERC-165 interface
+    /// @param interfaceId The interface identifier
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return interfaceId == type(IDelegateRegistry).interfaceId || interfaceId == 0x01ffc9a7;
     }
 
     /**
