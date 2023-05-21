@@ -24,6 +24,7 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * - data param attached to the delegation for splitting up rights like licensing, governance, and yield to different people
  * - delegation balance splitting for ERC20s and ERC1155s, rename delegateForToken() to delegateForERC721/20/1155
  * - rename DelegateRegistry to DelegateRegistry
+ * - remove ERC165 import for fewer files
  * TODO:
  * - code example of using the data param for multiple IP licensing and governance/yield splitting
  * - identity clusters
@@ -93,6 +94,7 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @notice Query if a contract implements an ERC-165 interface
     /// @param interfaceId The interface identifier
+    /// @return bool Whether the queried interface is supported
     function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
         return interfaceId == type(IDelegateRegistry).interfaceId || interfaceId == 0x01ffc9a7;
     }

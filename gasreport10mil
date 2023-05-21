@@ -1,7 +1,7 @@
 | src/DelegateRegistry.sol:DelegateRegistry contract |                 |        |        |        |         |
 |----------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                    | Deployment Size |        |        |        |         |
-| 1366624                                            | 6858            |        |        |        |         |
+| 1358417                                            | 6817            |        |        |        |         |
 | Function Name                                      | min             | avg    | median | max    | # calls |
 | batchDelegate                                      | 360248          | 360248 | 360248 | 360248 | 1       |
 | checkDelegateForAll                                | 1050            | 1050   | 1050   | 1050   | 2       |

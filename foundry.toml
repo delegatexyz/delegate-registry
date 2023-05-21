@@ -4,8 +4,13 @@ out = 'out'
 libs = ['lib']
 solc_version = "0.8.20"
 # EVM version must be Paris not Shanghai to prevent PUSH0 incompatibility with other EVM L1s
+# Extra 137 deployment size, extra 0.1% runtime gas costs from using older version
 evm_version = "paris"
-optimizer_runs = 1_000_000
+# Etherscan verification max is 100 million
+optimizer_runs = 9_999_999
+# Get reproducible bytecode across machines by removing metadata hash from runtime bytecode, also saves 41 deployment size
+bytecode_hash = "none"
+# Increases deployment size by 10%, cuts down on runtime gas costs by ~1%,, increases compiletime 10x. Enable on deployment
 # via_ir = true
 
 [fmt]
