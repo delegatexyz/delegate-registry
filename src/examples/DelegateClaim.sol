@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: CC0-1.0
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {IDelegationRegistry} from "src/IDelegationRegistry.sol";
 import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
