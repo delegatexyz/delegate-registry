@@ -33,7 +33,7 @@ contract DelegateClaim {
      */
     function _delegateClaimable(address vault, uint256 claimable) internal returns (uint256) {
         // Fetch the referenceToken balance delegated by the vault to msg.sender from the delegate registry
-        uint256 balance = delegateRegistry.checkDelegateForBalance(msg.sender, vault, referenceToken, "");
+        uint256 balance = delegateRegistry.checkDelegateForERC20(msg.sender, vault, referenceToken, "");
         // Load the amount tokens already claimed by msg.sender on behalf of the vault
         uint256 alreadyClaimed = delegateClaimed[vault][msg.sender];
         // Revert if msg.sender has already used up all the delegated balance

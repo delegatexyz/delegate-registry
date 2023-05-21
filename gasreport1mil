@@ -1,14 +1,18 @@
 | src/DelegationRegistry.sol:DelegationRegistry contract |                 |        |        |        |         |
 |--------------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                        | Deployment Size |        |        |        |         |
-| 1094534                                                | 5499            |        |        |        |         |
+| 1365224                                                | 6851            |        |        |        |         |
 | Function Name                                          | min             | avg    | median | max    | # calls |
-| batchDelegate                                          | 355711          | 355711 | 355711 | 355711 | 1       |
-| checkDelegateForAll                                    | 1035            | 1035   | 1035   | 1035   | 2       |
-| checkDelegateForContract                               | 1147            | 2866   | 3726   | 3726   | 3       |
-| checkDelegateForToken                                  | 1198            | 3960   | 4117   | 6407   | 4       |
-| delegateForAll                                         | 5112            | 130030 | 166204 | 188104 | 12      |
-| delegateForContract                                    | 5504            | 132279 | 164693 | 208493 | 9       |
-| delegateForToken                                       | 5749            | 143444 | 184900 | 228700 | 8       |
-| getDelegationsForDelegate                              | 6982            | 9976   | 9975   | 12972  | 6       |
-| getDelegationsForVault                                 | 2973            | 5963   | 4965   | 10952  | 4       |
+| batchDelegate                                          | 360248          | 360248 | 360248 | 360248 | 1       |
+| checkDelegateForAll                                    | 1050            | 1050   | 1050   | 1050   | 2       |
+| checkDelegateForContract                               | 1186            | 2900   | 3758   | 3758   | 3       |
+| checkDelegateForERC1155                                | 1521            | 4963   | 4695   | 9266   | 5       |
+| checkDelegateForERC20                                  | 1470            | 3933   | 2705   | 8511   | 10      |
+| checkDelegateForERC721                                 | 1242            | 3996   | 4153   | 6439   | 4       |
+| delegateForAll                                         | 5226            | 133243 | 168473 | 210273 | 12      |
+| delegateForContract                                    | 5600            | 136027 | 166941 | 230641 | 9       |
+| delegateForERC1155                                     | 5952            | 156038 | 207181 | 270881 | 7       |
+| delegateForERC20                                       | 5958            | 164228 | 187288 | 250988 | 10      |
+| delegateForERC721                                      | 5937            | 145000 | 187262 | 231062 | 8       |
+| getDelegationsForDelegate                              | 11783           | 17205  | 17202  | 22632  | 8       |
+| getDelegationsForVault                                 | 3116            | 6898   | 5275   | 13927  | 4       |

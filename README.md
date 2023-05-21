@@ -83,7 +83,7 @@ Check out the [IDelegationRegistry.sol](src/IDelegationRegistry.sol) file. This 
 /// WRITE ///
 function delegateForAll(address delegate, bool value) external;
 function delegateForContract(address delegate, address contract_, bool value) external;
-function delegateForToken(address delegate, address contract_, uint256 tokenId, bool value) external;
+function delegateForERC721(address delegate, address contract_, uint256 tokenId, bool value) external;
 function revokeAllDelegates() external;
 function revokeDelegate(address delegate) external;
 function revokeSelf(address vault) external;
@@ -94,7 +94,7 @@ function getDelegatesForContract(address vault, address contract_) external view
 function getDelegatesForToken(address vault, address contract_, uint256 tokenId) external view returns (address[] memory);
 function checkDelegateForAll(address delegate, address vault) external view returns (bool);
 function checkDelegateForContract(address delegate, address vault, address contract_) external view returns (bool);
-function checkDelegateForToken(address delegate, address vault, address contract_, uint256 tokenId) external view returns (bool);
+function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId) external view returns (bool);
 ```
 
-As an NFT creator, the important ones to pay attention to are `getDelegationsByDelegate()`, which you can use on the website frontend to enumerate which vaults a specific hotwallet is delegated to act on behalf of, and `checkDelegateForToken()`, which can be called in your smart contract to ensure a hotwallet is acting on behalf of the proper vaults.
+As an NFT creator, the important ones to pay attention to are `getDelegationsByDelegate()`, which you can use on the website frontend to enumerate which vaults a specific hotwallet is delegated to act on behalf of, and `checkDelegateForERC721()`, which can be called in your smart contract to ensure a hotwallet is acting on behalf of the proper vaults.

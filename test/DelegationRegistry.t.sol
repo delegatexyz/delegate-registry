@@ -30,9 +30,9 @@ contract DelegationRegistryTest is Test {
         reg.delegateForAll(delegate, true, data_);
         assertTrue(reg.checkDelegateForAll(delegate, vault, data_));
         assertTrue(reg.checkDelegateForContract(delegate, vault, contract_, data_));
-        assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, tokenId, data_));
-        assertEq(reg.checkDelegateForBalance(delegate, vault, contract_, data_), type(uint256).max);
-        assertEq(reg.checkDelegateForTokenBalance(delegate, vault, contract_, 0, data_), type(uint256).max);
+        assertTrue(reg.checkDelegateForERC721(delegate, vault, contract_, tokenId, data_));
+        assertEq(reg.checkDelegateForERC20(delegate, vault, contract_, data_), type(uint256).max);
+        assertEq(reg.checkDelegateForERC1155(delegate, vault, contract_, 0, data_), type(uint256).max);
         // Revoke
         reg.delegateForAll(delegate, false, data_);
         assertFalse(reg.checkDelegateForAll(delegate, vault, data_));
@@ -43,9 +43,9 @@ contract DelegationRegistryTest is Test {
         vm.startPrank(vault);
         reg.delegateForContract(delegate, contract_, true, data_);
         assertTrue(reg.checkDelegateForContract(delegate, vault, contract_, data_));
-        assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, tokenId, data_));
-        assertEq(reg.checkDelegateForBalance(delegate, vault, contract_, data_), type(uint256).max);
-        assertEq(reg.checkDelegateForTokenBalance(delegate, vault, contract_, tokenId, data_), type(uint256).max);
+        assertTrue(reg.checkDelegateForERC721(delegate, vault, contract_, tokenId, data_));
+        assertEq(reg.checkDelegateForERC20(delegate, vault, contract_, data_), type(uint256).max);
+        assertEq(reg.checkDelegateForERC1155(delegate, vault, contract_, tokenId, data_), type(uint256).max);
         // Revoke
         reg.delegateForContract(delegate, contract_, false, data_);
         assertFalse(reg.checkDelegateForContract(delegate, vault, contract_, data_));
@@ -54,32 +54,32 @@ contract DelegationRegistryTest is Test {
     function testApproveAndRevokeForToken(address vault, address delegate, address contract_, uint256 tokenId) public {
         // Approve
         vm.startPrank(vault);
-        reg.delegateForToken(delegate, contract_, tokenId, true, data);
-        assertTrue(reg.checkDelegateForToken(delegate, vault, contract_, tokenId, data));
-        assertEq(reg.checkDelegateForTokenBalance(delegate, vault, contract_, tokenId, data), type(uint256).max);
+        reg.delegateForERC721(delegate, contract_, tokenId, true, data);
+        assertTrue(reg.checkDelegateForERC721(delegate, vault, contract_, tokenId, data));
+        assertEq(reg.checkDelegateForERC1155(delegate, vault, contract_, tokenId, data), type(uint256).max);
         // Revoke
-        reg.delegateForToken(delegate, contract_, tokenId, false, data);
-        assertFalse(reg.checkDelegateForToken(delegate, vault, contract_, tokenId, data));
+        reg.delegateForERC721(delegate, contract_, tokenId, false, data);
+        assertFalse(reg.checkDelegateForERC721(delegate, vault, contract_, tokenId, data));
     }
 
     function testApproveAndRevokeForBalance(address vault, address delegate, address contract_, uint256 balance, bytes32 data_) public {
         // Approve
         vm.startPrank(vault);
-        reg.delegateForBalance(delegate, contract_, balance, true, data_);
-        assertEq(reg.checkDelegateForBalance(delegate, vault, contract_, data_), balance);
+        reg.delegateForERC20(delegate, contract_, balance, true, data_);
+        assertEq(reg.checkDelegateForERC20(delegate, vault, contract_, data_), balance);
         // Revoke
-        reg.delegateForBalance(delegate, contract_, balance, false, data_);
-        assertEq(reg.checkDelegateForBalance(delegate, vault, contract_, data_), 0);
+        reg.delegateForERC20(delegate, contract_, balance, false, data_);
+        assertEq(reg.checkDelegateForERC20(delegate, vault, contract_, data_), 0);
     }
 
     function testApproveAndRevokeForTokenBalance(address vault, address delegate, address contract_, uint256 tokenId, uint256 balance, bytes32 data_) public {
         // Approve
         vm.startPrank(vault);
-        reg.delegateForTokenBalance(delegate, contract_, tokenId, balance, true, data_);
-        assertEq(reg.checkDelegateForTokenBalance(delegate, vault, contract_, tokenId, data_), balance);
+        reg.delegateForERC1155(delegate, contract_, tokenId, balance, true, data_);
+        assertEq(reg.checkDelegateForERC1155(delegate, vault, contract_, tokenId, data_), balance);
         // Revoke
-        reg.delegateForTokenBalance(delegate, contract_, tokenId, balance, false, data_);
-        assertEq(reg.checkDelegateForTokenBalance(delegate, vault, contract_, tokenId, data_), 0);
+        reg.delegateForERC1155(delegate, contract_, tokenId, balance, false, data_);
+        assertEq(reg.checkDelegateForERC1155(delegate, vault, contract_, tokenId, data_), 0);
     }
 
     function testMultipleDelegationForAll(address vault, address delegate0, address delegate1) public {
@@ -160,22 +160,22 @@ contract DelegationRegistryTest is Test {
         vm.startPrank(vault0);
         reg.delegateForAll(delegate0, true, data);
         reg.delegateForContract(delegate0, contract0, true, data);
-        reg.delegateForToken(delegate0, contract0, tokenId0, true, data);
-        reg.delegateForBalance(delegate0, contract0, balance0, true, data);
-        reg.delegateForTokenBalance(delegate0, contract0, tokenId0, balance0, true, data);
+        reg.delegateForERC721(delegate0, contract0, tokenId0, true, data);
+        reg.delegateForERC20(delegate0, contract0, balance0, true, data);
+        reg.delegateForERC1155(delegate0, contract0, tokenId0, balance0, true, data);
         reg.delegateForAll(delegate1, true, data);
         reg.delegateForContract(delegate1, contract1, true, data);
-        reg.delegateForToken(delegate1, contract1, tokenId1, true, data);
-        reg.delegateForBalance(delegate1, contract1, balance1, true, data);
-        reg.delegateForTokenBalance(delegate1, contract1, tokenId1, balance1, true, data);
+        reg.delegateForERC721(delegate1, contract1, tokenId1, true, data);
+        reg.delegateForERC20(delegate1, contract1, balance1, true, data);
+        reg.delegateForERC1155(delegate1, contract1, tokenId1, balance1, true, data);
 
         // vault1 delegates all five tiers to delegate0
         changePrank(vault1);
         reg.delegateForAll(delegate0, true, data);
         reg.delegateForContract(delegate0, contract0, true, data);
-        reg.delegateForToken(delegate0, contract0, tokenId0, true, data);
-        reg.delegateForBalance(delegate0, contract0, balance0, true, data);
-        reg.delegateForTokenBalance(delegate0, contract0, tokenId0, balance0, true, data);
+        reg.delegateForERC721(delegate0, contract0, tokenId0, true, data);
+        reg.delegateForERC20(delegate0, contract0, balance0, true, data);
+        reg.delegateForERC1155(delegate0, contract0, tokenId0, balance0, true, data);
 
         // vault0 revokes all three tiers for delegate0, check incremental decrease in delegate enumerations
         changePrank(vault0);
@@ -185,20 +185,20 @@ contract DelegationRegistryTest is Test {
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 9);
         reg.delegateForContract(delegate0, contract0, false, data);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 8);
-        reg.delegateForToken(delegate0, contract0, tokenId0, false, data);
+        reg.delegateForERC721(delegate0, contract0, tokenId0, false, data);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 7);
-        reg.delegateForBalance(delegate0, contract0, balance0, false, data);
+        reg.delegateForERC20(delegate0, contract0, balance0, false, data);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 6);
-        reg.delegateForTokenBalance(delegate0, contract0, tokenId0, balance0, false, data);
+        reg.delegateForERC1155(delegate0, contract0, tokenId0, balance0, false, data);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 5);
 
         // vault0 re-delegates to delegate0
         changePrank(vault0);
         reg.delegateForAll(delegate0, true, data);
         reg.delegateForContract(delegate0, contract0, true, data);
-        reg.delegateForToken(delegate0, contract0, tokenId0, true, data);
-        reg.delegateForBalance(delegate0, contract0, balance0, true, data);
-        reg.delegateForTokenBalance(delegate0, contract0, tokenId0, balance0, true, data);
+        reg.delegateForERC721(delegate0, contract0, tokenId0, true, data);
+        reg.delegateForERC20(delegate0, contract0, balance0, true, data);
+        reg.delegateForERC1155(delegate0, contract0, tokenId0, balance0, true, data);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 10);
         assertEq(reg.getDelegationsForDelegate(delegate1).length, 5);
     }
@@ -212,8 +212,8 @@ contract DelegationRegistryTest is Test {
         vm.startPrank(vault);
         reg.delegateForAll(delegate0, true, data);
         reg.delegateForContract(delegate0, contract0, true, data);
-        reg.delegateForToken(delegate0, contract1, tokenId, true, data);
-        reg.delegateForBalance(delegate0, contract1, balance, true, data);
+        reg.delegateForERC721(delegate0, contract1, tokenId, true, data);
+        reg.delegateForERC20(delegate0, contract1, balance, true, data);
         reg.delegateForAll(delegate1, true, data);
         reg.delegateForContract(delegate1, contract0, true, data);
 
