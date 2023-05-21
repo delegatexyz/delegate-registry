@@ -75,7 +75,7 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * @title DelegationRegistry
  * @custom:version 2.0
  * @custom:author foobar (0xfoobar)
- * @notice An immutable registry contract to be deployed as a standalone primitive.
+ * @notice A standalone immutable registry storing delegated permissions from one wallet to another
  * @dev See EIP-5639, new project launches can read previous cold wallet -> hot wallet vaultDelegationHashes
  * from here and integrate those permissions into their flow.
  */

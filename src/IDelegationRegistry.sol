@@ -2,9 +2,10 @@
 pragma solidity ^0.8.20;
 
 /**
- * @title An immutable registry contract to be deployed as a standalone primitive
- * @dev See EIP-5639, new project launches can read previous cold wallet -> hot wallet delegations
- * from here and integrate those permissions into their flow
+ * @title DelegationRegistry
+ * @custom:version 2.0
+ * @custom:author foobar (0xfoobar)
+ * @notice A standalone immutable registry storing delegated permissions from one wallet to another
  */
 interface IDelegationRegistry {
     /// @notice Delegation type
@@ -16,9 +17,6 @@ interface IDelegationRegistry {
         ERC20,
         ERC1155
     }
-    // ERC20,
-    // ERC721,
-    // ERC1155
 
     /// @notice Info about a single delegation, used for onchain enumeration
     struct DelegationInfo {
