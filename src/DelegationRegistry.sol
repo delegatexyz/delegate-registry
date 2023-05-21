@@ -23,11 +23,13 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * - remove revokeDelegate() & revokeSelf() bc mainnet usage misunderstands it, batching mostly replaces this
  * - remove revokeAllDelegations() bc batching gets you similar costs on revocation and far cheaper to not fetch vaultVersions from storage
  * - data param attached to the delegation for splitting up rights like licensing, governance, and yield to different people
- * - delegation balance splitting for ERC20s and ERC1155s
+ * - delegation balance splitting for ERC20s and ERC1155s, rename delegateForToken() to delegateForERC721/20/1155
  * TODO:
  * - code example of using the data param for multiple IP licensing and governance/yield splitting
  * - identity clusters
  * - crosschain support using LayerZero?
+ * - get rid of delegateForContract? Hardly used, only 8% of volume, but also good fallback for new token types. Let's keep it
+ * - rename DelegationRegistry to DelegateRegistry
  * - we could bitmask contract address, token id, balance, data into a hash func? brings us back to onchain enumerability
  * STRETCH
  * - zk attestations
@@ -76,8 +78,6 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * @custom:version 2.0
  * @custom:author foobar (0xfoobar)
  * @notice A standalone immutable registry storing delegated permissions from one wallet to another
- * @dev See EIP-5639, new project launches can read previous cold wallet -> hot wallet vaultDelegationHashes
- * from here and integrate those permissions into their flow.
  */
 contract DelegationRegistry is IDelegationRegistry, ERC165 {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -164,9 +164,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         emit IDelegationRegistry.DelegateForERC1155(msg.sender, delegate, contract_, tokenId, balance, value, data);
     }
 
-    /**
-     * @dev Helper function to set all delegation values and enumeration sets
-     */
+    /// @dev Helper function to set all delegation values and enumeration sets
     function _setDelegationValues(
         address delegate,
         bytes32 delegationHash,
@@ -190,23 +188,17 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         }
     }
 
-    /**
-     * @dev Helper function to compute delegation hash for wallet delegation
-     */
+    /// @dev Helper function to compute delegation hash for wallet delegation
     function _computeDelegationHashForAll(address vault, address delegate, bytes32 data) internal pure returns (bytes32) {
         return keccak256(abi.encode(delegate, vault, data));
     }
 
-    /**
-     * @dev Helper function to compute delegation hash for contract delegation
-     */
+    /// @dev Helper function to compute delegation hash for contract delegation
     function _computeDelegationHashForContract(address vault, address delegate, address contract_, bytes32 data) internal pure returns (bytes32) {
         return keccak256(abi.encode(delegate, vault, contract_, data));
     }
 
-    /**
-     * @dev Helper function to compute delegation hash for token delegation
-     */
+    /// @dev Helper function to compute delegation hash for token delegation
     function _computeDelegationHashForERC721(address vault, address delegate, address contract_, uint256 tokenId, bytes32 data)
         internal
         pure
@@ -231,20 +223,17 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
      * ----------- READ -----------
      */
 
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
+    /// @inheritdoc IDelegationRegistry
     function getDelegationsForDelegate(address delegate) external view returns (IDelegationRegistry.DelegationInfo[] memory) {
         return _lookupHashes(delegateDelegationHashes[delegate]);
     }
 
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
+    /// @inheritdoc IDelegationRegistry
     function getDelegationsForVault(address vault) external view returns (IDelegationRegistry.DelegationInfo[] memory) {
         return _lookupHashes(vaultDelegationHashes[vault]);
     }
 
+    /// @dev Helper function to filter delegationHashes by validity, then conver them into an array of delegation structs
     function _lookupHashes(EnumerableSet.Bytes32Set storage delegationHashes)
         internal
         view
@@ -257,34 +246,26 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
         }
     }
 
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
+    /// @inheritdoc IDelegationRegistry
     function checkDelegateForAll(address delegate, address vault, bytes32 data) public view override returns (bool) {
         return vaultDelegationHashes[vault].contains(_computeDelegationHashForAll(vault, delegate, data));
     }
 
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
+    /// @inheritdoc IDelegationRegistry
     function checkDelegateForContract(address delegate, address vault, address contract_, bytes32 data) public view override returns (bool) {
         return vaultDelegationHashes[vault].contains(_computeDelegationHashForContract(vault, delegate, contract_, data))
             ? true
             : checkDelegateForAll(delegate, vault, data);
     }
 
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
+    /// @inheritdoc IDelegationRegistry
     function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data) public view override returns (bool) {
         return vaultDelegationHashes[vault].contains(_computeDelegationHashForERC721(vault, delegate, contract_, tokenId, data))
             ? true
             : checkDelegateForContract(delegate, vault, contract_, data);
     }
 
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
+    /// @inheritdoc IDelegationRegistry
     function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 data) external view override returns (uint256) {
         // TODO (mireynolds): should this have a balance within the function params for simplest checking?
         // TODO (mireynolds): should this have its own compute method instead of piggybacking on ERC1155?
@@ -294,9 +275,7 @@ contract DelegationRegistry is IDelegationRegistry, ERC165 {
             : (checkDelegateForContract(delegate, vault, contract_, data) ? type(uint256).max : 0);
     }
 
-    /**
-     * @inheritdoc IDelegationRegistry
-     */
+    /// @inheritdoc IDelegationRegistry
     function checkDelegateForERC1155(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data)
         external
         view

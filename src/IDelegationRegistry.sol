@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 /**
- * @title DelegationRegistry
+ * @title IDelegationRegistry
  * @custom:version 2.0
  * @custom:author foobar (0xfoobar)
  * @notice A standalone immutable registry storing delegated permissions from one wallet to another
