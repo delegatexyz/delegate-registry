@@ -1,4 +1,4 @@
-| src/DelegationRegistry.sol:DelegationRegistry contract |                 |        |        |        |         |
+| src/DelegateRegistry.sol:DelegateRegistry contract |                 |        |        |        |         |
 |--------------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                        | Deployment Size |        |        |        |         |
 | 1365224                                                | 6851            |        |        |        |         |

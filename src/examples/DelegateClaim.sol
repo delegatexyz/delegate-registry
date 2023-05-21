@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: CC0-1.0
 pragma solidity ^0.8.20;
 
-import {IDelegationRegistry} from "src/IDelegationRegistry.sol";
+import {IDelegateRegistry} from "src/IDelegateRegistry.sol";
 import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 
 /**
@@ -9,7 +9,7 @@ import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
  * @dev A contract for claiming tokens on behalf of a vault using the v2 delegation registry.
  */
 contract DelegateClaim {
-    IDelegationRegistry public immutable delegateRegistry;
+    IDelegateRegistry public immutable delegateRegistry;
     address public immutable referenceToken;
     /**
      * @dev stores accounting for the tokens claimed by a delegate on behalf of a vault.
@@ -21,7 +21,7 @@ contract DelegateClaim {
      * @param referenceToken_ The address of the reference token.
      */
     constructor(address registry_, address referenceToken_) {
-        delegateRegistry = IDelegationRegistry(registry_);
+        delegateRegistry = IDelegateRegistry(registry_);
         referenceToken = referenceToken_;
     }
 

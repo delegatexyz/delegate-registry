@@ -3,19 +3,19 @@ pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
-import {DelegationRegistry} from "src/DelegationRegistry.sol";
-import {IDelegationRegistry} from "src/IDelegationRegistry.sol";
+import {DelegateRegistry} from "src/DelegateRegistry.sol";
+import {IDelegateRegistry} from "src/IDelegateRegistry.sol";
 
-contract DelegationRegistryTest is Test {
-    DelegationRegistry reg;
+contract DelegateRegistryTest is Test {
+    DelegateRegistry reg;
     bytes32 data = bytes32(0x0);
 
     function setUp() public {
-        reg = new DelegationRegistry();
+        reg = new DelegateRegistry();
     }
 
     function getInitHash() public pure returns (bytes32) {
-        bytes memory bytecode = type(DelegationRegistry).creationCode;
+        bytes memory bytecode = type(DelegateRegistry).creationCode;
         return keccak256(abi.encodePacked(bytecode));
     }
 
@@ -88,7 +88,7 @@ contract DelegationRegistryTest is Test {
         reg.delegateForAll(delegate0, true, data);
         reg.delegateForAll(delegate1, true, data);
         // Read
-        IDelegationRegistry.DelegationInfo[] memory info = reg.getDelegationsForVault(vault);
+        IDelegateRegistry.DelegationInfo[] memory info = reg.getDelegationsForVault(vault);
         assertEq(info.length, 2);
         assertEq(info[0].vault, vault);
         assertEq(info[0].delegate, delegate0);
@@ -103,9 +103,9 @@ contract DelegationRegistryTest is Test {
     function testBatchDelegationForAll(address vault, address delegate0, address delegate1) public {
         vm.assume(delegate0 != delegate1);
         vm.startPrank(vault);
-        IDelegationRegistry.DelegationInfo[] memory info = new IDelegationRegistry.DelegationInfo[](2);
-        info[0] = IDelegationRegistry.DelegationInfo({
-            type_: IDelegationRegistry.DelegationType.ALL,
+        IDelegateRegistry.DelegationInfo[] memory info = new IDelegateRegistry.DelegationInfo[](2);
+        info[0] = IDelegateRegistry.DelegationInfo({
+            type_: IDelegateRegistry.DelegationType.ALL,
             vault: vault,
             delegate: delegate0,
             contract_: address(0),
@@ -113,8 +113,8 @@ contract DelegationRegistryTest is Test {
             balance: 0,
             data: data
         });
-        info[1] = IDelegationRegistry.DelegationInfo({
-            type_: IDelegationRegistry.DelegationType.ALL,
+        info[1] = IDelegateRegistry.DelegationInfo({
+            type_: IDelegateRegistry.DelegationType.ALL,
             vault: vault,
             delegate: delegate1,
             contract_: address(0),
@@ -127,14 +127,14 @@ contract DelegationRegistryTest is Test {
         values[1] = true;
         reg.batchDelegate(info, values);
 
-        IDelegationRegistry.DelegationInfo[] memory delegations = reg.getDelegationsForVault(vault);
+        IDelegateRegistry.DelegationInfo[] memory delegations = reg.getDelegationsForVault(vault);
         assertEq(delegations.length, 2);
         assertEq(delegations[0].vault, vault);
         assertEq(delegations[1].vault, vault);
         assertEq(delegations[0].delegate, delegate0);
         assertEq(delegations[1].delegate, delegate1);
-        assertTrue(delegations[0].type_ == IDelegationRegistry.DelegationType.ALL);
-        assertTrue(delegations[1].type_ == IDelegationRegistry.DelegationType.ALL);
+        assertTrue(delegations[0].type_ == IDelegateRegistry.DelegationType.ALL);
+        assertTrue(delegations[1].type_ == IDelegateRegistry.DelegationType.ALL);
     }
 
     function testDelegateEnumeration(
@@ -218,9 +218,9 @@ contract DelegationRegistryTest is Test {
         reg.delegateForContract(delegate1, contract0, true, data);
 
         // Read
-        IDelegationRegistry.DelegationInfo[] memory vaultDelegations;
+        IDelegateRegistry.DelegationInfo[] memory vaultDelegations;
         vaultDelegations = reg.getDelegationsForVault(vault);
         assertEq(vaultDelegations.length, 6);
-        assertTrue(vaultDelegations[1].type_ == IDelegationRegistry.DelegationType.CONTRACT);
+        assertTrue(vaultDelegations[1].type_ == IDelegateRegistry.DelegationType.CONTRACT);
     }
 }

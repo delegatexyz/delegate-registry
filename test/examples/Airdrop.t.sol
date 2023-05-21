@@ -6,13 +6,13 @@ import {console2} from "forge-std/console2.sol";
 
 import {Merkle} from "murky/Merkle.sol";
 import {Airdrop} from "src/examples/Airdrop.sol";
-import {DelegationRegistry} from "src/DelegationRegistry.sol";
+import {DelegateRegistry} from "src/DelegateRegistry.sol";
 import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 
 contract AirdropTest is Test {
     Merkle public merkle;
 
-    DelegationRegistry public registry;
+    DelegateRegistry public registry;
 
     struct AirdropRecord {
         address receiver;
@@ -40,7 +40,7 @@ contract AirdropTest is Test {
 
     function setUp() public {
         merkle = new Merkle();
-        registry = new DelegationRegistry();
+        registry = new DelegateRegistry();
     }
 
     function _createAirdrop(uint256 addressSeed, uint256 amountSeed, uint256 n) internal {
