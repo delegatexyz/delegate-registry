@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: CC0-1.0
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 
 import {Merkle} from "murky/Merkle.sol";
 import {Airdrop} from "src/examples/Airdrop.sol";
-import {DelegationRegistry} from "src/DelegationRegistry.sol";
+import {DelegateRegistry} from "src/DelegateRegistry.sol";
 import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 
 contract AirdropTest is Test {
     Merkle public merkle;
 
-    DelegationRegistry public registry;
+    DelegateRegistry public registry;
 
     struct AirdropRecord {
         address receiver;
@@ -40,7 +40,7 @@ contract AirdropTest is Test {
 
     function setUp() public {
         merkle = new Merkle();
-        registry = new DelegationRegistry();
+        registry = new DelegateRegistry();
     }
 
     function _createAirdrop(uint256 addressSeed, uint256 amountSeed, uint256 n) internal {
@@ -173,7 +173,7 @@ contract AirdropTest is Test {
         for (uint256 i = 0; i < n; i++) {
             // Delegate
             vm.startPrank(airdropData[i].receiver);
-            registry.delegateForBalance(delegateData[i].delegate, referenceToken, delegateData[i].allowance, true, "");
+            registry.delegateForERC20(delegateData[i].delegate, referenceToken, delegateData[i].allowance, true, "");
             vm.stopPrank();
             // Delegate claims airdrop
             vm.startPrank(delegateData[i].delegate);
