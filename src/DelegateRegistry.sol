@@ -233,7 +233,7 @@ contract DelegateRegistry is IDelegateRegistry {
         return _lookupHashes(vaultDelegationHashes[vault]);
     }
 
-    /// @dev Helper function to filter delegationHashes by validity, then conver them into an array of delegation structs
+    /// @dev Helper function to filter delegationHashes by validity, then convert them into an array of delegation structs
     function _lookupHashes(EnumerableSet.Bytes32Set storage delegationHashes)
         internal
         view
@@ -267,8 +267,16 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 data) external view override returns (uint256) {
-        // TODO (mireynolds): should this have a balance within the function params for simplest checking?
-        // TODO (mireynolds): should this have its own compute method instead of piggybacking on ERC1155?
+        // DONE (mireynolds): should this have a balance within the function params for simplest checking?
+        // The thinking behind the return of the balance and not comparing the truth of it with a call value is:
+        // 1) Performing a balance check within this function increases gas costs of the function
+        // 2) The calling contract might not need this balance check, just the returned delegated balance
+        // 3) The calling contract might want to perform different checks with the balance value
+        // i.e. returning just the delegated balance minimizes the gas and leaves it to the calling contract to use it how it wishes
+        // DONE (mireynolds): should this have its own compute method instead of piggybacking on ERC1155?
+        // YES, but we'll keep it like this for now since it's more gas optimization than structural.
+        // When it comes to that eventual optimization, we either let via-ir optimizer or write out all the logic
+        // within this function to minimize JUMPS and so forth (or both)
         bytes32 delegationHash = _computeDelegationHashForERC1155(vault, delegate, contract_, 0, data);
         return vaultDelegationHashes[vault].contains(delegationHash)
             ? delegationInfo[delegationHash].balance
@@ -283,9 +291,12 @@ contract DelegateRegistry is IDelegateRegistry {
         returns (uint256)
     {
         bytes32 delegationHash = _computeDelegationHashForERC1155(vault, delegate, contract_, tokenId, data);
-        // TODO (mireynolds): Why are we falling back to 721 checks instead of to contract checks?
+        // DONE (mireynolds): Why are we falling back to 721 checks instead of to contract checks?
+        // Was falling back to ERC721 in the case that ERC1155 tokenId is a non-fungible. Internally is unnecessary,
+        // so fallback now goes directly to contract, projects will just need to be aware that a 1155 nft delegation will
+        // return a balance rather than just the existence
         return vaultDelegationHashes[vault].contains(delegationHash)
             ? delegationInfo[delegationHash].balance
-            : (checkDelegateForERC721(delegate, vault, contract_, tokenId, data) ? type(uint256).max : 0);
+            : (checkDelegateForContract(delegate, vault, contract_, data) ? type(uint256).max : 0);
     }
 }

@@ -56,7 +56,6 @@ contract DelegateRegistryTest is Test {
         vm.startPrank(vault);
         reg.delegateForERC721(delegate, contract_, tokenId, true, data);
         assertTrue(reg.checkDelegateForERC721(delegate, vault, contract_, tokenId, data));
-        assertEq(reg.checkDelegateForERC1155(delegate, vault, contract_, tokenId, data), type(uint256).max);
         // Revoke
         reg.delegateForERC721(delegate, contract_, tokenId, false, data);
         assertFalse(reg.checkDelegateForERC721(delegate, vault, contract_, tokenId, data));
