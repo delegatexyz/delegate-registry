@@ -233,7 +233,7 @@ contract DelegateRegistry is IDelegateRegistry {
         return _lookupHashes(vaultDelegationHashes[vault]);
     }
 
-    /// @dev Helper function to filter delegationHashes by validity, then conver them into an array of delegation structs
+    /// @dev Helper function to filter delegationHashes by validity, then convert them into an array of delegation structs
     function _lookupHashes(EnumerableSet.Bytes32Set storage delegationHashes)
         internal
         view
@@ -286,6 +286,6 @@ contract DelegateRegistry is IDelegateRegistry {
         // TODO (mireynolds): Why are we falling back to 721 checks instead of to contract checks?
         return vaultDelegationHashes[vault].contains(delegationHash)
             ? delegationInfo[delegationHash].balance
-            : (checkDelegateForERC721(delegate, vault, contract_, tokenId, data) ? type(uint256).max : 0);
+            : (checkDelegateForContract(delegate, vault, contract_, data) ? type(uint256).max : 0);
     }
 }
