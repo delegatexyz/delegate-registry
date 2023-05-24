@@ -368,23 +368,23 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForContract(address delegate, address vault, address contract_, bytes32 rights) public view override returns (bool) {
-        return _delegations[_computeDelegationHashForContract(contract_, delegate, rights, vault)].length != 0
+        return checkDelegateForAll(delegate, vault, rights)
             ? true
-            : checkDelegateForAll(delegate, vault, rights);
+            : _delegations[_computeDelegationHashForContract(contract_, delegate, rights, vault)].length != 0;
     }
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights) public view override returns (bool) {
-        return _delegations[_computeDelegationHashForERC721(contract_, delegate, rights, tokenId, vault)].length != 0
+        return checkDelegateForContract(delegate, vault, contract_, rights)
             ? true
-            : checkDelegateForContract(delegate, vault, contract_, rights);
+            : _delegations[_computeDelegationHashForERC721(contract_, delegate, rights, tokenId, vault)].length != 0;
     }
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 rights) external view override returns (uint256) {
         bytes32 hash = _computeDelegationHashForERC20(contract_, delegate, rights, vault);
         return
-            _delegations[hash].length != 0 ? getDelegationBalance(hash) : (checkDelegateForContract(delegate, vault, contract_, rights) ? type(uint256).max : 0);
+            checkDelegateForContract(delegate, vault, contract_, rights) ? type(uint256).max : (_delegations[hash].length != 0 ? getDelegationBalance(hash) : 0);
     }
 
     /// @inheritdoc IDelegateRegistry
@@ -396,7 +396,7 @@ contract DelegateRegistry is IDelegateRegistry {
     {
         bytes32 hash = _computeDelegationHashForERC1155(contract_, delegate, rights, tokenId, vault);
         return
-            _delegations[hash].length != 0 ? getDelegationBalance(hash) : (checkDelegateForContract(delegate, vault, contract_, rights) ? type(uint256).max : 0);
+            checkDelegateForContract(delegate, vault, contract_, rights) ? type(uint256).max : (_delegations[hash].length != 0 ? getDelegationBalance(hash) : 0);
     }
 
     function getDelegationBalance(bytes32 hash) private view returns (uint256 balance_) {
