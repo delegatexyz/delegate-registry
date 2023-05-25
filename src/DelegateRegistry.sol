@@ -127,37 +127,49 @@ contract DelegateRegistry is IDelegateRegistry {
     /// @inheritdoc IDelegateRegistry
     function delegateForAll(address delegate, bytes32 rights, bool enable) public override {
         bytes32 hash = _computeDelegationHashForAll(delegate, rights, msg.sender);
-        if (enable) {
-            _delegations[hash] = abi.encode(AllStorage({rights: rights, delegate: delegate, vault: msg.sender}));
+        emit IDelegateRegistry.AllDelegated(msg.sender, delegate, rights, enable);
+        if (enable && rights == bytes32(0)) {
+            // Encoding order is alphabetic, except rights which is either written at the end or not at all
+            _delegations[hash] = abi.encode(delegate, msg.sender);
+            _pushDelegationHashes(msg.sender, delegate, hash);
+        } else if (enable) {
+            _delegations[hash] = abi.encode(delegate, msg.sender, rights);
             _pushDelegationHashes(msg.sender, delegate, hash);
         } else {
             delete _delegations[hash];
         }
-        emit IDelegateRegistry.AllDelegated(msg.sender, delegate, rights, enable);
     }
 
     /// @inheritdoc IDelegateRegistry
     function delegateForContract(address delegate, address contract_, bytes32 rights, bool enable) public override {
         bytes32 hash = _computeDelegationHashForContract(contract_, delegate, rights, msg.sender);
-        if (enable) {
-            _delegations[hash] = abi.encode(ContractStorage({rights: rights, contract_: contract_, delegate: delegate, vault: msg.sender}));
+        emit IDelegateRegistry.ContractDelegated(msg.sender, delegate, contract_, rights, enable);
+        if (enable && rights == bytes32(0)) {
+            // Encoding order is alphabetic, except rights which is either written at the end or not at all
+            _delegations[hash] = abi.encode(contract_, delegate, msg.sender);
+            _pushDelegationHashes(msg.sender, delegate, hash);
+        } else if (enable) {
+            _delegations[hash] = abi.encode(contract_, delegate, msg.sender, rights);
             _pushDelegationHashes(msg.sender, delegate, hash);
         } else {
             delete _delegations[hash];
         }
-        emit IDelegateRegistry.ContractDelegated(msg.sender, delegate, contract_, rights, enable);
     }
 
     /// @inheritdoc IDelegateRegistry
     function delegateForERC721(address delegate, address contract_, uint256 tokenId, bytes32 rights, bool enable) public override {
         bytes32 hash = _computeDelegationHashForERC721(contract_, delegate, rights, tokenId, msg.sender);
-        if (enable) {
-            _delegations[hash] = abi.encode(ERC721Storage({rights: rights, contract_: contract_, delegate: delegate, tokenId: tokenId, vault: msg.sender}));
+        emit IDelegateRegistry.ERC721Delegated(msg.sender, delegate, contract_, tokenId, rights, enable);
+        if (enable && rights == bytes32(0)) {
+            // Encoding order is alphabetic, except rights which is either written at the end or not at all
+            _delegations[hash] = abi.encode(contract_, delegate, tokenId, msg.sender);
+            _pushDelegationHashes(msg.sender, delegate, hash);
+        } else if (enable) {
+            _delegations[hash] = abi.encode(contract_, delegate, tokenId, msg.sender, rights);
             _pushDelegationHashes(msg.sender, delegate, hash);
         } else {
             delete _delegations[hash];
         }
-        emit IDelegateRegistry.ERC721Delegated(msg.sender, delegate, contract_, tokenId, rights, enable);
     }
 
     /**
@@ -167,13 +179,17 @@ contract DelegateRegistry is IDelegateRegistry {
      */
     function delegateForERC20(address delegate, address contract_, uint256 balance, bytes32 rights, bool enable) public override {
         bytes32 hash = _computeDelegationHashForERC20(contract_, delegate, rights, msg.sender);
-        if (enable) {
-            _delegations[hash] = abi.encode(ERC20Storage({balance: balance, rights: rights, contract_: contract_, delegate: delegate, vault: msg.sender}));
+        emit IDelegateRegistry.ERC20Delegated(msg.sender, delegate, contract_, balance, rights, enable);
+        if (enable && rights == bytes32(0)) {
+            // Encoding order is alphabetic, except rights which is either written at the end or not at all
+            _delegations[hash] = abi.encode(balance, contract_, delegate, msg.sender);
+            _pushDelegationHashes(msg.sender, delegate, hash);
+        } else if (enable) {
+            _delegations[hash] = abi.encode(balance, contract_, delegate, msg.sender, rights);
             _pushDelegationHashes(msg.sender, delegate, hash);
         } else {
             delete _delegations[hash];
         }
-        emit IDelegateRegistry.ERC20Delegated(msg.sender, delegate, contract_, balance, rights, enable);
     }
 
     /**
@@ -183,17 +199,20 @@ contract DelegateRegistry is IDelegateRegistry {
      */
     function delegateForERC1155(address delegate, address contract_, uint256 tokenId, uint256 balance, bytes32 rights, bool enable) public override {
         bytes32 hash = _computeDelegationHashForERC1155(contract_, delegate, rights, tokenId, msg.sender);
-        if (enable) {
-            _delegations[hash] =
-                abi.encode(ERC1155Storage({balance: balance, rights: rights, contract_: contract_, delegate: delegate, tokenId: tokenId, vault: msg.sender}));
+        emit IDelegateRegistry.ERC1155Delegated(msg.sender, delegate, contract_, tokenId, balance, rights, enable);
+        if (enable && rights == bytes32(0)) {
+            // Encoding order is alphabetic, except rights which is either written at the end or not at all
+            _delegations[hash] = abi.encode(balance, contract_, delegate, tokenId, msg.sender);
+            _pushDelegationHashes(msg.sender, delegate, hash);
+        } else if (enable) {
+            _delegations[hash] = abi.encode(balance, contract_, delegate, tokenId, msg.sender, rights);
             _pushDelegationHashes(msg.sender, delegate, hash);
         } else {
             delete _delegations[hash];
         }
-        emit IDelegateRegistry.ERC1155Delegated(msg.sender, delegate, contract_, tokenId, balance, rights, enable);
     }
 
-    /// @dev Helper function to set incoming and outgoing delegation hashes
+    /// @dev Helper function to push new delegation hashes to the delegate and vault hashes mappings
     function _pushDelegationHashes(address vault, address delegate, bytes32 delegationHash) private {
         _vaultDelegationHashes[vault].push(delegationHash);
         _delegateDelegationHashes[delegate].push(delegationHash);
@@ -209,12 +228,12 @@ contract DelegateRegistry is IDelegateRegistry {
         return encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, vault)), IDelegateRegistry.DelegationType.CONTRACT);
     }
 
-    /// @dev Helper function to compute delegation hash for erc20 delegation
+    /// @dev Helper function to compute delegation hash for ERC20 delegation
     function _computeDelegationHashForERC20(address contract_, address delegate, bytes32 rights, address vault) private pure returns (bytes32) {
         return encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, vault)), IDelegateRegistry.DelegationType.ERC20);
     }
 
-    /// @dev Helper function to compute delegation hash for token delegation
+    /// @dev Helper function to compute delegation hash for ERC721 delegation
     function _computeDelegationHashForERC721(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault)
         private
         pure
@@ -224,8 +243,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /**
-     * @dev Helper function to compute delegation hash for balance delegation
-     * @dev balance for erc20 encoded with tokenId 0, collision with tokenId 0 shouldn't be meaningful due to contract_ encoding
+     * @dev Helper function to compute delegation hash for ERC1155 delegation
      */
     function _computeDelegationHashForERC1155(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault)
         private
@@ -235,10 +253,16 @@ contract DelegateRegistry is IDelegateRegistry {
         return encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, tokenId, vault)), IDelegateRegistry.DelegationType.ERC1155);
     }
 
+    /**
+     * @dev Helper function to encode the last byte of a delegation hash to its type
+     */
     function encodeLastByteWithType(bytes32 _input, IDelegateRegistry.DelegationType _type) private pure returns (bytes32) {
         return (_input & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00) | bytes32(uint256(_type));
     }
 
+    /**
+     * @dev Helper function to decode last byte of a delegation hash to obtain its type
+     */
     function decodeLastByteToType(bytes32 _input) private pure returns (IDelegateRegistry.DelegationType) {
         return DelegationType(uint8(uint256(_input) & 0xFF));
     }
@@ -249,16 +273,17 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function getDelegationsForDelegate(address delegate) external view override returns (IDelegateRegistry.Delegation[] memory delegations) {
-        bytes32[] memory incomingHashes = _delegateDelegationHashes[delegate];
-        return getDelegationsFromHashes(incomingHashes);
+        return getDelegationsFromHashes(filterDelegationHashes(_delegateDelegationHashes[delegate]));
     }
 
     /// @inheritdoc IDelegateRegistry
     function getDelegationsForVault(address vault) external view returns (IDelegateRegistry.Delegation[] memory) {
-        bytes32[] memory outgoingHashes = _vaultDelegationHashes[vault];
-        return getDelegationsFromHashes(outgoingHashes);
+        return getDelegationsFromHashes(filterDelegationHashes(_vaultDelegationHashes[vault]));
     }
 
+    /**
+     * @dev Helper function that filters an array of delegation hashes by removing disabled delegations and duplicates
+     */
     function filterDelegationHashes(bytes32[] memory array_) private view returns (bytes32[] memory) {
         bool duplicate;
         uint256 count = 0;
@@ -274,7 +299,7 @@ contract DelegateRegistry is IDelegateRegistry {
                 }
             }
 
-            if (!duplicate && _delegations[array_[i]].length > 0) {
+            if (!duplicate && _delegations[array_[i]].length != 0) {
                 tempArray[count] = array_[i];
                 count++;
             }
@@ -289,8 +314,10 @@ contract DelegateRegistry is IDelegateRegistry {
         return newArray;
     }
 
+    /**
+     * @dev Helper function that takes an array of delegation hashes and returns an array of Delegation structs with their on chain information
+     */
     function getDelegationsFromHashes(bytes32[] memory hashes) private view returns (IDelegateRegistry.Delegation[] memory delegations) {
-        hashes = filterDelegationHashes(hashes);
         delegations = new IDelegateRegistry.Delegation[](hashes.length);
         IDelegateRegistry.DelegationType delegationType;
         bytes32 hash;
@@ -298,64 +325,59 @@ contract DelegateRegistry is IDelegateRegistry {
             hash = hashes[i];
             delegationType = decodeLastByteToType(hash);
             if (delegationType == IDelegateRegistry.DelegationType.ALL) {
-                AllStorage memory allMemory = abi.decode(_delegations[hash], (AllStorage));
                 delegations[i] = IDelegateRegistry.Delegation({
                     type_: IDelegateRegistry.DelegationType.ALL,
                     enable: true,
-                    delegate: allMemory.delegate,
-                    vault: allMemory.vault,
-                    rights: allMemory.rights,
+                    delegate: loadDelegationAddress(hash, 0), // Encoding order is alphabetic, except rights which is at the end
+                    vault: loadDelegationAddress(hash, 1),
+                    rights: loadDelegationBytes32(hash, 2),
+                    balance: 0,
                     contract_: address(0),
-                    tokenId: 0,
-                    balance: 0
+                    tokenId: 0
                 });
             } else if (delegationType == IDelegateRegistry.DelegationType.CONTRACT) {
-                ContractStorage memory contractMemory = abi.decode(_delegations[hash], (ContractStorage));
                 delegations[i] = IDelegateRegistry.Delegation({
                     type_: IDelegateRegistry.DelegationType.CONTRACT,
                     enable: true,
-                    delegate: contractMemory.delegate,
-                    vault: contractMemory.vault,
-                    rights: contractMemory.rights,
-                    contract_: contractMemory.contract_,
-                    tokenId: 0,
-                    balance: 0
+                    contract_: loadDelegationAddress(hash, 0), // Encoding order is alphabetic, except rights which is at the end
+                    delegate: loadDelegationAddress(hash, 1),
+                    vault: loadDelegationAddress(hash, 2),
+                    rights: loadDelegationBytes32(hash, 3),
+                    balance: 0,
+                    tokenId: 0
                 });
             } else if (delegationType == IDelegateRegistry.DelegationType.ERC721) {
-                ERC721Storage memory erc721Memory = abi.decode(_delegations[hash], (ERC721Storage));
                 delegations[i] = IDelegateRegistry.Delegation({
                     type_: IDelegateRegistry.DelegationType.ERC721,
                     enable: true,
-                    delegate: erc721Memory.delegate,
-                    vault: erc721Memory.vault,
-                    rights: erc721Memory.rights,
-                    contract_: erc721Memory.contract_,
-                    tokenId: erc721Memory.tokenId,
+                    contract_: loadDelegationAddress(hash, 0), // Encoding order is alphabetic, except rights which is at the end
+                    delegate: loadDelegationAddress(hash, 1),
+                    tokenId: loadDelegationUint(hash, 2),
+                    vault: loadDelegationAddress(hash, 3),
+                    rights: loadDelegationBytes32(hash, 4),
                     balance: 0
                 });
             } else if (delegationType == IDelegateRegistry.DelegationType.ERC20) {
-                ERC20Storage memory erc20Memory = abi.decode(_delegations[hash], (ERC20Storage));
                 delegations[i] = IDelegateRegistry.Delegation({
                     type_: IDelegateRegistry.DelegationType.ERC20,
                     enable: true,
-                    delegate: erc20Memory.delegate,
-                    vault: erc20Memory.vault,
-                    rights: erc20Memory.rights,
-                    contract_: erc20Memory.contract_,
-                    tokenId: 0,
-                    balance: erc20Memory.balance
+                    balance: loadDelegationUint(hash, 0), // Encoding order is alphabetic, except rights which is at the end
+                    contract_: loadDelegationAddress(hash, 1),
+                    delegate: loadDelegationAddress(hash, 2),
+                    vault: loadDelegationAddress(hash, 3),
+                    rights: loadDelegationBytes32(hash, 4),
+                    tokenId: 0
                 });
             } else if (delegationType == IDelegateRegistry.DelegationType.ERC1155) {
-                ERC1155Storage memory erc1155Memory = abi.decode(_delegations[hash], (ERC1155Storage));
                 delegations[i] = IDelegateRegistry.Delegation({
                     type_: IDelegateRegistry.DelegationType.ERC1155,
                     enable: true,
-                    delegate: erc1155Memory.delegate,
-                    vault: erc1155Memory.vault,
-                    rights: erc1155Memory.rights,
-                    contract_: erc1155Memory.contract_,
-                    tokenId: erc1155Memory.tokenId,
-                    balance: erc1155Memory.balance
+                    balance: loadDelegationUint(hash, 0), // Encoding order is alphabetic, except rights which is at the end
+                    contract_: loadDelegationAddress(hash, 1),
+                    delegate: loadDelegationAddress(hash, 2),
+                    tokenId: loadDelegationUint(hash, 3),
+                    vault: loadDelegationAddress(hash, 4),
+                    rights: loadDelegationBytes32(hash, 5)
                 });
             }
         }
@@ -383,8 +405,9 @@ contract DelegateRegistry is IDelegateRegistry {
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 rights) external view override returns (uint256) {
         bytes32 hash = _computeDelegationHashForERC20(contract_, delegate, rights, vault);
-        return
-            checkDelegateForContract(delegate, vault, contract_, rights) ? type(uint256).max : (_delegations[hash].length != 0 ? getDelegationBalance(hash) : 0);
+        return checkDelegateForContract(delegate, vault, contract_, rights)
+            ? type(uint256).max
+            : (_delegations[hash].length != 0 ? loadDelegationUint(hash, 0) : 0);
     }
 
     /// @inheritdoc IDelegateRegistry
@@ -395,14 +418,38 @@ contract DelegateRegistry is IDelegateRegistry {
         returns (uint256)
     {
         bytes32 hash = _computeDelegationHashForERC1155(contract_, delegate, rights, tokenId, vault);
-        return
-            checkDelegateForContract(delegate, vault, contract_, rights) ? type(uint256).max : (_delegations[hash].length != 0 ? getDelegationBalance(hash) : 0);
+        return checkDelegateForContract(delegate, vault, contract_, rights)
+            ? type(uint256).max
+            : (_delegations[hash].length != 0 ? loadDelegationUint(hash, 0) : 0);
     }
 
-    function getDelegationBalance(bytes32 hash) private view returns (uint256 balance_) {
-        bytes32 balanceLocation = keccak256(abi.encode(keccak256(abi.encode(hash, 0))));
+    /**
+     * @dev Helper function that loads delegation data from a particular array position and returns as bytes32
+     */
+    function loadDelegationBytes32(bytes32 hash, uint256 position) private view returns (bytes32 data) {
+        bytes32 location = keccak256(abi.encode(keccak256(abi.encode(hash, 0)))); // _delegations mapping is at slot 0
         assembly {
-            balance_ := sload(balanceLocation)
+            data := sload(add(location, position))
+        }
+    }
+
+    /**
+     * @dev Helper function that loads delegation data from a particular array position and returns as uint256
+     */
+    function loadDelegationUint(bytes32 hash, uint256 position) private view returns (uint256 data) {
+        bytes32 location = keccak256(abi.encode(keccak256(abi.encode(hash, 0)))); // _delegations mapping is at slot 0
+        assembly {
+            data := sload(add(location, position))
+        }
+    }
+
+    /**
+     * @dev Helper function that loads delegation data from a particular array position and returns as address
+     */
+    function loadDelegationAddress(bytes32 hash, uint256 position) private view returns (address data) {
+        bytes32 location = keccak256(abi.encode(keccak256(abi.encode(hash, 0)))); // _delegations mapping is at slot 0
+        assembly {
+            data := sload(add(location, position))
         }
     }
 }

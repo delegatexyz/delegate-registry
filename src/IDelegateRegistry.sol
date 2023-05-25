@@ -18,44 +18,6 @@ interface IDelegateRegistry {
         ERC1155
     }
 
-    struct AllStorage {
-        bytes32 rights;
-        address delegate;
-        address vault;
-    }
-
-    struct ContractStorage {
-        bytes32 rights;
-        address contract_;
-        address delegate;
-        address vault;
-    }
-
-    struct ERC20Storage {
-        uint256 balance;
-        bytes32 rights;
-        address contract_;
-        address delegate;
-        address vault;
-    }
-
-    struct ERC721Storage {
-        bytes32 rights;
-        address contract_;
-        address delegate;
-        uint256 tokenId;
-        address vault;
-    }
-
-    struct ERC1155Storage {
-        uint256 balance;
-        bytes32 rights;
-        address contract_;
-        address delegate;
-        uint256 tokenId;
-        address vault;
-    }
-
     /// @notice Struct used for batch delegations and returning arbitrary delegations
     struct Delegation {
         DelegationType type_;
