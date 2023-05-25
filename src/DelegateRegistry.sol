@@ -174,7 +174,6 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /**
      * @inheritdoc IDelegateRegistry
-     * @dev collides with delegateForERC1155 method with tokenId = 0, but shouldn't be problem given contract_ encoding
      * @dev the actual balance is not encoded in the hash, just the existence of a balance (since it is an upper bound)
      */
     function delegateForERC20(address delegate, address contract_, uint256 balance, bytes32 rights, bool enable) public override {
@@ -194,7 +193,6 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /**
      * @inheritdoc IDelegateRegistry
-     * @dev collides with delegateForERC20 method with tokenId = 0, but shouldn't be problem given contract_ encoding
      * @dev the actual balance is not encoded in the hash, just the existence of a balance (since it is an upper bound)
      */
     function delegateForERC1155(address delegate, address contract_, uint256 tokenId, uint256 balance, bytes32 rights, bool enable) public override {
