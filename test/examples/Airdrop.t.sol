@@ -31,9 +31,12 @@ contract AirdropTest is Test {
 
     bytes32 public merkleRoot;
 
+    bytes32 public acceptableRight;
+
     struct Delegate {
         address delegate;
         uint256 allowance;
+        bytes32 rights;
     }
 
     Delegate[] public delegateData;
@@ -41,6 +44,7 @@ contract AirdropTest is Test {
     function setUp() public {
         merkle = new Merkle();
         registry = new DelegateRegistry();
+        acceptableRight = "airdrop";
     }
 
     function _createAirdrop(uint256 addressSeed, uint256 amountSeed, uint256 n) internal {
@@ -92,7 +96,7 @@ contract AirdropTest is Test {
             totalSupply_ += airdropData[i].amount;
         }
         // Create airdrop token
-        airdrop = new Airdrop(address(registry), referenceToken, totalSupply_, merkleRoot, address(merkle));
+        airdrop = new Airdrop(address(registry), referenceToken, acceptableRight, totalSupply_, merkleRoot, address(merkle));
         // Check data is stored correctly in token
         assertEq(address(merkle), address(airdrop.merkle()));
         assertEq(address(registry), address(airdrop.delegateRegistry()));
@@ -133,18 +137,14 @@ contract AirdropTest is Test {
             uint256 allowance = uint256(keccak256(abi.encode(allowanceSeed, i))) % MAX_AMOUNT;
             if (allowance == 0) allowance += 1;
             address delegate = address(bytes20(keccak256(abi.encode(delegateSeed, i))));
-            delegateData.push(Delegate({delegate: delegate, allowance: allowance}));
+            bytes32 rights = allowance % 2 == 0 ? bytes32(0) : acceptableRight;
+            delegateData.push(Delegate({delegate: delegate, allowance: allowance, rights: rights}));
         }
     }
 
-    function testAirdropWithDelegateBalance(
-        uint256 addressSeed,
-        uint256 amountSeed,
-        uint256 n,
-        address referenceToken,
-        uint256 delegateSeed,
-        uint256 allowanceSeed
-    ) public {
+    function testAirdropWithDelegate(uint256 addressSeed, uint256 amountSeed, uint256 n, address referenceToken, uint256 delegateSeed, uint256 allowanceSeed)
+        public
+    {
         vm.assume(n > 1 && n < MAX_AIRDROP_SIZE && addressSeed != amountSeed && addressSeed != delegateSeed && addressSeed != allowanceSeed);
         vm.assume(amountSeed != delegateSeed && amountSeed != allowanceSeed);
         vm.assume(delegateSeed != allowanceSeed);
@@ -155,7 +155,7 @@ contract AirdropTest is Test {
             totalSupply_ += airdropData[i].amount;
         }
         // Create airdrop token
-        airdrop = new Airdrop(address(registry), referenceToken, totalSupply_, merkleRoot, address(merkle));
+        airdrop = new Airdrop(address(registry), referenceToken, acceptableRight, totalSupply_, merkleRoot, address(merkle));
         // Create delegates
         _createDelegates(delegateSeed, allowanceSeed, n);
         // Try to claim with delegate
@@ -173,7 +173,7 @@ contract AirdropTest is Test {
         for (uint256 i = 0; i < n; i++) {
             // Delegate
             vm.startPrank(airdropData[i].receiver);
-            registry.delegateForERC20(delegateData[i].delegate, referenceToken, delegateData[i].allowance, "", true);
+            registry.delegateForERC20(delegateData[i].delegate, referenceToken, delegateData[i].allowance, delegateData[i].rights, true);
             vm.stopPrank();
             // Delegate claims airdrop
             vm.startPrank(delegateData[i].delegate);

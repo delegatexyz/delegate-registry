@@ -154,7 +154,7 @@ interface IDelegateRegistry {
      * @param contract_ The address of the token contract
      * @param vault The cold wallet who issued the delegation
      */
-    function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 rights) external view returns (uint256);
+    function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32[] calldata acceptableRights) external view returns (uint256);
 
     /**
      * @notice Returns the balance of a specific token that the address is delegated to act on the behalf, or max(uint256) if the the specific token, the token's contract or entire vault has been delegated (and 0 otherwise)
