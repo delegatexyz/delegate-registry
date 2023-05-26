@@ -9,7 +9,6 @@ import {IDelegateRegistry} from "src/IDelegateRegistry.sol";
 contract DelegateRegistryTest is Test {
     DelegateRegistry public reg;
     bytes32 public rights = "";
-    bytes32[] public acceptableRights = new bytes32[](0);
 
     function setUp() public {
         reg = new DelegateRegistry();
@@ -26,13 +25,14 @@ contract DelegateRegistryTest is Test {
     }
 
     function testApproveAndRevokeForAll(address vault, address delegate, address contract_, uint256 tokenId) public {
+        vm.assume(vault != address(0));
         // Approve
         vm.startPrank(vault);
         reg.delegateForAll(delegate, rights, true);
         assertTrue(reg.checkDelegateForAll(delegate, vault, rights));
         assertTrue(reg.checkDelegateForContract(delegate, vault, contract_, rights));
         assertTrue(reg.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
-        assertEq(reg.checkDelegateForERC20(delegate, vault, contract_, acceptableRights), type(uint256).max);
+        assertEq(reg.checkDelegateForERC20(delegate, vault, contract_, rights), type(uint256).max);
         assertEq(reg.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), type(uint256).max);
         // Revoke
         reg.delegateForAll(delegate, rights, false);
@@ -40,12 +40,13 @@ contract DelegateRegistryTest is Test {
     }
 
     function testApproveAndRevokeForContract(address vault, address delegate, address contract_, uint256 tokenId) public {
+        vm.assume(vault != address(0));
         // Approve
         vm.startPrank(vault);
         reg.delegateForContract(delegate, contract_, rights, true);
         assertTrue(reg.checkDelegateForContract(delegate, vault, contract_, rights));
         assertTrue(reg.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
-        assertEq(reg.checkDelegateForERC20(delegate, vault, contract_, acceptableRights), type(uint256).max);
+        assertEq(reg.checkDelegateForERC20(delegate, vault, contract_, rights), type(uint256).max);
         assertEq(reg.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), type(uint256).max);
         // Revoke
         reg.delegateForContract(delegate, contract_, rights, false);
@@ -53,6 +54,7 @@ contract DelegateRegistryTest is Test {
     }
 
     function testApproveAndRevokeForToken(address vault, address delegate, address contract_, uint256 tokenId) public {
+        vm.assume(vault != address(0));
         // Approve
         vm.startPrank(vault);
         reg.delegateForERC721(delegate, contract_, tokenId, rights, true);
@@ -63,17 +65,19 @@ contract DelegateRegistryTest is Test {
     }
 
     function testApproveAndRevokeForBalance(address vault, address delegate, address contract_, uint256 balance) public {
+        vm.assume(vault != address(0));
         // Approve
         emit log_bytes(abi.encodePacked(balance, rights, delegate, vault, contract_));
         vm.startPrank(vault);
         reg.delegateForERC20(delegate, contract_, balance, rights, true);
-        assertEq(reg.checkDelegateForERC20(delegate, vault, contract_, acceptableRights), balance);
+        assertEq(reg.checkDelegateForERC20(delegate, vault, contract_, rights), balance);
         // Revoke
         reg.delegateForERC20(delegate, contract_, balance, rights, false);
-        assertEq(reg.checkDelegateForERC20(delegate, vault, contract_, acceptableRights), 0);
+        assertEq(reg.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
     }
 
     function testApproveAndRevokeForTokenBalance(address vault, address delegate, address contract_, uint256 tokenId, uint256 balance) public {
+        vm.assume(vault != address(0));
         // Approve
         vm.startPrank(vault);
         reg.delegateForERC1155(delegate, contract_, tokenId, balance, rights, true);
@@ -84,7 +88,7 @@ contract DelegateRegistryTest is Test {
     }
 
     function testMultipleDelegationForAll(address vault, address delegate0, address delegate1) public {
-        vm.assume(delegate0 != delegate1);
+        vm.assume(delegate0 != delegate1 && vault != address(0));
         vm.startPrank(vault);
         reg.delegateForAll(delegate0, rights, true);
         reg.delegateForAll(delegate1, rights, true);
@@ -102,7 +106,7 @@ contract DelegateRegistryTest is Test {
     }
 
     function testBatchDelegationForAll(address vault, address delegate0, address delegate1) public {
-        vm.assume(delegate0 != delegate1);
+        vm.assume(delegate0 != delegate1 && vault != address(0));
         vm.startPrank(vault);
         IDelegateRegistry.Delegation[] memory info = new IDelegateRegistry.Delegation[](2);
         info[0] = IDelegateRegistry.Delegation({
@@ -149,6 +153,7 @@ contract DelegateRegistryTest is Test {
         uint256 balance0,
         uint256 balance1
     ) public {
+        vm.assume(vault0 != address(0) && vault1 != address(0));
         vm.assume(vault0 != vault1 && vault0 != delegate0 && vault0 != delegate1);
         vm.assume(vault1 != delegate0 && vault1 != delegate1);
         vm.assume(delegate0 != delegate1);
@@ -206,6 +211,7 @@ contract DelegateRegistryTest is Test {
     function testVaultEnumerations(address vault, address delegate0, address delegate1, address contract0, address contract1, uint256 tokenId, uint256 balance)
         public
     {
+        vm.assume(vault != address(0));
         vm.assume(vault != delegate0 && vault != delegate1);
         vm.assume(delegate0 != delegate1);
         vm.assume(contract0 != contract1);
