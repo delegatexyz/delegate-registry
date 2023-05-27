@@ -10,6 +10,7 @@ pragma solidity ^0.8.20;
 interface IDelegateRegistry {
     /// @notice Delegation type
     enum DelegationType {
+        NONE,
         ALL,
         CONTRACT,
         ERC20,
