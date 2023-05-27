@@ -100,7 +100,7 @@ contract DelegateRegistry is IDelegateRegistry {
      */
 
     /// @inheritdoc IDelegateRegistry
-    function batchDelegate(Delegation[] calldata delegations) external override {
+    function batchDelegate(BatchDelegation[] calldata delegations) external override {
         for (uint256 i = 0; i < delegations.length; ++i) {
             if (delegations[i].type_ == DelegationType.ALL) {
                 delegateForAll(delegations[i].delegate, delegations[i].rights, delegations[i].enable);

@@ -10,7 +10,6 @@ pragma solidity ^0.8.20;
 interface IDelegateRegistry {
     /// @notice Delegation type
     enum DelegationType {
-        NONE,
         ALL,
         CONTRACT,
         ERC20,
@@ -28,12 +27,23 @@ interface IDelegateRegistry {
         balance
     }
 
-    /// @notice Struct used for batch delegations and returning arbitrary delegations
+    /// @notice Struct for returning arbitrary delegations
     struct Delegation {
         DelegationType type_;
         bool enable;
         address delegate;
         address vault;
+        bytes32 rights;
+        address contract_;
+        uint256 tokenId;
+        uint256 balance;
+    }
+
+    /// @notice Struct for batch delegations
+    struct BatchDelegation {
+        DelegationType type_;
+        bool enable;
+        address delegate;
         bytes32 rights;
         address contract_;
         uint256 tokenId;
@@ -63,9 +73,9 @@ interface IDelegateRegistry {
 
     /**
      * @notice Batch several delegations into a single transactions
-     * @param delegations An array of Delegation structs
+     * @param delegations An array of SetDelegation structs
      */
-    function batchDelegate(Delegation[] calldata delegations) external;
+    function batchDelegate(BatchDelegation[] calldata delegations) external;
 
     /**
      * @notice Allow the delegate to act on your behalf for all contracts

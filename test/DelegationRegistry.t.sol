@@ -108,10 +108,9 @@ contract DelegateRegistryTest is Test {
     function testBatchDelegationForAll(address vault, address delegate0, address delegate1) public {
         vm.assume(delegate0 != delegate1 && vault != address(0));
         vm.startPrank(vault);
-        IDelegateRegistry.Delegation[] memory info = new IDelegateRegistry.Delegation[](2);
-        info[0] = IDelegateRegistry.Delegation({
+        IDelegateRegistry.BatchDelegation[] memory info = new IDelegateRegistry.BatchDelegation[](2);
+        info[0] = IDelegateRegistry.BatchDelegation({
             type_: IDelegateRegistry.DelegationType.ALL,
-            vault: vault,
             enable: true,
             delegate: delegate0,
             contract_: address(0),
@@ -119,9 +118,8 @@ contract DelegateRegistryTest is Test {
             balance: 0,
             rights: ""
         });
-        info[1] = IDelegateRegistry.Delegation({
+        info[1] = IDelegateRegistry.BatchDelegation({
             type_: IDelegateRegistry.DelegationType.ALL,
-            vault: vault,
             enable: true,
             delegate: delegate1,
             contract_: address(0),
