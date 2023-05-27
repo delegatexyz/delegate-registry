@@ -24,6 +24,13 @@ contract DelegateRegistryTest is Test {
         emit log_bytes32(initHash);
     }
 
+    function testSupportsInterface(bytes4 falseInterfaceId) public {
+        bytes4 interfaceId = type(IDelegateRegistry).interfaceId;
+        vm.assume(falseInterfaceId != interfaceId);
+        assertTrue(reg.supportsInterface(interfaceId));
+        assertFalse(reg.supportsInterface(falseInterfaceId));
+    }
+
     function testApproveAndRevokeForAll(address vault, address delegate, address contract_, uint256 tokenId) public {
         vm.assume(vault != address(0));
         // Approve
