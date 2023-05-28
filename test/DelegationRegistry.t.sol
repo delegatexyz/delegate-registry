@@ -24,7 +24,8 @@ contract DelegateRegistryTest is Test {
         emit log_bytes32(initHash);
     }
 
-    function testSupportsInterface(bytes4 falseInterfaceId) public {
+    function testSupportsInterface(bytes32 seed) public {
+        bytes4 falseInterfaceId = bytes4(seed & 0x00000000000000000000000000000000000000000000000000000000FFFFFFFF);
         bytes4 interfaceId = type(IDelegateRegistry).interfaceId;
         if (falseInterfaceId == interfaceId) falseInterfaceId = bytes4(0);
         assertTrue(reg.supportsInterface(interfaceId));

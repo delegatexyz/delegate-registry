@@ -95,6 +95,16 @@ contract DelegateRegistry is IDelegateRegistry {
         return interfaceId == type(IDelegateRegistry).interfaceId || interfaceId == 0x01ffc9a7;
     }
 
+    /// @notice Standardizes storage positions of delegation data
+    enum StoragePositions {
+        delegate,
+        vault,
+        rights,
+        contract_,
+        tokenId,
+        balance
+    }
+
     /**
      * ----------- WRITE -----------
      */
@@ -328,9 +338,9 @@ contract DelegateRegistry is IDelegateRegistry {
             hash = hashes[i];
             location = _computeDelegationLocation(hash);
             vault = _loadDelegationAddress(location, StoragePositions.vault);
+            if (vault == address(1)) vault = address(0);
             delegations[i] = Delegation({
                 type_: _decodeLastByteToType(hash),
-                enable: vault != address(0),
                 delegate: _loadDelegationAddress(location, StoragePositions.delegate),
                 vault: vault,
                 rights: _loadDelegationBytes32(location, StoragePositions.rights),

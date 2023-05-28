@@ -18,20 +18,9 @@ interface IDelegateRegistry {
         ERC1155
     }
 
-    /// @notice Standardizes storage positions of delegation data
-    enum StoragePositions {
-        delegate,
-        vault,
-        rights,
-        contract_,
-        tokenId,
-        balance
-    }
-
     /// @notice Struct for returning arbitrary delegations
     struct Delegation {
         DelegationType type_;
-        bool enable;
         address delegate;
         address vault;
         bytes32 rights;
