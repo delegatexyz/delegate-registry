@@ -258,17 +258,17 @@ contract DelegateRegistryTest is Test {
         }
     }
 
-    function testVaultEnumerationGas() public {
-        uint256 delegationsLimit = 2600;
-        uint256 hashesLimitScalar = 8;
+    function testGetDelegationsGas() public {
+        uint256 delegationsLimit = 2600; // Actual limit is x5
         _createUniqueDelegations(0, delegationsLimit);
-        IDelegateRegistry.Delegation[] memory vaultDelegations;
-        vaultDelegations = reg.getDelegationsForVault(address(this));
+        IDelegateRegistry.Delegation[] memory vaultDelegations = reg.getDelegationsForVault(address(this));
         assertEq(vaultDelegations.length, 5 * delegationsLimit);
+    }
+
+    function testGetDelegationHashesGas() public {
+        uint256 hashesLimit = 20800; // Actual limit is x5
+        _createUniqueDelegations(0, hashesLimit);
         bytes32[] memory vaultDelegationHashes = reg.getDelegationHashesForVault(address(this));
-        assertEq(vaultDelegationHashes.length, 5 * delegationsLimit);
-        _createUniqueDelegations(delegationsLimit, delegationsLimit * hashesLimitScalar);
-        vaultDelegationHashes = reg.getDelegationHashesForVault(address(this));
-        assertEq(vaultDelegationHashes.length, 5 * delegationsLimit * hashesLimitScalar);
+        assertEq(vaultDelegationHashes.length, 5 * hashesLimit);
     }
 }
