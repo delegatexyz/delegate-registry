@@ -271,7 +271,7 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights)
-        public
+        external
         view
         override
         returns (bool valid)
