@@ -26,7 +26,7 @@ interface IDelegateRegistry {
         bytes32 rights;
         address contract_;
         uint256 tokenId;
-        uint256 balance;
+        uint256 amount;
     }
 
     /// @notice Struct for batch delegations
@@ -37,7 +37,7 @@ interface IDelegateRegistry {
         bytes32 rights;
         address contract_;
         uint256 tokenId;
-        uint256 balance;
+        uint256 amount;
     }
 
     /// @notice Emitted when a user delegates rights for their entire wallet
@@ -49,12 +49,12 @@ interface IDelegateRegistry {
     /// @notice Emitted when a user delegates rights for a specific ERC721 token
     event ERC721Delegated(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bytes32 rights, bool enable);
 
-    /// @notice Emitted when a user delegates rights for a specific balance of ERC20 tokens
-    event ERC20Delegated(address indexed vault, address indexed delegate, address indexed contract_, uint256 balance, bytes32 rights, bool enable);
+    /// @notice Emitted when a user delegates rights for a specific amount of ERC20 tokens
+    event ERC20Delegated(address indexed vault, address indexed delegate, address indexed contract_, uint256 amount, bytes32 rights, bool enable);
 
-    /// @notice Emitted when a user delegates rights for a specific balance of ERC1155 tokens
+    /// @notice Emitted when a user delegates rights for a specific amount of ERC1155 tokens
     event ERC1155Delegated(
-        address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, uint256 balance, bytes32 rights, bool enable
+        address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable
     );
 
     /**
@@ -95,25 +95,25 @@ interface IDelegateRegistry {
     function delegateForERC721(address delegate, address contract_, uint256 tokenId, bytes32 rights, bool enable) external;
 
     /**
-     * @notice Allow the delegate to act on your behalf for a specific balance of ERC20 tokens
+     * @notice Allow the delegate to act on your behalf for a specific amount of ERC20 tokens
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address for the fungible token contract
-     * @param balance The balance you want to delegate
+     * @param amount The amount you want to delegate
      * @param rights The rights granted to the delegate, leave empty for full rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      */
-    function delegateForERC20(address delegate, address contract_, uint256 balance, bytes32 rights, bool enable) external;
+    function delegateForERC20(address delegate, address contract_, uint256 amount, bytes32 rights, bool enable) external;
 
     /**
-     * @notice Allow the delegate to act on your behalf for a specific balance of ERC1155 tokens
+     * @notice Allow the delegate to act on your behalf for a specific amount of ERC1155 tokens
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address of the contract that holds the token
-     * @param tokenId, the id of the token you are delegating the balance of
-     * @param balance The balance you want to delegate
+     * @param tokenId, the id of the token you are delegating the amount of
+     * @param amount The amount you want to delegate
      * @param rights The rights granted to the delegate, leave empty for full rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      */
-    function delegateForERC1155(address delegate, address contract_, uint256 tokenId, uint256 balance, bytes32 rights, bool enable) external;
+    function delegateForERC1155(address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external;
 
     /**
      * ----------- Consumable -----------
@@ -147,7 +147,7 @@ interface IDelegateRegistry {
     function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights) external view returns (bool);
 
     /**
-     * @notice Returns the balance of ERC20 tokens the delegate is granted rights to act on the behalf of
+     * @notice Returns the amount of ERC20 tokens the delegate is granted rights to act on the behalf of
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address of the token contract
      * @param vault The cold wallet who issued the delegation
@@ -156,10 +156,10 @@ interface IDelegateRegistry {
     function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 rights) external view returns (uint256);
 
     /**
-     * @notice Returns the balance of a ERC1155 tokens the delegate is granted rights to act on the behalf of
+     * @notice Returns the amount of a ERC1155 tokens the delegate is granted rights to act on the behalf of
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address of the token contract
-     * @param tokenId the token id for the token you're delegating the balance of
+     * @param tokenId the token id for the token you're delegating the amount of
      * @param vault The cold wallet who issued the delegation
      * @param rights Specific rights to check for, leave empty for full rights only
      */

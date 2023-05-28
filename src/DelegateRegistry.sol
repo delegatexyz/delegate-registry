@@ -13,27 +13,27 @@ contract DelegateRegistry is IDelegateRegistry {
     /// @dev Only this mapping should be used to verify delegations; the other mappings are for record keeping only
     mapping(bytes32 delegationHash => bytes32[6] delegationStorage) private _delegations;
 
-    /// @dev vault delegation outbox, for pushing new hashes only
+    /// @dev Vault delegation outbox, for pushing new hashes only
     mapping(address vault => bytes32[] delegationHashes) private _vaultDelegationHashes;
 
-    /// @dev delegate delegation inbox, for pushing new hashes only
+    /// @dev Delegate delegation inbox, for pushing new hashes only
     mapping(address delegate => bytes32[] delegationHashes) private _delegateDelegationHashes;
 
-    /// @notice Query if a contract implements an ERC-165 interface
-    /// @param interfaceId The interface identifier
-    /// @return bool Whether the queried interface is supported
-    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
-        return interfaceId == type(IDelegateRegistry).interfaceId || interfaceId == 0x01ffc9a7;
-    }
-
-    /// @notice Standardizes storage positions of delegation data
+    /// @dev Standardizes storage positions of delegation data
     enum StoragePositions {
         delegate,
         vault,
         rights,
         contract_,
         tokenId,
-        balance
+        amount
+    }
+
+    /// @notice Query if a contract implements an ERC-165 interface
+    /// @param interfaceId The interface identifier
+    /// @return bool Whether the queried interface is supported
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return interfaceId == type(IDelegateRegistry).interfaceId || interfaceId == 0x01ffc9a7;
     }
 
     /**
@@ -50,13 +50,13 @@ contract DelegateRegistry is IDelegateRegistry {
             } else if (delegations[i].type_ == DelegationType.ERC721) {
                 delegateForERC721(delegations[i].delegate, delegations[i].contract_, delegations[i].tokenId, delegations[i].rights, delegations[i].enable);
             } else if (delegations[i].type_ == DelegationType.ERC20) {
-                delegateForERC20(delegations[i].delegate, delegations[i].contract_, delegations[i].balance, delegations[i].rights, delegations[i].enable);
+                delegateForERC20(delegations[i].delegate, delegations[i].contract_, delegations[i].amount, delegations[i].rights, delegations[i].enable);
             } else if (delegations[i].type_ == DelegationType.ERC1155) {
                 delegateForERC1155(
                     delegations[i].delegate,
                     delegations[i].contract_,
                     delegations[i].tokenId,
-                    delegations[i].balance,
+                    delegations[i].amount,
                     delegations[i].rights,
                     delegations[i].enable
                 );
@@ -123,49 +123,49 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /**
      * @inheritdoc IDelegateRegistry
-     * @dev the actual balance is not encoded in the hash, just the existence of a balance (since it is an upper bound)
+     * @dev The actual amount is not encoded in the hash, just the existence of a amount (since it is an upper bound)
      */
-    function delegateForERC20(address delegate, address contract_, uint256 balance, bytes32 rights, bool enable) public override {
+    function delegateForERC20(address delegate, address contract_, uint256 amount, bytes32 rights, bool enable) public override {
         bytes32 hash = _computeDelegationHashForERC20(contract_, delegate, rights, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
-        emit ERC20Delegated(msg.sender, delegate, contract_, balance, rights, enable);
+        emit ERC20Delegated(msg.sender, delegate, contract_, amount, rights, enable);
         if (enable) {
             if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
             _writeDelegation(location, StoragePositions.contract_, contract_);
             _writeDelegation(location, StoragePositions.delegate, delegate);
             _writeDelegation(location, StoragePositions.vault, msg.sender);
-            _writeDelegation(location, StoragePositions.balance, balance);
+            _writeDelegation(location, StoragePositions.amount, amount);
             if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
         } else {
             _writeDelegation(location, StoragePositions.contract_, "");
             _writeDelegation(location, StoragePositions.delegate, "");
             _writeDelegation(location, StoragePositions.vault, 1);
-            _writeDelegation(location, StoragePositions.balance, "");
+            _writeDelegation(location, StoragePositions.amount, "");
             if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
         }
     }
 
     /**
      * @inheritdoc IDelegateRegistry
-     * @dev the actual balance is not encoded in the hash, just the existence of a balance (since it is an upper bound)
+     * @dev The actual amount is not encoded in the hash, just the existence of a amount (since it is an upper bound)
      */
-    function delegateForERC1155(address delegate, address contract_, uint256 tokenId, uint256 balance, bytes32 rights, bool enable) public override {
+    function delegateForERC1155(address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) public override {
         bytes32 hash = _computeDelegationHashForERC1155(contract_, delegate, rights, tokenId, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
-        emit ERC1155Delegated(msg.sender, delegate, contract_, tokenId, balance, rights, enable);
+        emit ERC1155Delegated(msg.sender, delegate, contract_, tokenId, amount, rights, enable);
         if (enable) {
             if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
             _writeDelegation(location, StoragePositions.contract_, contract_);
             _writeDelegation(location, StoragePositions.delegate, delegate);
             _writeDelegation(location, StoragePositions.vault, msg.sender);
-            _writeDelegation(location, StoragePositions.balance, balance);
+            _writeDelegation(location, StoragePositions.amount, amount);
             _writeDelegation(location, StoragePositions.tokenId, tokenId);
             if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
         } else {
             _writeDelegation(location, StoragePositions.contract_, "");
             _writeDelegation(location, StoragePositions.delegate, "");
             _writeDelegation(location, StoragePositions.vault, 1);
-            _writeDelegation(location, StoragePositions.balance, "");
+            _writeDelegation(location, StoragePositions.amount, "");
             _writeDelegation(location, StoragePositions.tokenId, "");
             if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
         }
@@ -211,17 +211,17 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 rights) external view override returns (uint256 balance) {
+    function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 rights) external view override returns (uint256 amount) {
         bytes32 location = _computeDelegationLocation(_computeDelegationHashForERC20(contract_, delegate, "", vault));
-        balance = checkDelegateForContract(delegate, vault, contract_, "")
+        amount = checkDelegateForContract(delegate, vault, contract_, "")
             ? type(uint256).max
-            : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.balance) : 0);
-        if (rights != "" && balance != type(uint256).max) {
+            : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.amount) : 0);
+        if (rights != "" && amount != type(uint256).max) {
             location = _computeDelegationLocation(_computeDelegationHashForERC20(contract_, delegate, rights, vault));
             uint256 rightsBalance = checkDelegateForContract(delegate, vault, contract_, rights)
                 ? type(uint256).max
-                : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.balance) : 0);
-            balance = rightsBalance > balance ? rightsBalance : balance;
+                : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.amount) : 0);
+            amount = rightsBalance > amount ? rightsBalance : amount;
         }
     }
 
@@ -230,18 +230,18 @@ contract DelegateRegistry is IDelegateRegistry {
         external
         view
         override
-        returns (uint256 balance)
+        returns (uint256 amount)
     {
         bytes32 location = _computeDelegationLocation(_computeDelegationHashForERC1155(contract_, delegate, "", tokenId, vault));
-        balance = checkDelegateForContract(delegate, vault, contract_, "")
+        amount = checkDelegateForContract(delegate, vault, contract_, "")
             ? type(uint256).max
-            : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.balance) : 0);
-        if (rights != "" && balance != type(uint256).max) {
+            : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.amount) : 0);
+        if (rights != "" && amount != type(uint256).max) {
             location = _computeDelegationLocation(_computeDelegationHashForERC1155(contract_, delegate, rights, tokenId, vault));
             uint256 rightsBalance = checkDelegateForContract(delegate, vault, contract_, rights)
                 ? type(uint256).max
-                : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.balance) : 0);
-            balance = rightsBalance > balance ? rightsBalance : balance;
+                : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.amount) : 0);
+            amount = rightsBalance > amount ? rightsBalance : amount;
         }
     }
 
@@ -273,7 +273,7 @@ contract DelegateRegistry is IDelegateRegistry {
                     delegate: address(0),
                     vault: address(0),
                     rights: "",
-                    balance: 0,
+                    amount: 0,
                     contract_: address(0),
                     tokenId: 0
                 });
@@ -283,7 +283,7 @@ contract DelegateRegistry is IDelegateRegistry {
                     delegate: _loadDelegationAddress(location, StoragePositions.delegate),
                     vault: vault,
                     rights: _loadDelegationBytes32(location, StoragePositions.rights),
-                    balance: _loadDelegationUint(location, StoragePositions.balance),
+                    amount: _loadDelegationUint(location, StoragePositions.amount),
                     contract_: _loadDelegationAddress(location, StoragePositions.contract_),
                     tokenId: _loadDelegationUint(location, StoragePositions.tokenId)
                 });
@@ -334,7 +334,7 @@ contract DelegateRegistry is IDelegateRegistry {
                 delegate: _loadDelegationAddress(location, StoragePositions.delegate),
                 vault: vault,
                 rights: _loadDelegationBytes32(location, StoragePositions.rights),
-                balance: _loadDelegationUint(location, StoragePositions.balance),
+                amount: _loadDelegationUint(location, StoragePositions.amount),
                 contract_: _loadDelegationAddress(location, StoragePositions.contract_),
                 tokenId: _loadDelegationUint(location, StoragePositions.tokenId)
             });
