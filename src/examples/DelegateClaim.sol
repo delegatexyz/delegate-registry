@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {IDelegateRegistry} from "src/IDelegateRegistry.sol";
-import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
+import {Math} from "lib/openzeppelin-contracts/contracts/utils/math/Math.sol";
 
 /**
  * @title DelegateClaim
@@ -11,6 +11,7 @@ import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 contract DelegateClaim {
     IDelegateRegistry public immutable delegateRegistry;
     address public immutable referenceToken;
+    bytes32 public immutable acceptedRight;
     /**
      * @dev stores accounting for the tokens claimed by a delegate on behalf of a vault.
      */
@@ -20,9 +21,10 @@ contract DelegateClaim {
      * @param registry_ The address of the v2 delegation registry contract.
      * @param referenceToken_ The address of the reference token.
      */
-    constructor(address registry_, address referenceToken_) {
+    constructor(address registry_, address referenceToken_, bytes32 acceptedRight_) {
         delegateRegistry = IDelegateRegistry(registry_);
         referenceToken = referenceToken_;
+        acceptedRight = acceptedRight_;
     }
 
     /**
@@ -33,7 +35,7 @@ contract DelegateClaim {
      */
     function _delegateClaimable(address vault, uint256 claimable) internal returns (uint256) {
         // Fetch the referenceToken balance delegated by the vault to msg.sender from the delegate registry
-        uint256 balance = delegateRegistry.checkDelegateForERC20(msg.sender, vault, referenceToken, "");
+        uint256 balance = delegateRegistry.checkDelegateForERC20(msg.sender, vault, referenceToken, acceptedRight);
         // Load the amount tokens already claimed by msg.sender on behalf of the vault
         uint256 alreadyClaimed = delegateClaimed[vault][msg.sender];
         // Revert if msg.sender has already used up all the delegated balance

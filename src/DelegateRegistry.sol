@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import {IDelegateRegistry} from "./IDelegateRegistry.sol";
-import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 
 /**
  * DONE:
@@ -80,17 +79,14 @@ import {EnumerableSet} from "openzeppelin-contracts/contracts/utils/structs/Enum
  * @notice A standalone immutable registry storing delegated permissions from one wallet to another
  */
 contract DelegateRegistry is IDelegateRegistry {
-    using EnumerableSet for EnumerableSet.AddressSet;
-    using EnumerableSet for EnumerableSet.Bytes32Set;
+    /// @dev Only this mapping should be used to verify delegations; the other mappings are for record keeping only
+    mapping(bytes32 delegationHash => bytes32[6] delegationStorage) private _delegations;
 
-    /// @dev Connects a delegationHash and its struct fields, an inverse hash function
-    mapping(bytes32 delegationHash => IDelegateRegistry.DelegationInfo delegationInfo) internal delegationInfo;
+    /// @dev vault delegation outbox, for pushing new hashes only
+    mapping(address vault => bytes32[] delegationHashes) private _vaultDelegationHashes;
 
-    /// @dev The primary mapping to enumerate a vault's outgoing delegations, used to create and revoke individual delegations
-    mapping(address vault => EnumerableSet.Bytes32Set hashes) internal vaultDelegationHashes;
-
-    /// @dev A secondary mapping to enumerate a delegate's incoming delegations
-    mapping(address delegate => EnumerableSet.Bytes32Set hashes) internal delegateDelegationHashes;
+    /// @dev delegate delegation inbox, for pushing new hashes only
+    mapping(address delegate => bytes32[] delegationHashes) private _delegateDelegationHashes;
 
     /// @notice Query if a contract implements an ERC-165 interface
     /// @param interfaceId The interface identifier
@@ -99,124 +95,223 @@ contract DelegateRegistry is IDelegateRegistry {
         return interfaceId == type(IDelegateRegistry).interfaceId || interfaceId == 0x01ffc9a7;
     }
 
+    /// @notice Standardizes storage positions of delegation data
+    enum StoragePositions {
+        delegate,
+        vault,
+        rights,
+        contract_,
+        tokenId,
+        balance
+    }
+
     /**
      * ----------- WRITE -----------
      */
 
     /// @inheritdoc IDelegateRegistry
-    function batchDelegate(IDelegateRegistry.DelegationInfo[] calldata details, bool[] calldata values) external override {
-        uint256 detailsLength = details.length;
-        for (uint256 i = 0; i < detailsLength; ++i) {
-            if (details[i].type_ == IDelegateRegistry.DelegationType.ALL) {
-                delegateForAll(details[i].delegate, values[i], details[i].data);
-            } else if (details[i].type_ == IDelegateRegistry.DelegationType.CONTRACT) {
-                delegateForContract(details[i].delegate, details[i].contract_, values[i], details[i].data);
-            } else if (details[i].type_ == IDelegateRegistry.DelegationType.ERC721) {
-                delegateForERC721(details[i].delegate, details[i].contract_, details[i].tokenId, values[i], details[i].data);
-            } else if (details[i].type_ == IDelegateRegistry.DelegationType.ERC20) {
-                delegateForERC20(details[i].delegate, details[i].contract_, details[i].balance, values[i], details[i].data);
-            } else if (details[i].type_ == IDelegateRegistry.DelegationType.ERC1155) {
-                delegateForERC1155(details[i].delegate, details[i].contract_, details[i].tokenId, details[i].balance, values[i], details[i].data);
+    function batchDelegate(BatchDelegation[] calldata delegations) external override {
+        for (uint256 i = 0; i < delegations.length; ++i) {
+            if (delegations[i].type_ == DelegationType.ALL) {
+                delegateForAll(delegations[i].delegate, delegations[i].rights, delegations[i].enable);
+            } else if (delegations[i].type_ == DelegationType.CONTRACT) {
+                delegateForContract(delegations[i].delegate, delegations[i].contract_, delegations[i].rights, delegations[i].enable);
+            } else if (delegations[i].type_ == DelegationType.ERC721) {
+                delegateForERC721(delegations[i].delegate, delegations[i].contract_, delegations[i].tokenId, delegations[i].rights, delegations[i].enable);
+            } else if (delegations[i].type_ == DelegationType.ERC20) {
+                delegateForERC20(delegations[i].delegate, delegations[i].contract_, delegations[i].balance, delegations[i].rights, delegations[i].enable);
+            } else if (delegations[i].type_ == DelegationType.ERC1155) {
+                delegateForERC1155(
+                    delegations[i].delegate,
+                    delegations[i].contract_,
+                    delegations[i].tokenId,
+                    delegations[i].balance,
+                    delegations[i].rights,
+                    delegations[i].enable
+                );
             }
         }
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateForAll(address delegate, bool value, bytes32 data) public override {
-        bytes32 delegationHash = _computeDelegationHashForAll(msg.sender, delegate, data);
-        _setDelegationValues(delegate, delegationHash, value, IDelegateRegistry.DelegationType.ALL, msg.sender, address(0), 0, 0, data);
-        emit IDelegateRegistry.DelegateForAll(msg.sender, delegate, value, data);
-    }
-
-    /// @inheritdoc IDelegateRegistry
-    function delegateForContract(address delegate, address contract_, bool value, bytes32 data) public override {
-        bytes32 delegationHash = _computeDelegationHashForContract(msg.sender, delegate, contract_, data);
-        _setDelegationValues(delegate, delegationHash, value, IDelegateRegistry.DelegationType.CONTRACT, msg.sender, contract_, 0, 0, data);
-        emit IDelegateRegistry.DelegateForContract(msg.sender, delegate, contract_, value, data);
-    }
-
-    /// @inheritdoc IDelegateRegistry
-    function delegateForERC721(address delegate, address contract_, uint256 tokenId, bool value, bytes32 data) public override {
-        bytes32 delegationHash = _computeDelegationHashForERC721(msg.sender, delegate, contract_, tokenId, data);
-        _setDelegationValues(delegate, delegationHash, value, IDelegateRegistry.DelegationType.ERC721, msg.sender, contract_, tokenId, 0, data);
-        emit IDelegateRegistry.DelegateForERC721(msg.sender, delegate, contract_, tokenId, value, data);
-    }
-
-    /**
-     * @inheritdoc IDelegateRegistry
-     * @dev collides with delegateForERC1155 method with tokenId = 0, but shouldn't be problem given contract_ encoding
-     * @dev the actual balance is not encoded in the hash, just the existence of a balance (since it is an upper bound)
-     */
-    function delegateForERC20(address delegate, address contract_, uint256 balance, bool value, bytes32 data) public override {
-        bytes32 delegationHash = _computeDelegationHashForERC1155(msg.sender, delegate, contract_, 0, data);
-        _setDelegationValues(delegate, delegationHash, value, IDelegateRegistry.DelegationType.ERC20, msg.sender, contract_, 0, balance, data);
-        emit IDelegateRegistry.DelegateForERC20(msg.sender, delegate, contract_, balance, value, data);
-    }
-
-    /**
-     * @inheritdoc IDelegateRegistry
-     * @dev collides with delegateForERC20 method with tokenId = 0, but shouldn't be problem given contract_ encoding
-     * @dev the actual balance is not encoded in the hash, just the existence of a balance (since it is an upper bound)
-     */
-    function delegateForERC1155(address delegate, address contract_, uint256 tokenId, uint256 balance, bool value, bytes32 data) public override {
-        bytes32 delegationHash = _computeDelegationHashForERC1155(msg.sender, delegate, contract_, tokenId, data);
-        _setDelegationValues(delegate, delegationHash, value, IDelegateRegistry.DelegationType.ERC20, msg.sender, contract_, tokenId, balance, data);
-        emit IDelegateRegistry.DelegateForERC1155(msg.sender, delegate, contract_, tokenId, balance, value, data);
-    }
-
-    /// @dev Helper function to set all delegation values and enumeration sets
-    function _setDelegationValues(
-        address delegate,
-        bytes32 delegationHash,
-        bool value,
-        IDelegateRegistry.DelegationType type_,
-        address vault,
-        address contract_,
-        uint256 tokenId,
-        uint256 balance,
-        bytes32 data
-    ) internal {
-        if (value) {
-            vaultDelegationHashes[vault].add(delegationHash);
-            delegateDelegationHashes[delegate].add(delegationHash);
-            delegationInfo[delegationHash] =
-                DelegationInfo({vault: vault, delegate: delegate, type_: type_, contract_: contract_, tokenId: tokenId, balance: balance, data: data});
+    function delegateForAll(address delegate, bytes32 rights, bool enable) public override {
+        bytes32 hash = _computeDelegationHashForAll(delegate, rights, msg.sender);
+        bytes32 location = _computeDelegationLocation(hash);
+        emit AllDelegated(msg.sender, delegate, rights, enable);
+        if (enable) {
+            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
+            _writeDelegation(location, StoragePositions.delegate, delegate);
+            _writeDelegation(location, StoragePositions.vault, msg.sender);
+            if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
         } else {
-            vaultDelegationHashes[vault].remove(delegationHash);
-            delegateDelegationHashes[delegate].remove(delegationHash);
-            delete delegationInfo[delegationHash];
+            _writeDelegation(location, StoragePositions.delegate, "");
+            _writeDelegation(location, StoragePositions.vault, 1);
+            if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
         }
     }
 
-    /// @dev Helper function to compute delegation hash for wallet delegation
-    function _computeDelegationHashForAll(address vault, address delegate, bytes32 data) internal pure returns (bytes32) {
-        return keccak256(abi.encode(delegate, vault, data));
+    /// @inheritdoc IDelegateRegistry
+    function delegateForContract(address delegate, address contract_, bytes32 rights, bool enable) public override {
+        bytes32 hash = _computeDelegationHashForContract(contract_, delegate, rights, msg.sender);
+        bytes32 location = _computeDelegationLocation(hash);
+        emit ContractDelegated(msg.sender, delegate, contract_, rights, enable);
+        if (enable) {
+            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
+            _writeDelegation(location, StoragePositions.contract_, contract_);
+            _writeDelegation(location, StoragePositions.delegate, delegate);
+            _writeDelegation(location, StoragePositions.vault, msg.sender);
+            if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
+        } else {
+            _writeDelegation(location, StoragePositions.contract_, "");
+            _writeDelegation(location, StoragePositions.delegate, "");
+            _writeDelegation(location, StoragePositions.vault, 1);
+            if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
+        }
     }
 
-    /// @dev Helper function to compute delegation hash for contract delegation
-    function _computeDelegationHashForContract(address vault, address delegate, address contract_, bytes32 data) internal pure returns (bytes32) {
-        return keccak256(abi.encode(delegate, vault, contract_, data));
-    }
-
-    /// @dev Helper function to compute delegation hash for token delegation
-    function _computeDelegationHashForERC721(address vault, address delegate, address contract_, uint256 tokenId, bytes32 data)
-        internal
-        pure
-        returns (bytes32)
-    {
-        return keccak256(abi.encode(delegate, vault, contract_, tokenId, data));
+    /// @inheritdoc IDelegateRegistry
+    function delegateForERC721(address delegate, address contract_, uint256 tokenId, bytes32 rights, bool enable) public override {
+        bytes32 hash = _computeDelegationHashForERC721(contract_, delegate, rights, tokenId, msg.sender);
+        bytes32 location = _computeDelegationLocation(hash);
+        emit ERC721Delegated(msg.sender, delegate, contract_, tokenId, rights, enable);
+        if (enable) {
+            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
+            _writeDelegation(location, StoragePositions.contract_, contract_);
+            _writeDelegation(location, StoragePositions.delegate, delegate);
+            _writeDelegation(location, StoragePositions.vault, msg.sender);
+            _writeDelegation(location, StoragePositions.tokenId, tokenId);
+            if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
+        } else {
+            _writeDelegation(location, StoragePositions.contract_, "");
+            _writeDelegation(location, StoragePositions.delegate, "");
+            _writeDelegation(location, StoragePositions.vault, 1);
+            _writeDelegation(location, StoragePositions.tokenId, "");
+            if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
+        }
     }
 
     /**
-     * @dev Helper function to compute delegation hash for balance delegation
-     * @dev balance for erc20 encoded with tokenId 0, collision with tokenId 0 shouldn't be meaningful due to contract_ encoding
+     * @inheritdoc IDelegateRegistry
+     * @dev the actual balance is not encoded in the hash, just the existence of a balance (since it is an upper bound)
      */
-    function _computeDelegationHashForERC1155(address vault, address delegate, address contract_, uint256 tokenId, bytes32 data)
-        internal
-        pure
-        returns (bytes32)
+    function delegateForERC20(address delegate, address contract_, uint256 balance, bytes32 rights, bool enable) public override {
+        bytes32 hash = _computeDelegationHashForERC20(contract_, delegate, rights, msg.sender);
+        bytes32 location = _computeDelegationLocation(hash);
+        emit ERC20Delegated(msg.sender, delegate, contract_, balance, rights, enable);
+        if (enable) {
+            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
+            _writeDelegation(location, StoragePositions.contract_, contract_);
+            _writeDelegation(location, StoragePositions.delegate, delegate);
+            _writeDelegation(location, StoragePositions.vault, msg.sender);
+            _writeDelegation(location, StoragePositions.balance, balance);
+            if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
+        } else {
+            _writeDelegation(location, StoragePositions.contract_, "");
+            _writeDelegation(location, StoragePositions.delegate, "");
+            _writeDelegation(location, StoragePositions.vault, 1);
+            _writeDelegation(location, StoragePositions.balance, "");
+            if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
+        }
+    }
+
+    /**
+     * @inheritdoc IDelegateRegistry
+     * @dev the actual balance is not encoded in the hash, just the existence of a balance (since it is an upper bound)
+     */
+    function delegateForERC1155(address delegate, address contract_, uint256 tokenId, uint256 balance, bytes32 rights, bool enable) public override {
+        bytes32 hash = _computeDelegationHashForERC1155(contract_, delegate, rights, tokenId, msg.sender);
+        bytes32 location = _computeDelegationLocation(hash);
+        emit ERC1155Delegated(msg.sender, delegate, contract_, tokenId, balance, rights, enable);
+        if (enable) {
+            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
+            _writeDelegation(location, StoragePositions.contract_, contract_);
+            _writeDelegation(location, StoragePositions.delegate, delegate);
+            _writeDelegation(location, StoragePositions.vault, msg.sender);
+            _writeDelegation(location, StoragePositions.balance, balance);
+            _writeDelegation(location, StoragePositions.tokenId, tokenId);
+            if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
+        } else {
+            _writeDelegation(location, StoragePositions.contract_, "");
+            _writeDelegation(location, StoragePositions.delegate, "");
+            _writeDelegation(location, StoragePositions.vault, 1);
+            _writeDelegation(location, StoragePositions.balance, "");
+            _writeDelegation(location, StoragePositions.tokenId, "");
+            if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
+        }
+    }
+
+    /**
+     * ----------- Consumable -----------
+     */
+
+    /// @inheritdoc IDelegateRegistry
+    function checkDelegateForAll(address delegate, address vault, bytes32 rights) public view override returns (bool valid) {
+        bytes32 location = _computeDelegationLocation(_computeDelegationHashForAll(delegate, "", vault));
+        valid = _loadDelegationAddress(location, StoragePositions.vault) == vault;
+        if (rights != "" && !valid) {
+            location = _computeDelegationLocation(_computeDelegationHashForAll(delegate, rights, vault));
+            valid = _loadDelegationAddress(location, StoragePositions.vault) == vault;
+        }
+    }
+
+    /// @inheritdoc IDelegateRegistry
+    function checkDelegateForContract(address delegate, address vault, address contract_, bytes32 rights) public view override returns (bool valid) {
+        bytes32 location = _computeDelegationLocation(_computeDelegationHashForContract(contract_, delegate, "", vault));
+        valid = checkDelegateForAll(delegate, vault, "") || _loadDelegationAddress(location, StoragePositions.vault) == vault;
+        if (rights != "" && !valid) {
+            location = _computeDelegationLocation(_computeDelegationHashForContract(contract_, delegate, rights, vault));
+            valid = checkDelegateForAll(delegate, vault, rights) || _loadDelegationAddress(location, StoragePositions.vault) == vault;
+        }
+    }
+
+    /// @inheritdoc IDelegateRegistry
+    function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights)
+        external
+        view
+        override
+        returns (bool valid)
     {
-        return keccak256(abi.encode(delegate, vault, contract_, tokenId, 0, data));
+        bytes32 location = _computeDelegationLocation(_computeDelegationHashForERC721(contract_, delegate, "", tokenId, vault));
+        valid = checkDelegateForContract(delegate, vault, contract_, "") || _loadDelegationAddress(location, StoragePositions.vault) == vault;
+        if (rights != "" && !valid) {
+            location = _computeDelegationLocation(_computeDelegationHashForERC721(contract_, delegate, rights, tokenId, vault));
+            valid = checkDelegateForContract(delegate, vault, contract_, rights) || _loadDelegationAddress(location, StoragePositions.vault) == vault;
+        }
+    }
+
+    /// @inheritdoc IDelegateRegistry
+    function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 rights) external view override returns (uint256 balance) {
+        bytes32 location = _computeDelegationLocation(_computeDelegationHashForERC20(contract_, delegate, "", vault));
+        balance = checkDelegateForContract(delegate, vault, contract_, "")
+            ? type(uint256).max
+            : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.balance) : 0);
+        if (rights != "" && balance != type(uint256).max) {
+            location = _computeDelegationLocation(_computeDelegationHashForERC20(contract_, delegate, rights, vault));
+            uint256 rightsBalance = checkDelegateForContract(delegate, vault, contract_, rights)
+                ? type(uint256).max
+                : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.balance) : 0);
+            balance = rightsBalance > balance ? rightsBalance : balance;
+        }
+    }
+
+    /// @inheritdoc IDelegateRegistry
+    function checkDelegateForERC1155(address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights)
+        external
+        view
+        override
+        returns (uint256 balance)
+    {
+        bytes32 location = _computeDelegationLocation(_computeDelegationHashForERC1155(contract_, delegate, "", tokenId, vault));
+        balance = checkDelegateForContract(delegate, vault, contract_, "")
+            ? type(uint256).max
+            : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.balance) : 0);
+        if (rights != "" && balance != type(uint256).max) {
+            location = _computeDelegationLocation(_computeDelegationHashForERC1155(contract_, delegate, rights, tokenId, vault));
+            uint256 rightsBalance = checkDelegateForContract(delegate, vault, contract_, rights)
+                ? type(uint256).max
+                : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.balance) : 0);
+            balance = rightsBalance > balance ? rightsBalance : balance;
+        }
     }
 
     /**
@@ -224,79 +319,211 @@ contract DelegateRegistry is IDelegateRegistry {
      */
 
     /// @inheritdoc IDelegateRegistry
-    function getDelegationsForDelegate(address delegate) external view returns (IDelegateRegistry.DelegationInfo[] memory) {
-        return _lookupHashes(delegateDelegationHashes[delegate]);
+    function getDelegationsForDelegate(address delegate) external view override returns (Delegation[] memory delegations) {
+        delegations = _getValidDelegationsFromHashes(_delegateDelegationHashes[delegate]);
     }
 
     /// @inheritdoc IDelegateRegistry
-    function getDelegationsForVault(address vault) external view returns (IDelegateRegistry.DelegationInfo[] memory) {
-        return _lookupHashes(vaultDelegationHashes[vault]);
+    function getDelegationsForVault(address vault) external view returns (Delegation[] memory delegations) {
+        delegations = _getValidDelegationsFromHashes(_vaultDelegationHashes[vault]);
     }
 
-    /// @dev Helper function to filter delegationHashes by validity, then convert them into an array of delegation structs
-    function _lookupHashes(EnumerableSet.Bytes32Set storage delegationHashes)
-        internal
-        view
-        returns (IDelegateRegistry.DelegationInfo[] memory validDelegations)
-    {
-        uint256 length = delegationHashes.length();
-        validDelegations = new IDelegateRegistry.DelegationInfo[](length);
-        for (uint256 i = 0; i < length; ++i) {
-            validDelegations[i] = delegationInfo[delegationHashes.at(i)];
+    /// @inheritdoc IDelegateRegistry
+    function getDelegationsFromHashes(bytes32[] calldata hashes) external view returns (Delegation[] memory delegations) {
+        delegations = new Delegation[](hashes.length);
+        bytes32 location;
+        address vault;
+        for (uint256 i = 0; i < hashes.length; i++) {
+            location = _computeDelegationLocation(hashes[i]);
+            vault = _loadDelegationAddress(location, StoragePositions.vault);
+            if (vault == address(1) || vault == address(0)) {
+                delegations[i] = Delegation({
+                    type_: _decodeLastByteToType(hashes[i]),
+                    delegate: address(0),
+                    vault: address(0),
+                    rights: "",
+                    balance: 0,
+                    contract_: address(0),
+                    tokenId: 0
+                });
+            } else {
+                delegations[i] = Delegation({
+                    type_: _decodeLastByteToType(hashes[i]),
+                    delegate: _loadDelegationAddress(location, StoragePositions.delegate),
+                    vault: vault,
+                    rights: _loadDelegationBytes32(location, StoragePositions.rights),
+                    balance: _loadDelegationUint(location, StoragePositions.balance),
+                    contract_: _loadDelegationAddress(location, StoragePositions.contract_),
+                    tokenId: _loadDelegationUint(location, StoragePositions.tokenId)
+                });
+            }
         }
     }
 
     /// @inheritdoc IDelegateRegistry
-    function checkDelegateForAll(address delegate, address vault, bytes32 data) public view override returns (bool) {
-        return vaultDelegationHashes[vault].contains(_computeDelegationHashForAll(vault, delegate, data));
+    function getDelegationHashesForDelegate(address delegate) external view returns (bytes32[] memory delegationHashes) {
+        delegationHashes = _getValidDelegationHashesFromHashes(_delegateDelegationHashes[delegate]);
     }
 
     /// @inheritdoc IDelegateRegistry
-    function checkDelegateForContract(address delegate, address vault, address contract_, bytes32 data) public view override returns (bool) {
-        return vaultDelegationHashes[vault].contains(_computeDelegationHashForContract(vault, delegate, contract_, data))
-            ? true
-            : checkDelegateForAll(delegate, vault, data);
+    function getDelegationHashesForVault(address vault) external view returns (bytes32[] memory delegationHashes) {
+        delegationHashes = _getValidDelegationHashesFromHashes(_vaultDelegationHashes[vault]);
     }
 
-    /// @inheritdoc IDelegateRegistry
-    function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data) public view override returns (bool) {
-        return vaultDelegationHashes[vault].contains(_computeDelegationHashForERC721(vault, delegate, contract_, tokenId, data))
-            ? true
-            : checkDelegateForContract(delegate, vault, contract_, data);
+    /**
+     * ----------- Private -----------
+     */
+
+    /// @dev Helper function that takes an array of delegation hashes and returns an array of Delegation structs with their on chain information
+    function _getValidDelegationsFromHashes(bytes32[] storage hashes) private view returns (Delegation[] memory delegations) {
+        uint256 count = 0;
+        uint256 vaultCheck;
+        uint256 hashesLength = hashes.length;
+        bytes32 storedHash;
+        bytes32[] memory filteredHashes = new bytes32[](hashesLength);
+
+        for (uint256 i = 0; i < hashesLength; i++) {
+            storedHash = hashes[i];
+            vaultCheck = uint256(_delegations[storedHash][uint256(StoragePositions.vault)]);
+            if (vaultCheck != 0 && vaultCheck != 1) {
+                filteredHashes[count] = storedHash;
+                count++;
+            }
+        }
+        delegations = new Delegation[](count);
+        bytes32 location;
+        bytes32 hash;
+        address vault;
+        for (uint256 i = 0; i < count; i++) {
+            hash = filteredHashes[i];
+            location = _computeDelegationLocation(hash);
+            vault = _loadDelegationAddress(location, StoragePositions.vault);
+            delegations[i] = Delegation({
+                type_: _decodeLastByteToType(hash),
+                delegate: _loadDelegationAddress(location, StoragePositions.delegate),
+                vault: vault,
+                rights: _loadDelegationBytes32(location, StoragePositions.rights),
+                balance: _loadDelegationUint(location, StoragePositions.balance),
+                contract_: _loadDelegationAddress(location, StoragePositions.contract_),
+                tokenId: _loadDelegationUint(location, StoragePositions.tokenId)
+            });
+        }
     }
 
-    /// @inheritdoc IDelegateRegistry
-    function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 data) external view override returns (uint256) {
-        // DONE (mireynolds): should this have a balance within the function params for simplest checking?
-        // The thinking behind the return of the balance and not comparing the truth of it with a call value is:
-        // 1) Performing a balance check within this function increases gas costs of the function
-        // 2) The calling contract might not need this balance check, just the returned delegated balance
-        // 3) The calling contract might want to perform different checks with the balance value
-        // i.e. returning just the delegated balance minimizes the gas and leaves it to the calling contract to use it how it wishes
-        // DONE (mireynolds): should this have its own compute method instead of piggybacking on ERC1155?
-        // YES, but we'll keep it like this for now since it's more gas optimization than structural.
-        // When it comes to that eventual optimization, we either let via-ir optimizer or write out all the logic
-        // within this function to minimize JUMPS and so forth (or both)
-        bytes32 delegationHash = _computeDelegationHashForERC1155(vault, delegate, contract_, 0, data);
-        return vaultDelegationHashes[vault].contains(delegationHash)
-            ? delegationInfo[delegationHash].balance
-            : (checkDelegateForContract(delegate, vault, contract_, data) ? type(uint256).max : 0);
+    /// @dev Helper function that takes an array of delegation hashes and returns an array of valid delegation hashes
+    function _getValidDelegationHashesFromHashes(bytes32[] storage hashes) private view returns (bytes32[] memory validHashes) {
+        uint256 count = 0;
+        uint256 vault;
+        uint256 hashesLength = hashes.length;
+        bytes32 storedHash;
+        bytes32[] memory filteredHashes = new bytes32[](hashesLength);
+        for (uint256 i = 0; i < hashesLength; i++) {
+            storedHash = hashes[i];
+            vault = uint256(_delegations[storedHash][uint256(StoragePositions.vault)]);
+            if (vault != 0 && vault != 1) {
+                filteredHashes[count] = storedHash;
+                count++;
+            }
+        }
+        validHashes = new bytes32[](count);
+        for (uint256 i = 0; i < count; i++) {
+            validHashes[i] = filteredHashes[i];
+        }
     }
 
-    /// @inheritdoc IDelegateRegistry
-    function checkDelegateForERC1155(address delegate, address vault, address contract_, uint256 tokenId, bytes32 data)
-        external
-        view
-        override
-        returns (uint256)
+    /// @dev Helper function to push new delegation hashes to the delegate and vault hashes mappings
+    function _pushDelegationHashes(address vault, address delegate, bytes32 delegationHash) private {
+        _vaultDelegationHashes[vault].push(delegationHash);
+        _delegateDelegationHashes[delegate].push(delegationHash);
+    }
+
+    /// @dev Helper function to compute delegation hash for all delegation
+    function _computeDelegationHashForAll(address delegate, bytes32 rights, address vault) private pure returns (bytes32) {
+        return _encodeLastByteWithType(keccak256(abi.encode(delegate, vault, rights)), DelegationType.ALL);
+    }
+
+    /// @dev Helper function to compute delegation hash for contract delegation
+    function _computeDelegationHashForContract(address contract_, address delegate, bytes32 rights, address vault) private pure returns (bytes32) {
+        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, vault)), DelegationType.CONTRACT);
+    }
+
+    /// @dev Helper function to compute delegation hash for ERC20 delegation
+    function _computeDelegationHashForERC20(address contract_, address delegate, bytes32 rights, address vault) private pure returns (bytes32) {
+        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, vault)), DelegationType.ERC20);
+    }
+
+    /// @dev Helper function to compute delegation hash for ERC721 delegation
+    function _computeDelegationHashForERC721(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault)
+        private
+        pure
+        returns (bytes32)
     {
-        bytes32 delegationHash = _computeDelegationHashForERC1155(vault, delegate, contract_, tokenId, data);
-        // DONE (mireynolds): Why are we falling back to 721 checks instead of to contract checks?
-        // Was falling back to ERC721 in the case that ERC1155 tokenId is a non-fungible. Internally is unnecessary,
-        // so fallback now goes directly to contract, projects will just need to be aware that a 1155 nft delegation will
-        // return a balance rather than just the existence
-        return vaultDelegationHashes[vault].contains(delegationHash)
-            ? delegationInfo[delegationHash].balance
-            : (checkDelegateForContract(delegate, vault, contract_, data) ? type(uint256).max : 0);
+        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, tokenId, vault)), DelegationType.ERC721);
+    }
+
+    /// @dev Helper function to compute delegation hash for ERC1155 delegation
+    function _computeDelegationHashForERC1155(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault)
+        private
+        pure
+        returns (bytes32)
+    {
+        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, tokenId, vault)), DelegationType.ERC1155);
+    }
+
+    /// @dev Helper function that writes bytes32 data to delegation data location at array position
+    function _writeDelegation(bytes32 location, StoragePositions position, bytes32 data) private {
+        assembly {
+            sstore(add(location, position), data)
+        }
+    }
+
+    /// @dev Helper function that writes uint256 data to delegation data location at array position
+    function _writeDelegation(bytes32 location, StoragePositions position, uint256 data) private {
+        assembly {
+            sstore(add(location, position), data)
+        }
+    }
+
+    /// @dev Helper function that writes address data to delegation data location at array position
+    function _writeDelegation(bytes32 location, StoragePositions position, address data) private {
+        assembly {
+            sstore(add(location, position), data)
+        }
+    }
+
+    /// @dev Helper function to encode the last byte of a delegation hash to its type
+    function _encodeLastByteWithType(bytes32 _input, DelegationType _type) private pure returns (bytes32) {
+        return (_input & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00) | bytes32(uint256(_type));
+    }
+
+    /// @dev Helper function to decode last byte of a delegation hash to obtain its type
+    function _decodeLastByteToType(bytes32 _input) private pure returns (DelegationType) {
+        return DelegationType(uint8(uint256(_input) & 0xFF));
+    }
+
+    /// @dev Helper function that loads delegation data from a particular array position and returns as bytes32
+    function _loadDelegationBytes32(bytes32 location, StoragePositions position) private view returns (bytes32 data) {
+        assembly {
+            data := sload(add(location, position))
+        }
+    }
+
+    /// @dev Helper function that loads delegation data from a particular array position and returns as uint256
+    function _loadDelegationUint(bytes32 location, StoragePositions position) private view returns (uint256 data) {
+        assembly {
+            data := sload(add(location, position))
+        }
+    }
+
+    /// @dev Helper function that loads delegation data from a particular array position and returns as address
+    function _loadDelegationAddress(bytes32 location, StoragePositions position) private view returns (address data) {
+        assembly {
+            data := sload(add(location, position))
+        }
+    }
+
+    /// @dev Helper function that computes the data location of a particular delegation hash
+    function _computeDelegationLocation(bytes32 hash) private pure returns (bytes32 location) {
+        location = keccak256(abi.encode(hash, 0)); // _delegations mapping is at slot 0
     }
 }
