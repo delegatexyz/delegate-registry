@@ -26,7 +26,7 @@ contract DelegateRegistryTest is Test {
 
     function testSupportsInterface(bytes4 falseInterfaceId) public {
         bytes4 interfaceId = type(IDelegateRegistry).interfaceId;
-        vm.assume(falseInterfaceId != interfaceId);
+        if (falseInterfaceId == interfaceId) falseInterfaceId = bytes4(0);
         assertTrue(reg.supportsInterface(interfaceId));
         assertFalse(reg.supportsInterface(falseInterfaceId));
     }
@@ -47,7 +47,7 @@ contract DelegateRegistryTest is Test {
     }
 
     function testApproveAndRevokeForContract(address vault, address delegate, address contract_, uint256 tokenId) public {
-        vm.assume(vault != address(0));
+        vm.assume(vault != address(0) && vault != address(1));
         // Approve
         vm.startPrank(vault);
         reg.delegateForContract(delegate, contract_, rights, true);
@@ -95,7 +95,7 @@ contract DelegateRegistryTest is Test {
     }
 
     function testMultipleDelegationForAll(address vault, address delegate0, address delegate1) public {
-        vm.assume(delegate0 != delegate1 && vault != address(0));
+        vm.assume(delegate0 != delegate1 && vault != address(0) && vault != address(1));
         vm.startPrank(vault);
         reg.delegateForAll(delegate0, rights, true);
         reg.delegateForAll(delegate1, rights, true);
@@ -158,7 +158,7 @@ contract DelegateRegistryTest is Test {
         uint256 balance0,
         uint256 balance1
     ) public {
-        vm.assume(vault0 != address(0) && vault1 != address(0));
+        vm.assume(vault0 != address(0) && vault1 != address(0) && vault0 != address(1) && vault1 != address(1));
         vm.assume(vault0 != vault1 && vault0 != delegate0 && vault0 != delegate1);
         vm.assume(vault1 != delegate0 && vault1 != delegate1);
         vm.assume(delegate0 != delegate1);
@@ -236,7 +236,7 @@ contract DelegateRegistryTest is Test {
     }
 
     function testVaultEnumerationGas() public {
-        for (uint256 i = 0; i < 100; i++) {
+        for (uint256 i = 0; i < 2200; i++) {
             address delegate = address(bytes20(keccak256(abi.encode("delegate", i))));
             address contract_ = address(bytes20(keccak256(abi.encode("contract", i))));
             uint256 balance = uint256(keccak256(abi.encode("balance", i)));
@@ -249,6 +249,6 @@ contract DelegateRegistryTest is Test {
         }
         IDelegateRegistry.Delegation[] memory vaultDelegations;
         vaultDelegations = reg.getDelegationsForVault(address(this));
-        assertEq(vaultDelegations.length, 500);
+        assertEq(vaultDelegations.length, 11000);
     }
 }

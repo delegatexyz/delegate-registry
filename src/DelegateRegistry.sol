@@ -129,13 +129,13 @@ contract DelegateRegistry is IDelegateRegistry {
         bytes32 location = _computeDelegationLocation(hash);
         emit AllDelegated(msg.sender, delegate, rights, enable);
         if (enable) {
+            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
             _writeDelegation(location, StoragePositions.delegate, delegate);
             _writeDelegation(location, StoragePositions.vault, msg.sender);
             if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
-            _pushDelegationHashes(msg.sender, delegate, hash);
         } else {
             _writeDelegation(location, StoragePositions.delegate, "");
-            _writeDelegation(location, StoragePositions.vault, "");
+            _writeDelegation(location, StoragePositions.vault, 1);
             if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
         }
     }
@@ -146,15 +146,15 @@ contract DelegateRegistry is IDelegateRegistry {
         bytes32 location = _computeDelegationLocation(hash);
         emit ContractDelegated(msg.sender, delegate, contract_, rights, enable);
         if (enable) {
+            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
             _writeDelegation(location, StoragePositions.contract_, contract_);
             _writeDelegation(location, StoragePositions.delegate, delegate);
             _writeDelegation(location, StoragePositions.vault, msg.sender);
             if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
-            _pushDelegationHashes(msg.sender, delegate, hash);
         } else {
             _writeDelegation(location, StoragePositions.contract_, "");
             _writeDelegation(location, StoragePositions.delegate, "");
-            _writeDelegation(location, StoragePositions.vault, "");
+            _writeDelegation(location, StoragePositions.vault, 1);
             if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
         }
     }
@@ -165,16 +165,16 @@ contract DelegateRegistry is IDelegateRegistry {
         bytes32 location = _computeDelegationLocation(hash);
         emit ERC721Delegated(msg.sender, delegate, contract_, tokenId, rights, enable);
         if (enable) {
+            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
             _writeDelegation(location, StoragePositions.contract_, contract_);
             _writeDelegation(location, StoragePositions.delegate, delegate);
             _writeDelegation(location, StoragePositions.vault, msg.sender);
             _writeDelegation(location, StoragePositions.tokenId, tokenId);
             if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
-            _pushDelegationHashes(msg.sender, delegate, hash);
         } else {
             _writeDelegation(location, StoragePositions.contract_, "");
             _writeDelegation(location, StoragePositions.delegate, "");
-            _writeDelegation(location, StoragePositions.vault, "");
+            _writeDelegation(location, StoragePositions.vault, 1);
             _writeDelegation(location, StoragePositions.tokenId, "");
             if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
         }
@@ -189,16 +189,16 @@ contract DelegateRegistry is IDelegateRegistry {
         bytes32 location = _computeDelegationLocation(hash);
         emit ERC20Delegated(msg.sender, delegate, contract_, balance, rights, enable);
         if (enable) {
+            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
             _writeDelegation(location, StoragePositions.contract_, contract_);
             _writeDelegation(location, StoragePositions.delegate, delegate);
             _writeDelegation(location, StoragePositions.vault, msg.sender);
             _writeDelegation(location, StoragePositions.balance, balance);
             if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
-            _pushDelegationHashes(msg.sender, delegate, hash);
         } else {
             _writeDelegation(location, StoragePositions.contract_, "");
             _writeDelegation(location, StoragePositions.delegate, "");
-            _writeDelegation(location, StoragePositions.vault, "");
+            _writeDelegation(location, StoragePositions.vault, 1);
             _writeDelegation(location, StoragePositions.balance, "");
             if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
         }
@@ -213,17 +213,17 @@ contract DelegateRegistry is IDelegateRegistry {
         bytes32 location = _computeDelegationLocation(hash);
         emit ERC1155Delegated(msg.sender, delegate, contract_, tokenId, balance, rights, enable);
         if (enable) {
+            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
             _writeDelegation(location, StoragePositions.contract_, contract_);
             _writeDelegation(location, StoragePositions.delegate, delegate);
             _writeDelegation(location, StoragePositions.vault, msg.sender);
             _writeDelegation(location, StoragePositions.balance, balance);
             _writeDelegation(location, StoragePositions.tokenId, tokenId);
             if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
-            _pushDelegationHashes(msg.sender, delegate, hash);
         } else {
             _writeDelegation(location, StoragePositions.contract_, "");
             _writeDelegation(location, StoragePositions.delegate, "");
-            _writeDelegation(location, StoragePositions.vault, "");
+            _writeDelegation(location, StoragePositions.vault, 1);
             _writeDelegation(location, StoragePositions.balance, "");
             _writeDelegation(location, StoragePositions.tokenId, "");
             if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
@@ -415,23 +415,15 @@ contract DelegateRegistry is IDelegateRegistry {
         return DelegationType(uint8(uint256(_input) & 0xFF));
     }
 
-    /// @dev Helper function that filters an array of delegation hashes by removing disabled delegations and duplicates
+    /// @dev Helper function that filters an array of delegation hashes by removing disabled delegations
     function _filterDelegationHashes(bytes32[] memory array_) private view returns (bytes32[] memory) {
-        bool duplicate;
         uint256 count = 0;
+        uint256 vault;
         bytes32[] memory tempArray = new bytes32[](array_.length);
 
         for (uint256 i = 0; i < array_.length; i++) {
-            duplicate = false;
-
-            for (uint256 j = 0; j < i; j++) {
-                if (array_[i] == array_[j]) {
-                    duplicate = true;
-                    break;
-                }
-            }
-
-            if (!duplicate && _delegations[array_[i]][uint256(StoragePositions.vault)] != 0) {
+            vault = uint256(_delegations[array_[i]][uint256(StoragePositions.vault)]);
+            if (vault != 0 && vault != 1) {
                 tempArray[count] = array_[i];
                 count++;
             }
