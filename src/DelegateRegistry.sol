@@ -29,13 +29,6 @@ contract DelegateRegistry is IDelegateRegistry {
         amount
     }
 
-    /// @notice Query if a contract implements an ERC-165 interface
-    /// @param interfaceId The interface identifier
-    /// @return bool Whether the queried interface is supported
-    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
-        return interfaceId == type(IDelegateRegistry).interfaceId || interfaceId == 0x01ffc9a7;
-    }
-
     /**
      * ----------- WRITE -----------
      */
@@ -302,7 +295,18 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /**
-     * ----------- Private -----------
+     * ----------- ERC165 -----------
+     */
+
+    /// @notice Query if a contract implements an ERC-165 interface
+    /// @param interfaceId The interface identifier
+    /// @return bool Whether the queried interface is supported
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return interfaceId == type(IDelegateRegistry).interfaceId || interfaceId == 0x01ffc9a7;
+    }
+
+    /**
+     * ----------- PRIVATE -----------
      */
 
     /// @dev Helper function that takes an array of delegation hashes and returns an array of Delegation structs with their on chain information
