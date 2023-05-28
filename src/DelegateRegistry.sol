@@ -265,21 +265,6 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 rights) external view override returns (uint256 balance) {
-        bytes32 location = _computeDelegationLocation(_computeDelegationHashForERC20(contract_, delegate, "", vault));
-        balance = checkDelegateForContract(delegate, vault, contract_, "")
-            ? type(uint256).max
-            : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.balance) : 0);
-        if (rights != "" && balance != type(uint256).max) {
-            location = _computeDelegationLocation(_computeDelegationHashForERC20(contract_, delegate, rights, vault));
-            uint256 rightsBalance = checkDelegateForContract(delegate, vault, contract_, rights)
-                ? type(uint256).max
-                : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.balance) : 0);
-            balance = rightsBalance > balance ? rightsBalance : balance;
-        }
-    }
-
-    /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights)
         external
         view
@@ -291,6 +276,21 @@ contract DelegateRegistry is IDelegateRegistry {
         if (rights != "" && !valid) {
             location = _computeDelegationLocation(_computeDelegationHashForERC721(contract_, delegate, rights, tokenId, vault));
             valid = checkDelegateForContract(delegate, vault, contract_, rights) || _loadDelegationAddress(location, StoragePositions.vault) == vault;
+        }
+    }
+
+    /// @inheritdoc IDelegateRegistry
+    function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 rights) external view override returns (uint256 balance) {
+        bytes32 location = _computeDelegationLocation(_computeDelegationHashForERC20(contract_, delegate, "", vault));
+        balance = checkDelegateForContract(delegate, vault, contract_, "")
+            ? type(uint256).max
+            : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.balance) : 0);
+        if (rights != "" && balance != type(uint256).max) {
+            location = _computeDelegationLocation(_computeDelegationHashForERC20(contract_, delegate, rights, vault));
+            uint256 rightsBalance = checkDelegateForContract(delegate, vault, contract_, rights)
+                ? type(uint256).max
+                : (_loadDelegationAddress(location, StoragePositions.vault) == vault ? _loadDelegationUint(location, StoragePositions.balance) : 0);
+            balance = rightsBalance > balance ? rightsBalance : balance;
         }
     }
 
@@ -320,25 +320,84 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function getDelegationsForDelegate(address delegate) external view override returns (Delegation[] memory delegations) {
-        return getDelegationsFromHashes(_filterDelegationHashes(_delegateDelegationHashes[delegate]));
+        delegations = _getValidDelegationsFromHashes(_delegateDelegationHashes[delegate]);
     }
 
     /// @inheritdoc IDelegateRegistry
-    function getDelegationsForVault(address vault) external view returns (Delegation[] memory) {
-        return getDelegationsFromHashes(_filterDelegationHashes(_vaultDelegationHashes[vault]));
+    function getDelegationsForVault(address vault) external view returns (Delegation[] memory delegations) {
+        delegations = _getValidDelegationsFromHashes(_vaultDelegationHashes[vault]);
     }
 
-    /// @dev Helper function that takes an array of delegation hashes and returns an array of Delegation structs with their on chain information
-    function getDelegationsFromHashes(bytes32[] memory hashes) public view returns (Delegation[] memory delegations) {
+    /// @inheritdoc IDelegateRegistry
+    function getDelegationsFromHashes(bytes32[] calldata hashes) external view returns (Delegation[] memory delegations) {
         delegations = new Delegation[](hashes.length);
+        bytes32 location;
+        address vault;
+        for (uint256 i = 0; i < hashes.length; i++) {
+            location = _computeDelegationLocation(hashes[i]);
+            vault = _loadDelegationAddress(location, StoragePositions.vault);
+            if (vault == address(1) || vault == address(0)) {
+                delegations[i] = Delegation({
+                    type_: _decodeLastByteToType(hashes[i]),
+                    delegate: address(0),
+                    vault: address(0),
+                    rights: "",
+                    balance: 0,
+                    contract_: address(0),
+                    tokenId: 0
+                });
+            } else {
+                delegations[i] = Delegation({
+                    type_: _decodeLastByteToType(hashes[i]),
+                    delegate: _loadDelegationAddress(location, StoragePositions.delegate),
+                    vault: vault,
+                    rights: _loadDelegationBytes32(location, StoragePositions.rights),
+                    balance: _loadDelegationUint(location, StoragePositions.balance),
+                    contract_: _loadDelegationAddress(location, StoragePositions.contract_),
+                    tokenId: _loadDelegationUint(location, StoragePositions.tokenId)
+                });
+            }
+        }
+    }
+
+    /// @inheritdoc IDelegateRegistry
+    function getDelegationHashesForDelegate(address delegate) external view returns (bytes32[] memory delegationHashes) {
+        delegationHashes = _getValidDelegationHashesFromHashes(_delegateDelegationHashes[delegate]);
+    }
+
+    /// @inheritdoc IDelegateRegistry
+    function getDelegationHashesForVault(address vault) external view returns (bytes32[] memory delegationHashes) {
+        delegationHashes = _getValidDelegationHashesFromHashes(_vaultDelegationHashes[vault]);
+    }
+
+    /**
+     * ----------- Private -----------
+     */
+
+    /// @dev Helper function that takes an array of delegation hashes and returns an array of Delegation structs with their on chain information
+    function _getValidDelegationsFromHashes(bytes32[] storage hashes) private view returns (Delegation[] memory delegations) {
+        uint256 count = 0;
+        uint256 vaultCheck;
+        uint256 hashesLength = hashes.length;
+        bytes32 storedHash;
+        bytes32[] memory filteredHashes = new bytes32[](hashesLength);
+
+        for (uint256 i = 0; i < hashesLength; i++) {
+            storedHash = hashes[i];
+            vaultCheck = uint256(_delegations[storedHash][uint256(StoragePositions.vault)]);
+            if (vaultCheck != 0 && vaultCheck != 1) {
+                filteredHashes[count] = storedHash;
+                count++;
+            }
+        }
+        delegations = new Delegation[](count);
         bytes32 location;
         bytes32 hash;
         address vault;
-        for (uint256 i = 0; i < hashes.length; i++) {
-            hash = hashes[i];
+        for (uint256 i = 0; i < count; i++) {
+            hash = filteredHashes[i];
             location = _computeDelegationLocation(hash);
             vault = _loadDelegationAddress(location, StoragePositions.vault);
-            if (vault == address(1)) vault = address(0);
             delegations[i] = Delegation({
                 type_: _decodeLastByteToType(hash),
                 delegate: _loadDelegationAddress(location, StoragePositions.delegate),
@@ -351,9 +410,26 @@ contract DelegateRegistry is IDelegateRegistry {
         }
     }
 
-    /**
-     * ----------- Private -----------
-     */
+    /// @dev Helper function that takes an array of delegation hashes and returns an array of valid delegation hashes
+    function _getValidDelegationHashesFromHashes(bytes32[] storage hashes) private view returns (bytes32[] memory validHashes) {
+        uint256 count = 0;
+        uint256 vault;
+        uint256 hashesLength = hashes.length;
+        bytes32 storedHash;
+        bytes32[] memory filteredHashes = new bytes32[](hashesLength);
+        for (uint256 i = 0; i < hashesLength; i++) {
+            storedHash = hashes[i];
+            vault = uint256(_delegations[storedHash][uint256(StoragePositions.vault)]);
+            if (vault != 0 && vault != 1) {
+                filteredHashes[count] = storedHash;
+                count++;
+            }
+        }
+        validHashes = new bytes32[](count);
+        for (uint256 i = 0; i < count; i++) {
+            validHashes[i] = filteredHashes[i];
+        }
+    }
 
     /// @dev Helper function to push new delegation hashes to the delegate and vault hashes mappings
     function _pushDelegationHashes(address vault, address delegate, bytes32 delegationHash) private {
@@ -423,29 +499,6 @@ contract DelegateRegistry is IDelegateRegistry {
     /// @dev Helper function to decode last byte of a delegation hash to obtain its type
     function _decodeLastByteToType(bytes32 _input) private pure returns (DelegationType) {
         return DelegationType(uint8(uint256(_input) & 0xFF));
-    }
-
-    /// @dev Helper function that filters an array of delegation hashes by removing disabled delegations
-    function _filterDelegationHashes(bytes32[] memory array_) private view returns (bytes32[] memory) {
-        uint256 count = 0;
-        uint256 vault;
-        bytes32[] memory tempArray = new bytes32[](array_.length);
-
-        for (uint256 i = 0; i < array_.length; i++) {
-            vault = uint256(_delegations[array_[i]][uint256(StoragePositions.vault)]);
-            if (vault != 0 && vault != 1) {
-                tempArray[count] = array_[i];
-                count++;
-            }
-        }
-
-        bytes32[] memory newArray = new bytes32[](count);
-
-        for (uint256 i = 0; i < count; i++) {
-            newArray[i] = tempArray[i];
-        }
-
-        return newArray;
     }
 
     /// @dev Helper function that loads delegation data from a particular array position and returns as bytes32

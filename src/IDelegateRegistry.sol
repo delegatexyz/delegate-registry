@@ -13,8 +13,8 @@ interface IDelegateRegistry {
         NONE,
         ALL,
         CONTRACT,
-        ERC20,
         ERC721,
+        ERC20,
         ERC1155
     }
 
@@ -116,22 +116,8 @@ interface IDelegateRegistry {
     function delegateForERC1155(address delegate, address contract_, uint256 tokenId, uint256 balance, bytes32 rights, bool enable) external;
 
     /**
-     * -----------  READ -----------
+     * ----------- Consumable -----------
      */
-
-    /**
-     * @notice Returns all enabled delegations a given delegate has been granted
-     * @param delegate The delegate to retrieve delegations for
-     * @return info Array of Delegation structs
-     */
-    function getDelegationsForDelegate(address delegate) external view returns (Delegation[] memory);
-
-    /**
-     * @notice Returns all enabled delegations a vault has granted
-     * @param vault The vault to to retrieve delegations for
-     * @return info Array of Delegation structs
-     */
-    function getDelegationsForVault(address vault) external view returns (Delegation[] memory);
 
     /**
      * @notice Returns true if the delegate is granted rights to act on your behalf for an entire vault
@@ -178,4 +164,43 @@ interface IDelegateRegistry {
      * @param rights Specific rights to check for, leave empty for full rights only
      */
     function checkDelegateForERC1155(address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights) external view returns (uint256);
+
+    /**
+     * -----------  READ -----------
+     */
+
+    /**
+     * @notice Returns all enabled delegations a given delegate has been granted
+     * @param delegate The delegate to retrieve delegations for
+     * @return delegations Array of Delegation structs
+     */
+    function getDelegationsForDelegate(address delegate) external view returns (Delegation[] memory delegations);
+
+    /**
+     * @notice Returns all enabled delegations a vault has granted
+     * @param vault The vault to retrieve delegations for
+     * @return delegations Array of Delegation structs
+     */
+    function getDelegationsForVault(address vault) external view returns (Delegation[] memory delegations);
+
+    /**
+     * @notice Returns the delegations for a given array of delegation hashes
+     * @param delegationHashes is an array of hashes that correspond to delegations
+     * @return delegations Array of Delegation structs, empty structs will be returned for invalid or nonexistent delegations
+     */
+    function getDelegationsFromHashes(bytes32[] calldata delegationHashes) external view returns (Delegation[] memory delegations);
+
+    /**
+     * @notice Returns all hashes associated with enabled delegations a delegate has been granted
+     * @param delegate The delegate to retrieve the delegation hashes for
+     * @return delegationHashes Array of delegation hashes
+     */
+    function getDelegationHashesForDelegate(address delegate) external view returns (bytes32[] memory delegationHashes);
+
+    /**
+     * @notice Returns all hashes associated with enabled delegations a vault has granted
+     * @param vault The vault to retrieve the delegation hashes for
+     * @return delegationHashes Array of delegation hashes
+     */
+    function getDelegationHashesForVault(address vault) external view returns (bytes32[] memory delegationHashes);
 }

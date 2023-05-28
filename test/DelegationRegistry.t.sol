@@ -33,7 +33,7 @@ contract DelegateRegistryTest is Test {
     }
 
     function testApproveAndRevokeForAll(address vault, address delegate, address contract_, uint256 tokenId) public {
-        vm.assume(vault != address(0));
+        vm.assume(vault != address(0) && vault != address(1));
         // Approve
         vm.startPrank(vault);
         reg.delegateForAll(delegate, rights, true);
@@ -62,7 +62,7 @@ contract DelegateRegistryTest is Test {
     }
 
     function testApproveAndRevokeForToken(address vault, address delegate, address contract_, uint256 tokenId) public {
-        vm.assume(vault != address(0));
+        vm.assume(vault != address(0) && vault != address(1));
         // Approve
         vm.startPrank(vault);
         reg.delegateForERC721(delegate, contract_, tokenId, rights, true);
@@ -73,7 +73,7 @@ contract DelegateRegistryTest is Test {
     }
 
     function testApproveAndRevokeForBalance(address vault, address delegate, address contract_, uint256 balance) public {
-        vm.assume(vault != address(0));
+        vm.assume(vault != address(0) && vault != address(1));
         // Approve
         emit log_bytes(abi.encodePacked(balance, rights, delegate, vault, contract_));
         vm.startPrank(vault);
@@ -85,7 +85,7 @@ contract DelegateRegistryTest is Test {
     }
 
     function testApproveAndRevokeForTokenBalance(address vault, address delegate, address contract_, uint256 tokenId, uint256 balance) public {
-        vm.assume(vault != address(0));
+        vm.assume(vault != address(0) && vault != address(1));
         // Approve
         vm.startPrank(vault);
         reg.delegateForERC1155(delegate, contract_, tokenId, balance, rights, true);
@@ -114,7 +114,7 @@ contract DelegateRegistryTest is Test {
     }
 
     function testBatchDelegationForAll(address vault, address delegate0, address delegate1) public {
-        vm.assume(delegate0 != delegate1 && vault != address(0));
+        vm.assume(delegate0 != delegate1 && vault != address(0) && vault != address(1));
         vm.startPrank(vault);
         IDelegateRegistry.BatchDelegation[] memory info = new IDelegateRegistry.BatchDelegation[](2);
         info[0] = IDelegateRegistry.BatchDelegation({
@@ -192,16 +192,22 @@ contract DelegateRegistryTest is Test {
         changePrank(vault0);
         // check six in total, three from vault0 and three from vault1
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 10);
+        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 10);
         reg.delegateForAll(delegate0, rights, false);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 9);
+        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 9);
         reg.delegateForContract(delegate0, contract0, rights, false);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 8);
+        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 8);
         reg.delegateForERC721(delegate0, contract0, tokenId0, rights, false);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 7);
+        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 7);
         reg.delegateForERC20(delegate0, contract0, balance0, rights, false);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 6);
+        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 6);
         reg.delegateForERC1155(delegate0, contract0, tokenId0, balance0, rights, false);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 5);
+        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 5);
 
         // vault0 re-delegates to delegate0
         changePrank(vault0);
@@ -212,12 +218,14 @@ contract DelegateRegistryTest is Test {
         reg.delegateForERC1155(delegate0, contract0, tokenId0, balance0, rights, true);
         assertEq(reg.getDelegationsForDelegate(delegate0).length, 10);
         assertEq(reg.getDelegationsForDelegate(delegate1).length, 5);
+        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 10);
+        assertEq(reg.getDelegationHashesForDelegate(delegate1).length, 5);
     }
 
     function testVaultEnumerations(address vault, address delegate0, address delegate1, address contract0, address contract1, uint256 tokenId, uint256 balance)
         public
     {
-        vm.assume(vault != address(0));
+        vm.assume(vault != address(0) && vault != address(1));
         vm.assume(vault != delegate0 && vault != delegate1);
         vm.assume(delegate0 != delegate1);
         vm.assume(contract0 != contract1);
@@ -236,8 +244,8 @@ contract DelegateRegistryTest is Test {
         assertTrue(vaultDelegations[1].type_ == IDelegateRegistry.DelegationType.CONTRACT);
     }
 
-    function testVaultEnumerationGas() public {
-        for (uint256 i = 0; i < 2200; i++) {
+    function _createUniqueDelegations(uint256 start, uint256 stop) internal {
+        for (uint256 i = start; i < stop; i++) {
             address delegate = address(bytes20(keccak256(abi.encode("delegate", i))));
             address contract_ = address(bytes20(keccak256(abi.encode("contract", i))));
             uint256 balance = uint256(keccak256(abi.encode("balance", i)));
@@ -248,8 +256,19 @@ contract DelegateRegistryTest is Test {
             reg.delegateForERC721(delegate, contract_, tokenId, rights, true);
             reg.delegateForERC1155(delegate, contract_, tokenId, balance, rights, true);
         }
+    }
+
+    function testVaultEnumerationGas() public {
+        uint256 delegationsLimit = 2600;
+        uint256 hashesLimitScalar = 8;
+        _createUniqueDelegations(0, delegationsLimit);
         IDelegateRegistry.Delegation[] memory vaultDelegations;
         vaultDelegations = reg.getDelegationsForVault(address(this));
-        assertEq(vaultDelegations.length, 11000);
+        assertEq(vaultDelegations.length, 5 * delegationsLimit);
+        bytes32[] memory vaultDelegationHashes = reg.getDelegationHashesForVault(address(this));
+        assertEq(vaultDelegationHashes.length, 5 * delegationsLimit);
+        _createUniqueDelegations(delegationsLimit, delegationsLimit * hashesLimitScalar);
+        vaultDelegationHashes = reg.getDelegationHashesForVault(address(this));
+        assertEq(vaultDelegationHashes.length, 5 * delegationsLimit * hashesLimitScalar);
     }
 }
