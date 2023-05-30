@@ -116,26 +116,10 @@ contract DelegateRegistryTest is Test {
     function testBatchDelegationForAll(address vault, address delegate0, address delegate1) public {
         vm.assume(delegate0 != delegate1 && vault != address(0) && vault != address(1));
         vm.startPrank(vault);
-        IDelegateRegistry.BatchDelegation[] memory info = new IDelegateRegistry.BatchDelegation[](2);
-        info[0] = IDelegateRegistry.BatchDelegation({
-            type_: IDelegateRegistry.DelegationType.ALL,
-            enable: true,
-            delegate: delegate0,
-            contract_: address(0),
-            tokenId: 0,
-            amount: 0,
-            rights: ""
-        });
-        info[1] = IDelegateRegistry.BatchDelegation({
-            type_: IDelegateRegistry.DelegationType.ALL,
-            enable: true,
-            delegate: delegate1,
-            contract_: address(0),
-            tokenId: 0,
-            amount: 0,
-            rights: ""
-        });
-        reg.batchDelegate(info);
+        bytes[] memory batchData = new bytes[](2);
+        batchData[0] = abi.encodeWithSelector(IDelegateRegistry.delegateAll.selector, delegate0, "", true);
+        batchData[1] = abi.encodeWithSelector(IDelegateRegistry.delegateAll.selector, delegate1, "", true);
+        reg.multicall(batchData);
 
         IDelegateRegistry.Delegation[] memory delegations = reg.getDelegationsForVault(vault);
         assertEq(delegations.length, 2);
