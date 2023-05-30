@@ -29,17 +29,6 @@ interface IDelegateRegistry {
         uint256 amount;
     }
 
-    /// @notice Struct for batch delegations
-    struct BatchDelegation {
-        DelegationType type_;
-        bool enable;
-        address delegate;
-        bytes32 rights;
-        address contract_;
-        uint256 tokenId;
-        uint256 amount;
-    }
-
     /// @notice Emitted when a user delegates rights for their entire wallet
     event AllDelegated(address indexed vault, address indexed delegate, bytes32 rights, bool enable);
 
@@ -62,10 +51,9 @@ interface IDelegateRegistry {
      */
 
     /**
-     * @notice Batch several delegations into a single transactions
-     * @param delegations An array of SetDelegation structs
+     * @notice Call multiple registry functions at once with multicall
      */
-    function batchDelegate(BatchDelegation[] calldata delegations) external;
+    function multicall(bytes[] calldata data) external returns (bytes[] memory results);
 
     /**
      * @notice Allow the delegate to act on your behalf for all contracts
