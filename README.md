@@ -81,9 +81,9 @@ Check out the [IDelegateRegistry.sol](src/IDelegateRegistry.sol) file. This is t
 
 ```code
 /// WRITE ///
-function delegateForAll(address delegate, bool value) external;
-function delegateForContract(address delegate, address contract_, bool value) external;
-function delegateForERC721(address delegate, address contract_, uint256 tokenId, bool value) external;
+function delegateAll(address delegate, bool value) external;
+function delegateContract(address delegate, address contract_, bool value) external;
+function delegateERC721(address delegate, address contract_, uint256 tokenId, bool value) external;
 function revokeAllDelegates() external;
 function revokeDelegate(address delegate) external;
 function revokeSelf(address vault) external;

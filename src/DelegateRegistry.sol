@@ -37,15 +37,15 @@ contract DelegateRegistry is IDelegateRegistry {
     function batchDelegate(BatchDelegation[] calldata delegations) external override {
         for (uint256 i = 0; i < delegations.length; ++i) {
             if (delegations[i].type_ == DelegationType.ALL) {
-                delegateForAll(delegations[i].delegate, delegations[i].rights, delegations[i].enable);
+                delegateAll(delegations[i].delegate, delegations[i].rights, delegations[i].enable);
             } else if (delegations[i].type_ == DelegationType.CONTRACT) {
-                delegateForContract(delegations[i].delegate, delegations[i].contract_, delegations[i].rights, delegations[i].enable);
+                delegateContract(delegations[i].delegate, delegations[i].contract_, delegations[i].rights, delegations[i].enable);
             } else if (delegations[i].type_ == DelegationType.ERC721) {
-                delegateForERC721(delegations[i].delegate, delegations[i].contract_, delegations[i].tokenId, delegations[i].rights, delegations[i].enable);
+                delegateERC721(delegations[i].delegate, delegations[i].contract_, delegations[i].tokenId, delegations[i].rights, delegations[i].enable);
             } else if (delegations[i].type_ == DelegationType.ERC20) {
-                delegateForERC20(delegations[i].delegate, delegations[i].contract_, delegations[i].amount, delegations[i].rights, delegations[i].enable);
+                delegateERC20(delegations[i].delegate, delegations[i].contract_, delegations[i].amount, delegations[i].rights, delegations[i].enable);
             } else if (delegations[i].type_ == DelegationType.ERC1155) {
-                delegateForERC1155(
+                delegateERC1155(
                     delegations[i].delegate,
                     delegations[i].contract_,
                     delegations[i].tokenId,
@@ -58,7 +58,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateForAll(address delegate, bytes32 rights, bool enable) public override {
+    function delegateAll(address delegate, bytes32 rights, bool enable) public override {
         bytes32 hash = _computeDelegationHashForAll(delegate, rights, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
         emit AllDelegated(msg.sender, delegate, rights, enable);
@@ -75,7 +75,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateForContract(address delegate, address contract_, bytes32 rights, bool enable) public override {
+    function delegateContract(address delegate, address contract_, bytes32 rights, bool enable) public override {
         bytes32 hash = _computeDelegationHashForContract(contract_, delegate, rights, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
         emit ContractDelegated(msg.sender, delegate, contract_, rights, enable);
@@ -94,7 +94,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateForERC721(address delegate, address contract_, uint256 tokenId, bytes32 rights, bool enable) public override {
+    function delegateERC721(address delegate, address contract_, uint256 tokenId, bytes32 rights, bool enable) public override {
         bytes32 hash = _computeDelegationHashForERC721(contract_, delegate, rights, tokenId, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
         emit ERC721Delegated(msg.sender, delegate, contract_, tokenId, rights, enable);
@@ -118,7 +118,7 @@ contract DelegateRegistry is IDelegateRegistry {
      * @inheritdoc IDelegateRegistry
      * @dev The actual amount is not encoded in the hash, just the existence of a amount (since it is an upper bound)
      */
-    function delegateForERC20(address delegate, address contract_, uint256 amount, bytes32 rights, bool enable) public override {
+    function delegateERC20(address delegate, address contract_, uint256 amount, bytes32 rights, bool enable) public override {
         bytes32 hash = _computeDelegationHashForERC20(contract_, delegate, rights, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
         emit ERC20Delegated(msg.sender, delegate, contract_, amount, rights, enable);
@@ -142,7 +142,7 @@ contract DelegateRegistry is IDelegateRegistry {
      * @inheritdoc IDelegateRegistry
      * @dev The actual amount is not encoded in the hash, just the existence of a amount (since it is an upper bound)
      */
-    function delegateForERC1155(address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) public override {
+    function delegateERC1155(address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) public override {
         bytes32 hash = _computeDelegationHashForERC1155(contract_, delegate, rights, tokenId, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
         emit ERC1155Delegated(msg.sender, delegate, contract_, tokenId, amount, rights, enable);

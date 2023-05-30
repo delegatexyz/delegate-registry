@@ -173,7 +173,7 @@ contract AirdropTest is Test {
         for (uint256 i = 0; i < n; i++) {
             // Delegate
             vm.startPrank(airdropData[i].receiver);
-            registry.delegateForERC20(delegateData[i].delegate, referenceToken, delegateData[i].allowance, delegateData[i].rights, true);
+            registry.delegateERC20(delegateData[i].delegate, referenceToken, delegateData[i].allowance, delegateData[i].rights, true);
             vm.stopPrank();
             // Delegate claims airdrop
             vm.startPrank(delegateData[i].delegate);
