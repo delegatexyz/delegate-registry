@@ -34,8 +34,8 @@ contract Airdrop is ERC20, DelegateClaim {
     }
 
     /**
-     * @notice Allows the caller to claim tokens from the airdrop based on the merkle proof, and if they aren't the vault,
-     * claim tokens on behalf of vault if they have a delegation.
+     * @notice Allows the caller to claim tokens from the airdrop based on the merkle proof, and if they aren't the
+     * vault, claim tokens on behalf of vault if they have a delegation.
      * @param vault The address of the vault.
      * @param claimAmount The amount of tokens to claim from the airdrop.
      * @param airdropSize The total size of the airdrop for the vault.
@@ -44,7 +44,8 @@ contract Airdrop is ERC20, DelegateClaim {
     function claim(address vault, uint256 claimAmount, uint256 airdropSize, bytes32[] calldata merkleProof) external {
         // First verify that airdrop for vault of amount airdropSize exists
         require(merkle.verifyProof(merkleRoot, merkleProof, keccak256(abi.encodePacked(vault, airdropSize))), "Invalid Proof");
-        // Set claimable to the minimum of claimAmount and the maximum remaining airdrop tokens that can be claimed by the vault
+        // Set claimable to the minimum of claimAmount and the maximum remaining airdrop tokens that can be claimed by
+        // the vault
         uint256 claimable = Math.min(claimAmount, airdropSize - claimed[vault]);
         // If msg.sender != vault, check balance delegation instead
         if (msg.sender != vault) claimable = _delegateClaimable(vault, claimable);

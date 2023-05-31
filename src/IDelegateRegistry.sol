@@ -172,13 +172,6 @@ interface IDelegateRegistry {
     function getDelegationsForVault(address vault) external view returns (Delegation[] memory delegations);
 
     /**
-     * @notice Returns the delegations for a given array of delegation hashes
-     * @param delegationHashes is an array of hashes that correspond to delegations
-     * @return delegations Array of Delegation structs, empty structs will be returned for invalid or nonexistent delegations
-     */
-    function getDelegationsFromHashes(bytes32[] calldata delegationHashes) external view returns (Delegation[] memory delegations);
-
-    /**
      * @notice Returns all hashes associated with enabled delegations a delegate has been granted
      * @param delegate The delegate to retrieve the delegation hashes for
      * @return delegationHashes Array of delegation hashes
@@ -191,4 +184,12 @@ interface IDelegateRegistry {
      * @return delegationHashes Array of delegation hashes
      */
     function getDelegationHashesForVault(address vault) external view returns (bytes32[] memory delegationHashes);
+
+    /**
+     * @notice Returns the delegations for a given array of delegation hashes
+     * @param delegationHashes is an array of hashes that correspond to delegations
+     * @return delegations Array of Delegation structs, empty structs will be returned for invalid or nonexistent
+     * delegations
+     */
+    function getDelegationsFromHashes(bytes32[] calldata delegationHashes) external view returns (Delegation[] memory delegations);
 }

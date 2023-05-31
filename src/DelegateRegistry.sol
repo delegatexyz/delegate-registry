@@ -239,6 +239,16 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
+    function getDelegationHashesForDelegate(address delegate) external view returns (bytes32[] memory delegationHashes) {
+        delegationHashes = _getValidDelegationHashesFromHashes(_delegateDelegationHashes[delegate]);
+    }
+
+    /// @inheritdoc IDelegateRegistry
+    function getDelegationHashesForVault(address vault) external view returns (bytes32[] memory delegationHashes) {
+        delegationHashes = _getValidDelegationHashesFromHashes(_vaultDelegationHashes[vault]);
+    }
+
+    /// @inheritdoc IDelegateRegistry
     function getDelegationsFromHashes(bytes32[] calldata hashes) external view returns (Delegation[] memory delegations) {
         delegations = new Delegation[](hashes.length);
         bytes32 location;
@@ -268,16 +278,6 @@ contract DelegateRegistry is IDelegateRegistry {
                 });
             }
         }
-    }
-
-    /// @inheritdoc IDelegateRegistry
-    function getDelegationHashesForDelegate(address delegate) external view returns (bytes32[] memory delegationHashes) {
-        delegationHashes = _getValidDelegationHashesFromHashes(_delegateDelegationHashes[delegate]);
-    }
-
-    /// @inheritdoc IDelegateRegistry
-    function getDelegationHashesForVault(address vault) external view returns (bytes32[] memory delegationHashes) {
-        delegationHashes = _getValidDelegationHashesFromHashes(_vaultDelegationHashes[vault]);
     }
 
     /**
@@ -359,32 +359,32 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @dev Helper function to compute delegation hash for all delegation
-    function _computeDelegationHashForAll(address delegate, bytes32 rights, address vault) private pure returns (bytes32) {
+    function _computeDelegationHashForAll(address delegate, bytes32 rights, address vault) internal pure returns (bytes32) {
         return _encodeLastByteWithType(keccak256(abi.encode(delegate, vault, rights)), DelegationType.ALL);
     }
 
     /// @dev Helper function to compute delegation hash for contract delegation
-    function _computeDelegationHashForContract(address contract_, address delegate, bytes32 rights, address vault) private pure returns (bytes32) {
+    function _computeDelegationHashForContract(address contract_, address delegate, bytes32 rights, address vault) internal pure returns (bytes32) {
         return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, vault)), DelegationType.CONTRACT);
-    }
-
-    /// @dev Helper function to compute delegation hash for ERC20 delegation
-    function _computeDelegationHashForERC20(address contract_, address delegate, bytes32 rights, address vault) private pure returns (bytes32) {
-        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, vault)), DelegationType.ERC20);
     }
 
     /// @dev Helper function to compute delegation hash for ERC721 delegation
     function _computeDelegationHashForERC721(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault)
-        private
+        internal
         pure
         returns (bytes32)
     {
         return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, tokenId, vault)), DelegationType.ERC721);
     }
 
+    /// @dev Helper function to compute delegation hash for ERC20 delegation
+    function _computeDelegationHashForERC20(address contract_, address delegate, bytes32 rights, address vault) internal pure returns (bytes32) {
+        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, vault)), DelegationType.ERC20);
+    }
+
     /// @dev Helper function to compute delegation hash for ERC1155 delegation
     function _computeDelegationHashForERC1155(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault)
-        private
+        internal
         pure
         returns (bytes32)
     {
@@ -413,12 +413,12 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @dev Helper function to encode the last byte of a delegation hash to its type
-    function _encodeLastByteWithType(bytes32 _input, DelegationType _type) private pure returns (bytes32) {
+    function _encodeLastByteWithType(bytes32 _input, DelegationType _type) internal pure returns (bytes32) {
         return (_input & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00) | bytes32(uint256(_type));
     }
 
     /// @dev Helper function to decode last byte of a delegation hash to obtain its type
-    function _decodeLastByteToType(bytes32 _input) private pure returns (DelegationType) {
+    function _decodeLastByteToType(bytes32 _input) internal pure returns (DelegationType) {
         return DelegationType(uint8(uint256(_input) & 0xFF));
     }
 
@@ -444,7 +444,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @dev Helper function that computes the data location of a particular delegation hash
-    function _computeDelegationLocation(bytes32 hash) private pure returns (bytes32 location) {
+    function _computeDelegationLocation(bytes32 hash) internal pure returns (bytes32 location) {
         location = keccak256(abi.encode(hash, 0)); // _delegations mapping is at slot 0
     }
 }
