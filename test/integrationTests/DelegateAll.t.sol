@@ -11,8 +11,8 @@ contract DelegateAllTest is Test {
     Harness public harness;
 
     function setUp() public {
-        registry = new Registry();
         harness = new Harness();
+        registry = new Registry();
     }
 
     // Tests delegateAll case with non-default rights
@@ -38,35 +38,6 @@ contract DelegateAllTest is Test {
         _testDelegateAll(vault, fVault, delegate, fDelegate, rights, fRights, dContract, dTokenId);
     }
 
-    // Tests delegateAll case with non-default rights using multicall
-    function testDelegateAllSpecificRightsViaMulticall(
-        address vault,
-        address fVault,
-        address delegate,
-        address fDelegate,
-        bytes32 rights,
-        bytes32 fRights,
-        address dContract,
-        uint256 dTokenId
-    ) public {
-        vm.assume(rights != "");
-        _testDelegateAll(vault, fVault, delegate, fDelegate, rights, fRights, dContract, dTokenId);
-    }
-
-    // Tests delegateAll case with default rights using multicall
-    function testDelegateAllDefaultViaMulticall(
-        address vault,
-        address fVault,
-        address delegate,
-        address fDelegate,
-        bytes32 fRights,
-        address dContract,
-        uint256 dTokenId
-    ) public {
-        bytes32 rights = "";
-        _testDelegateAll(vault, fVault, delegate, fDelegate, rights, fRights, dContract, dTokenId);
-    }
-
     function _testDelegateAll(
         address vault,
         address fVault,
@@ -77,6 +48,7 @@ contract DelegateAllTest is Test {
         address dContract,
         uint256 dTokenId
     ) internal {
+        registry = new Registry();
         bool enable = uint256(keccak256(abi.encode(vault, fVault, delegate, fDelegate, rights, fRights, dContract, dTokenId))) % 2 == 1;
         bool multicall = uint256(keccak256(abi.encode(dTokenId, dContract, fRights, rights, fDelegate, delegate, fVault))) % 2 == 1;
         vm.assume(vault > address(1) && fVault > address(1));
