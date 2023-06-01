@@ -47,7 +47,6 @@ contract DelegateRegistry is IDelegateRegistry {
     function delegateAll(address delegate, bytes32 rights, bool enable) external override {
         bytes32 hash = _computeDelegationHashForAll(delegate, rights, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
-        _writeDelegation(location, StoragePositions.amount, 1337);
         emit AllDelegated(msg.sender, delegate, rights, enable);
         if (enable) {
             if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
@@ -402,6 +401,7 @@ contract DelegateRegistry is IDelegateRegistry {
     /// @dev Helper function that writes uint256 data to delegation data location at array position
     function _writeDelegation(bytes32 location, StoragePositions position, uint256 data) private {
         assembly {
+            sstore(add(location, position), data+1);
             sstore(add(location, position), data)
         }
     }
