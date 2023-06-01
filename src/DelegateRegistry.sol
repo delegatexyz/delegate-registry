@@ -6,7 +6,8 @@ import {IDelegateRegistry} from "./IDelegateRegistry.sol";
 /**
  * @title DelegateRegistry
  * @custom:version 2.0
- * @custom:author foobar (0xfoobar)
+ * @custom:coauthor foobar (0xfoobar)
+ * @custom:coauthor mireynolds
  * @notice A standalone immutable registry storing delegated permissions from one wallet to another
  */
 contract DelegateRegistry is IDelegateRegistry {

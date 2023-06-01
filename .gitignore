@@ -4,3 +4,4 @@ broadcast/
 Makefile
 .vscode
 remappings.txt
+abi.json

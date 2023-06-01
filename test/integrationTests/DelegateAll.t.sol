@@ -68,7 +68,9 @@ contract DelegateAllTest is Test {
         _checkRead(vault, fVault, delegate, fDelegate, rights, enable);
         // Revoke and check logic again
         vm.startPrank(vault);
-        registry.delegateAll(delegate, rights, false);
+        batchData[0] = abi.encodeWithSelector(Registry.delegateAll.selector, delegate, rights, false);
+        if (multicall) registry.multicall(batchData);
+        else registry.delegateAll(delegate, rights, false);
         vm.stopPrank();
         _checkConsumable(vault, fVault, delegate, fDelegate, rights, fRights, dContract, dTokenId, false);
         _checkRead(vault, fVault, delegate, fDelegate, rights, false);
