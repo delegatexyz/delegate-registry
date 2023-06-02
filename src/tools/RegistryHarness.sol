@@ -5,6 +5,18 @@ import {DelegateRegistry} from "src/DelegateRegistry.sol";
 
 /// @dev harness contract that exposes internal registry methods as external ones
 contract RegistryHarness is DelegateRegistry {
+    function exposed_delegations(bytes32 hash) external view returns (bytes32[6] memory) {
+        return _delegations[hash];
+    }
+
+    function exposed_vaultDelegationHashes(address vault) external view returns (bytes32[] memory) {
+        return _vaultDelegationHashes[vault];
+    }
+
+    function exposed_delegateDelegationHashes(address delegate) external view returns (bytes32[] memory) {
+        return _delegateDelegationHashes[delegate];
+    }
+
     function exposed_computeDelegationHashForAll(address delegate, bytes32 rights, address vault) external pure returns (bytes32) {
         return _computeDelegationHashForAll(delegate, rights, vault);
     }

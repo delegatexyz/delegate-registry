@@ -12,13 +12,13 @@ import {IDelegateRegistry} from "./IDelegateRegistry.sol";
  */
 contract DelegateRegistry is IDelegateRegistry {
     /// @dev Only this mapping should be used to verify delegations; the other mappings are for record keeping only
-    mapping(bytes32 delegationHash => bytes32[6] delegationStorage) private _delegations;
+    mapping(bytes32 delegationHash => bytes32[6] delegationStorage) internal _delegations;
 
     /// @dev Vault delegation outbox, for pushing new hashes only
-    mapping(address vault => bytes32[] delegationHashes) private _vaultDelegationHashes;
+    mapping(address vault => bytes32[] delegationHashes) internal _vaultDelegationHashes;
 
     /// @dev Delegate delegation inbox, for pushing new hashes only
-    mapping(address delegate => bytes32[] delegationHashes) private _delegateDelegationHashes;
+    mapping(address delegate => bytes32[] delegationHashes) internal _delegateDelegationHashes;
 
     /// @dev Standardizes storage positions of delegation data
     enum StoragePositions {
@@ -293,8 +293,87 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /**
+     * ----------- INTERNAL -----------
+     */
+
+    /// @dev Helper function to compute delegation hash for all delegation
+    function _computeDelegationHashForAll(address delegate, bytes32 rights, address vault) internal pure returns (bytes32) {
+        return _encodeLastByteWithType(keccak256(abi.encode(delegate, vault, rights)), DelegationType.ALL);
+    }
+
+    /// @dev Helper function to compute delegation hash for contract delegation
+    function _computeDelegationHashForContract(address contract_, address delegate, bytes32 rights, address vault) internal pure returns (bytes32) {
+        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, vault)), DelegationType.CONTRACT);
+    }
+
+    /// @dev Helper function to compute delegation hash for ERC721 delegation
+    function _computeDelegationHashForERC721(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, tokenId, vault)), DelegationType.ERC721);
+    }
+
+    /// @dev Helper function to compute delegation hash for ERC20 delegation
+    function _computeDelegationHashForERC20(address contract_, address delegate, bytes32 rights, address vault) internal pure returns (bytes32) {
+        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, vault)), DelegationType.ERC20);
+    }
+
+    /// @dev Helper function to compute delegation hash for ERC1155 delegation
+    function _computeDelegationHashForERC1155(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, tokenId, vault)), DelegationType.ERC1155);
+    }
+
+    /// @dev Helper function to encode the last byte of a delegation hash to its type
+    function _encodeLastByteWithType(bytes32 _input, DelegationType _type) internal pure returns (bytes32) {
+        return (_input & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00) | bytes32(uint256(_type));
+    }
+
+    /// @dev Helper function to decode last byte of a delegation hash to obtain its type
+    function _decodeLastByteToType(bytes32 _input) internal pure returns (DelegationType) {
+        return DelegationType(uint8(uint256(_input) & 0xFF));
+    }
+
+    /// @dev Helper function that computes the data location of a particular delegation hash
+    function _computeDelegationLocation(bytes32 hash) internal pure returns (bytes32 location) {
+        location = keccak256(abi.encode(hash, 0)); // _delegations mapping is at slot 0
+    }
+
+    /**
      * ----------- PRIVATE -----------
      */
+
+    /// @dev Helper function to push new delegation hashes to the delegate and vault hashes mappings
+    function _pushDelegationHashes(address vault, address delegate, bytes32 delegationHash) private {
+        _vaultDelegationHashes[vault].push(delegationHash);
+        _delegateDelegationHashes[delegate].push(delegationHash);
+    }
+
+    /// @dev Helper function that writes bytes32 data to delegation data location at array position
+    function _writeDelegation(bytes32 location, StoragePositions position, bytes32 data) private {
+        assembly {
+            sstore(add(location, position), data)
+        }
+    }
+
+    /// @dev Helper function that writes uint256 data to delegation data location at array position
+    function _writeDelegation(bytes32 location, StoragePositions position, uint256 data) private {
+        assembly {
+            sstore(add(location, position), data)
+        }
+    }
+
+    /// @dev Helper function that writes address data to delegation data location at array position
+    function _writeDelegation(bytes32 location, StoragePositions position, address data) private {
+        assembly {
+            sstore(add(location, position), data)
+        }
+    }
 
     /// @dev Helper function that takes an array of delegation hashes and returns an array of Delegation structs with their on chain information
     function _getValidDelegationsFromHashes(bytes32[] storage hashes) private view returns (Delegation[] memory delegations) {
@@ -353,76 +432,6 @@ contract DelegateRegistry is IDelegateRegistry {
         }
     }
 
-    /// @dev Helper function to push new delegation hashes to the delegate and vault hashes mappings
-    function _pushDelegationHashes(address vault, address delegate, bytes32 delegationHash) private {
-        _vaultDelegationHashes[vault].push(delegationHash);
-        _delegateDelegationHashes[delegate].push(delegationHash);
-    }
-
-    /// @dev Helper function to compute delegation hash for all delegation
-    function _computeDelegationHashForAll(address delegate, bytes32 rights, address vault) internal pure returns (bytes32) {
-        return _encodeLastByteWithType(keccak256(abi.encode(delegate, vault, rights)), DelegationType.ALL);
-    }
-
-    /// @dev Helper function to compute delegation hash for contract delegation
-    function _computeDelegationHashForContract(address contract_, address delegate, bytes32 rights, address vault) internal pure returns (bytes32) {
-        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, vault)), DelegationType.CONTRACT);
-    }
-
-    /// @dev Helper function to compute delegation hash for ERC721 delegation
-    function _computeDelegationHashForERC721(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault)
-        internal
-        pure
-        returns (bytes32)
-    {
-        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, tokenId, vault)), DelegationType.ERC721);
-    }
-
-    /// @dev Helper function to compute delegation hash for ERC20 delegation
-    function _computeDelegationHashForERC20(address contract_, address delegate, bytes32 rights, address vault) internal pure returns (bytes32) {
-        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, vault)), DelegationType.ERC20);
-    }
-
-    /// @dev Helper function to compute delegation hash for ERC1155 delegation
-    function _computeDelegationHashForERC1155(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault)
-        internal
-        pure
-        returns (bytes32)
-    {
-        return _encodeLastByteWithType(keccak256(abi.encode(contract_, delegate, rights, tokenId, vault)), DelegationType.ERC1155);
-    }
-
-    /// @dev Helper function that writes bytes32 data to delegation data location at array position
-    function _writeDelegation(bytes32 location, StoragePositions position, bytes32 data) private {
-        assembly {
-            sstore(add(location, position), data)
-        }
-    }
-
-    /// @dev Helper function that writes uint256 data to delegation data location at array position
-    function _writeDelegation(bytes32 location, StoragePositions position, uint256 data) private {
-        assembly {
-            sstore(add(location, position), data)
-        }
-    }
-
-    /// @dev Helper function that writes address data to delegation data location at array position
-    function _writeDelegation(bytes32 location, StoragePositions position, address data) private {
-        assembly {
-            sstore(add(location, position), data)
-        }
-    }
-
-    /// @dev Helper function to encode the last byte of a delegation hash to its type
-    function _encodeLastByteWithType(bytes32 _input, DelegationType _type) internal pure returns (bytes32) {
-        return (_input & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00) | bytes32(uint256(_type));
-    }
-
-    /// @dev Helper function to decode last byte of a delegation hash to obtain its type
-    function _decodeLastByteToType(bytes32 _input) internal pure returns (DelegationType) {
-        return DelegationType(uint8(uint256(_input) & 0xFF));
-    }
-
     /// @dev Helper function that loads delegation data from a particular array position and returns as bytes32
     function _loadDelegationBytes32(bytes32 location, StoragePositions position) private view returns (bytes32 data) {
         assembly {
@@ -442,10 +451,5 @@ contract DelegateRegistry is IDelegateRegistry {
         assembly {
             data := sload(add(location, position))
         }
-    }
-
-    /// @dev Helper function that computes the data location of a particular delegation hash
-    function _computeDelegationLocation(bytes32 hash) internal pure returns (bytes32 location) {
-        location = keccak256(abi.encode(hash, 0)); // _delegations mapping is at slot 0
     }
 }
