@@ -6,7 +6,7 @@ import {DelegateRegistry as Registry} from "src/DelegateRegistry.sol";
 import {IDelegateRegistry as IRegistry} from "src/IDelegateRegistry.sol";
 import {RegistryHarness as Harness} from "src/tools/RegistryHarness.sol";
 
-contract DelegateERC20Test is Test {
+contract DelegateSingularIntegrations is Test {
     Registry public registry;
     Harness public harness;
 
