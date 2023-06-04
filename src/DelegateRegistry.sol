@@ -49,8 +49,8 @@ contract DelegateRegistry is IDelegateRegistry {
         bytes32 hash = _computeDelegationHashForAll(delegate, rights, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
         emit AllDelegated(msg.sender, delegate, rights, enable);
+        if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
         if (enable) {
-            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
             _writeDelegation(location, StoragePositions.delegate, delegate);
             _writeDelegation(location, StoragePositions.vault, msg.sender);
             if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
@@ -66,8 +66,8 @@ contract DelegateRegistry is IDelegateRegistry {
         bytes32 hash = _computeDelegationHashForContract(contract_, delegate, rights, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
         emit ContractDelegated(msg.sender, delegate, contract_, rights, enable);
+        if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
         if (enable) {
-            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
             _writeDelegation(location, StoragePositions.contract_, contract_);
             _writeDelegation(location, StoragePositions.delegate, delegate);
             _writeDelegation(location, StoragePositions.vault, msg.sender);
@@ -85,8 +85,8 @@ contract DelegateRegistry is IDelegateRegistry {
         bytes32 hash = _computeDelegationHashForERC721(contract_, delegate, rights, tokenId, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
         emit ERC721Delegated(msg.sender, delegate, contract_, tokenId, rights, enable);
+        if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
         if (enable) {
-            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
             _writeDelegation(location, StoragePositions.contract_, contract_);
             _writeDelegation(location, StoragePositions.delegate, delegate);
             _writeDelegation(location, StoragePositions.vault, msg.sender);
@@ -109,8 +109,8 @@ contract DelegateRegistry is IDelegateRegistry {
         bytes32 hash = _computeDelegationHashForERC20(contract_, delegate, rights, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
         emit ERC20Delegated(msg.sender, delegate, contract_, amount, rights, enable);
+        if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
         if (enable) {
-            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
             _writeDelegation(location, StoragePositions.contract_, contract_);
             _writeDelegation(location, StoragePositions.delegate, delegate);
             _writeDelegation(location, StoragePositions.vault, msg.sender);
@@ -133,8 +133,8 @@ contract DelegateRegistry is IDelegateRegistry {
         bytes32 hash = _computeDelegationHashForERC1155(contract_, delegate, rights, tokenId, msg.sender);
         bytes32 location = _computeDelegationLocation(hash);
         emit ERC1155Delegated(msg.sender, delegate, contract_, tokenId, amount, rights, enable);
+        if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
         if (enable) {
-            if (_loadDelegationBytes32(location, StoragePositions.vault) == "") _pushDelegationHashes(msg.sender, delegate, hash);
             _writeDelegation(location, StoragePositions.contract_, contract_);
             _writeDelegation(location, StoragePositions.delegate, delegate);
             _writeDelegation(location, StoragePositions.vault, msg.sender);
