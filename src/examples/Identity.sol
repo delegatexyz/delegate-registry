@@ -22,6 +22,8 @@ what does it look like to have a gaming guild as a cluster?
 give an NFT to all members of the cluster, maybe 1155
 does this end up looking like a multisig? 2/3 approval, etc
 seems kinda dangerous to delegate an entire cluster, makes it riskier to join
+
+what do you get if you join the cluster?
  */
 
 contract Identity {
@@ -58,5 +60,9 @@ contract Identity {
         require(clusterInvitedMembers[clusterId].contains(msg.sender), "not invited");
         clusterInvitedMembers[clusterId].remove(msg.sender);
         clusterMembers[clusterId].add(msg.sender);
+    }
+
+    function getClusterMembers(uint256 clusterId) public view returns (address[] memory) {
+        return clusterMembers[clusterId].values();
     }
 }
