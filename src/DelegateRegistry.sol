@@ -340,7 +340,9 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @dev Helper function to decode last byte of a delegation hash to obtain its type
     function _decodeLastByteToType(bytes32 _input) internal pure returns (DelegationType) {
-        return DelegationType(uint8(uint256(_input) & 0xFF));
+        uint256 type_ = uint256(_input) & 0xFF;
+        if (type_ > uint256(type(DelegationType).max)) return DelegationType.NONE;
+        return DelegationType(uint8(type_));
     }
 
     /// @dev Helper function that computes the data location of a particular delegation hash
