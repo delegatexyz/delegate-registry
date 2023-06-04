@@ -31,8 +31,8 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @dev Standardizes vault address storage flags, can't use enums since we can't cast a value > type(enum).max to an enum type
-    address constant DELEGATION_UNKNOWN = address(0);
-    address constant DELEGATION_EXISTED = address(1);
+    address internal constant DELEGATION_UNKNOWN = address(0);
+    address internal constant DELEGATION_EXISTED = address(1);
 
     /**
      * ----------- WRITE -----------
