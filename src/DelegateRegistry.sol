@@ -15,10 +15,10 @@ contract DelegateRegistry is IDelegateRegistry {
     mapping(bytes32 delegationHash => bytes32[6] delegationStorage) internal _delegations;
 
     /// @dev Vault delegation enumeration outbox, for pushing new hashes only
-    mapping(address vault => bytes32[] delegationHashes) internal _outgoingDelegationHashes;
+    mapping(address from => bytes32[] delegationHashes) internal _outgoingDelegationHashes;
 
     /// @dev Delegate delegation enumeration inbox, for pushing new hashes only
-    mapping(address delegate => bytes32[] delegationHashes) internal _incomingDelegationHashes;
+    mapping(address to => bytes32[] delegationHashes) internal _incomingDelegationHashes;
 
     /// @dev Standardizes storage positions of delegation data
     enum StoragePositions {
@@ -265,8 +265,8 @@ contract DelegateRegistry is IDelegateRegistry {
                 if (vault == DELEGATION_EMPTY || vault == DELEGATION_REVOKED) {
                     delegations[i] = Delegation({
                         type_: DelegationType.NONE,
-                        delegate: address(0),
-                        vault: address(0),
+                        to: address(0),
+                        from: address(0),
                         rights: "",
                         amount: 0,
                         contract_: address(0),
@@ -275,8 +275,8 @@ contract DelegateRegistry is IDelegateRegistry {
                 } else {
                     delegations[i] = Delegation({
                         type_: _decodeLastByteToType(hashes[i]),
-                        delegate: _loadDelegationAddress(location, StoragePositions.to),
-                        vault: vault,
+                        to: _loadDelegationAddress(location, StoragePositions.to),
+                        from: vault,
                         rights: _loadDelegationBytes32(location, StoragePositions.rights),
                         amount: _loadDelegationUint(location, StoragePositions.amount),
                         contract_: _loadDelegationAddress(location, StoragePositions.contract_),
@@ -405,8 +405,8 @@ contract DelegateRegistry is IDelegateRegistry {
                 vault = _loadDelegationAddress(location, StoragePositions.from);
                 delegations[i] = Delegation({
                     type_: _decodeLastByteToType(hash),
-                    delegate: _loadDelegationAddress(location, StoragePositions.to),
-                    vault: vault,
+                    to: _loadDelegationAddress(location, StoragePositions.to),
+                    from: vault,
                     rights: _loadDelegationBytes32(location, StoragePositions.rights),
                     amount: _loadDelegationUint(location, StoragePositions.amount),
                     contract_: _loadDelegationAddress(location, StoragePositions.contract_),
@@ -457,7 +457,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @dev Helper function to establish whether a delegation is enabled
-    function _validateDelegation(bytes32 location, address vault) private view returns (bool) {
-        return (_loadDelegationAddress(location, StoragePositions.from) == vault && vault > DELEGATION_REVOKED);
+    function _validateDelegation(bytes32 location, address from) private view returns (bool) {
+        return (_loadDelegationAddress(location, StoragePositions.from) == from && from > DELEGATION_REVOKED);
     }
 }

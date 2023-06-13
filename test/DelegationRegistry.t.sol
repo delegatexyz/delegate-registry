@@ -103,10 +103,10 @@ contract DelegateRegistryTest is Test {
         // Read
         IDelegateRegistry.Delegation[] memory info = reg.getOutgoingDelegations(vault);
         assertEq(info.length, 2);
-        assertEq(info[0].vault, vault);
-        assertEq(info[0].delegate, delegate0);
-        assertEq(info[1].vault, vault);
-        assertEq(info[1].delegate, delegate1);
+        assertEq(info[0].from, vault);
+        assertEq(info[0].to, delegate0);
+        assertEq(info[1].from, vault);
+        assertEq(info[1].to, delegate1);
         // Remove
         reg.delegateAll(delegate0, rights, false);
         info = reg.getOutgoingDelegations(vault);
@@ -123,10 +123,10 @@ contract DelegateRegistryTest is Test {
 
         IDelegateRegistry.Delegation[] memory delegations = reg.getOutgoingDelegations(vault);
         assertEq(delegations.length, 2);
-        assertEq(delegations[0].vault, vault);
-        assertEq(delegations[1].vault, vault);
-        assertEq(delegations[0].delegate, delegate0);
-        assertEq(delegations[1].delegate, delegate1);
+        assertEq(delegations[0].from, vault);
+        assertEq(delegations[1].from, vault);
+        assertEq(delegations[0].to, delegate0);
+        assertEq(delegations[1].to, delegate1);
         assertTrue(delegations[0].type_ == IDelegateRegistry.DelegationType.ALL);
         assertTrue(delegations[1].type_ == IDelegateRegistry.DelegationType.ALL);
     }

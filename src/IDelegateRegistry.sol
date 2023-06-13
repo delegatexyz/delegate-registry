@@ -21,8 +21,8 @@ interface IDelegateRegistry {
     /// @notice Struct for returning arbitrary delegations
     struct Delegation {
         DelegationType type_;
-        address delegate;
-        address vault;
+        address to;
+        address from;
         bytes32 rights;
         address contract_;
         uint256 tokenId;

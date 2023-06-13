@@ -605,16 +605,16 @@ contract DelegateSingularIntegrations is Test {
     function _checkDelegation(IRegistry.Delegation memory delegation) internal {
         if (_enable) {
             assertEq(uint256(delegation.type_), uint256(_type));
-            assertEq(delegation.delegate, _delegate);
-            assertEq(delegation.vault, _vault);
+            assertEq(delegation.to, _delegate);
+            assertEq(delegation.from, _vault);
             assertEq(delegation.rights, _rights);
             assertEq(delegation.contract_, _contract);
             assertEq(delegation.tokenId, _tokenId);
             assertEq(delegation.amount, _amount);
         } else {
             assertEq(uint256(delegation.type_), uint256(IRegistry.DelegationType.NONE));
-            assertEq(delegation.delegate, address(0));
-            assertEq(uint160(delegation.vault), uint160(0));
+            assertEq(delegation.to, address(0));
+            assertEq(uint160(delegation.from), uint160(0));
             assertEq(delegation.rights, "");
             assertEq(delegation.contract_, address(0));
             assertEq(delegation.tokenId, 0);
