@@ -9,12 +9,12 @@ contract RegistryHarness is DelegateRegistry {
         return _delegations[hash];
     }
 
-    function exposed_vaultDelegationHashes(address vault) external view returns (bytes32[] memory) {
-        return _vaultDelegationHashes[vault];
+    function exposed_outgoingDelegationHashes(address vault) external view returns (bytes32[] memory) {
+        return _outgoingDelegationHashes[vault];
     }
 
-    function exposed_delegateDelegationHashes(address delegate) external view returns (bytes32[] memory) {
-        return _delegateDelegationHashes[delegate];
+    function exposed_incomingDelegationHashes(address delegate) external view returns (bytes32[] memory) {
+        return _incomingDelegationHashes[delegate];
     }
 
     function exposed_computeDelegationHashForAll(address delegate, bytes32 rights, address vault) external pure returns (bytes32) {

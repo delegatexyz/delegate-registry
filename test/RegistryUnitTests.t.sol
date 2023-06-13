@@ -11,8 +11,8 @@ contract RegistryUnitTests is Test {
     Registry public registry;
 
     enum StoragePositions {
-        delegate,
-        vault,
+        to,
+        from,
         rights,
         contract_,
         tokenId,
@@ -62,16 +62,16 @@ contract RegistryUnitTests is Test {
         for (uint256 i = 0; i < negativeCases.length; i++) {
             cases = new bytes[](1);
             cases[0] = negativeCases[i];
-            vm.expectRevert(bytes("multicall failed"));
+            vm.expectRevert(IRegistry.MulticallFailed.selector);
             registry.multicall(cases);
         }
         // Negative multiple case
         cases = _randomizeAndReduce(negativeCases, negativeCases);
-        vm.expectRevert(bytes("multicall failed"));
+        vm.expectRevert(IRegistry.MulticallFailed.selector);
         registry.multicall(cases);
         // Multiple negative or positive cases (at least one of both)
         cases = _randomizeAndReduce(positiveCases, negativeCases);
-        vm.expectRevert(bytes("multicall failed"));
+        vm.expectRevert(IRegistry.MulticallFailed.selector);
         registry.multicall(cases);
     }
 
@@ -97,10 +97,10 @@ contract RegistryUnitTests is Test {
         data[7] = abi.encodeWithSelector(registry.checkDelegateForERC721.selector, delegate, vault, contract_, tokenId, rights);
         data[8] = abi.encodeWithSelector(registry.checkDelegateForERC20.selector, delegate, vault, contract_, rights);
         data[9] = abi.encodeWithSelector(registry.checkDelegateForERC1155.selector, delegate, vault, contract_, tokenId, rights);
-        data[10] = abi.encodeWithSelector(registry.getDelegationsForDelegate.selector, delegate);
-        data[11] = abi.encodeWithSelector(registry.getDelegationsForVault.selector, vault);
-        data[12] = abi.encodeWithSelector(registry.getDelegationHashesForDelegate.selector, delegate);
-        data[13] = abi.encodeWithSelector(registry.getDelegationHashesForVault.selector, vault);
+        data[10] = abi.encodeWithSelector(registry.getIncomingDelegations.selector, delegate);
+        data[11] = abi.encodeWithSelector(registry.getOutgoingDelegations.selector, vault);
+        data[12] = abi.encodeWithSelector(registry.getIncomingDelegationHashes.selector, delegate);
+        data[13] = abi.encodeWithSelector(registry.getOutgoingDelegationHashes.selector, vault);
         bytes32[] memory hashes = new bytes32[](1);
         hashes[0] = hash;
         data[14] = abi.encodeWithSelector(registry.getDelegationsFromHashes.selector, hashes);
@@ -168,7 +168,7 @@ contract RegistryUnitTests is Test {
      * ----------- delegate methods -----------
      */
 
-    event AllDelegated(address indexed vault, address indexed delegate, bytes32 rights, bool enable);
+    event DelegateAll(address indexed vault, address indexed delegate, bytes32 rights, bool enable);
 
     function testDelegateAll(address vault, address delegate, bytes32 rights, bool enable, uint256 n) public {
         vm.assume(vault > address(1) && n > 0 && n < 10);
@@ -185,7 +185,7 @@ contract RegistryUnitTests is Test {
             // Test correct event emitted
             vm.startPrank(vault);
             vm.expectEmit(true, true, true, true, address(harness));
-            emit AllDelegated(vault, delegate, rights, enable);
+            emit DelegateAll(vault, delegate, rights, enable);
             harness.delegateAll(delegate, rights, enable);
             vm.stopPrank();
             // Hashes should now exist regardless of true or false
@@ -197,7 +197,7 @@ contract RegistryUnitTests is Test {
                 // Disable again
                 vm.startPrank(vault);
                 vm.expectEmit(true, true, true, true, address(harness));
-                emit AllDelegated(vault, delegate, rights, false);
+                emit DelegateAll(vault, delegate, rights, false);
                 harness.delegateAll(delegate, rights, false);
                 vm.stopPrank();
                 // There should be no change to the hash mappings
@@ -210,7 +210,7 @@ contract RegistryUnitTests is Test {
         }
     }
 
-    event ContractDelegated(address indexed vault, address indexed delegate, address indexed contract_, bytes32 rights, bool enable);
+    event DelegateContract(address indexed vault, address indexed delegate, address indexed contract_, bytes32 rights, bool enable);
 
     function testDelegateContract(address vault, address delegate, address contract_, bytes32 rights, bool enable, uint256 n) public {
         vm.assume(vault > address(1) && n > 0 && n < 10);
@@ -221,7 +221,7 @@ contract RegistryUnitTests is Test {
         for (uint256 i = 0; i < n; i++) {
             vm.startPrank(vault);
             vm.expectEmit(true, true, true, true, address(harness));
-            emit ContractDelegated(vault, delegate, contract_, rights, enable);
+            emit DelegateContract(vault, delegate, contract_, rights, enable);
             harness.delegateContract(delegate, contract_, rights, enable);
             vm.stopPrank();
             _checkHashes(vault, delegate, hash, true);
@@ -229,7 +229,7 @@ contract RegistryUnitTests is Test {
                 _checkStorage(0, contract_, delegate, hash, rights, 0, vault);
                 vm.startPrank(vault);
                 vm.expectEmit(true, true, true, true, address(harness));
-                emit ContractDelegated(vault, delegate, contract_, rights, false);
+                emit DelegateContract(vault, delegate, contract_, rights, false);
                 harness.delegateContract(delegate, contract_, rights, false);
                 vm.stopPrank();
                 _checkHashes(vault, delegate, hash, true);
@@ -239,7 +239,7 @@ contract RegistryUnitTests is Test {
         }
     }
 
-    event ERC721Delegated(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bytes32 rights, bool enable);
+    event DelegateERC721(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bytes32 rights, bool enable);
 
     function testDelegateERC721(address vault, address delegate, address contract_, uint256 tokenId, bytes32 rights, bool enable, uint256 n) public {
         vm.assume(vault > address(1) && n > 0 && n < 10);
@@ -250,7 +250,7 @@ contract RegistryUnitTests is Test {
         for (uint256 i = 0; i < n; i++) {
             vm.startPrank(vault);
             vm.expectEmit(true, true, true, true, address(harness));
-            emit ERC721Delegated(vault, delegate, contract_, tokenId, rights, enable);
+            emit DelegateERC721(vault, delegate, contract_, tokenId, rights, enable);
             harness.delegateERC721(delegate, contract_, tokenId, rights, enable);
             vm.stopPrank();
             _checkHashes(vault, delegate, hash, true);
@@ -258,7 +258,7 @@ contract RegistryUnitTests is Test {
                 _checkStorage(0, contract_, delegate, hash, rights, tokenId, vault);
                 vm.startPrank(vault);
                 vm.expectEmit(true, true, true, true, address(harness));
-                emit ERC721Delegated(vault, delegate, contract_, tokenId, rights, false);
+                emit DelegateERC721(vault, delegate, contract_, tokenId, rights, false);
                 harness.delegateERC721(delegate, contract_, tokenId, rights, false);
                 vm.stopPrank();
                 _checkHashes(vault, delegate, hash, true);
@@ -268,7 +268,7 @@ contract RegistryUnitTests is Test {
         }
     }
 
-    event ERC20Delegated(address indexed vault, address indexed delegate, address indexed contract_, uint256 amount, bytes32 rights, bool enable);
+    event DelegateERC20(address indexed vault, address indexed delegate, address indexed contract_, uint256 amount, bytes32 rights, bool enable);
 
     function testDelegateERC20(address vault, address delegate, address contract_, uint256 amount, bytes32 rights, bool enable, uint256 n) public {
         vm.assume(vault > address(1) && n > 0 && n < 10);
@@ -279,14 +279,14 @@ contract RegistryUnitTests is Test {
         for (uint256 i = 0; i < n; i++) {
             vm.startPrank(vault);
             vm.expectEmit(true, true, true, true, address(harness));
-            emit ERC20Delegated(vault, delegate, contract_, amount, rights, enable);
+            emit DelegateERC20(vault, delegate, contract_, amount, rights, enable);
             harness.delegateERC20(delegate, contract_, amount, rights, enable);
             vm.stopPrank();
             _checkHashes(vault, delegate, hash, true);
             if (enable) {
                 _checkStorage(amount, contract_, delegate, hash, rights, 0, vault);
                 vm.startPrank(vault);
-                emit ERC20Delegated(vault, delegate, contract_, amount, rights, false);
+                emit DelegateERC20(vault, delegate, contract_, amount, rights, false);
                 harness.delegateERC20(delegate, contract_, amount, rights, false);
                 vm.stopPrank();
                 _checkHashes(vault, delegate, hash, true);
@@ -297,7 +297,7 @@ contract RegistryUnitTests is Test {
         }
     }
 
-    event ERC1155Delegated(
+    event DelegateERC1155(
         address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable
     );
 
@@ -310,14 +310,14 @@ contract RegistryUnitTests is Test {
         for (uint256 i = 0; i < (1 + amount % 10); i++) {
             vm.startPrank(vault);
             vm.expectEmit(true, true, true, true, address(harness));
-            emit ERC1155Delegated(vault, delegate, contract_, tokenId, amount, rights, enable);
+            emit DelegateERC1155(vault, delegate, contract_, tokenId, amount, rights, enable);
             harness.delegateERC1155(delegate, contract_, tokenId, amount, rights, enable);
             vm.stopPrank();
             _checkHashes(vault, delegate, hash, true);
             if (enable) {
                 _checkStorage(amount, contract_, delegate, hash, rights, tokenId, vault);
                 vm.startPrank(vault);
-                emit ERC1155Delegated(vault, delegate, contract_, tokenId, amount, rights, false);
+                emit DelegateERC1155(vault, delegate, contract_, tokenId, amount, rights, false);
                 harness.delegateERC1155(delegate, contract_, tokenId, amount, rights, false);
                 vm.stopPrank();
                 _checkHashes(vault, delegate, hash, true);
@@ -330,20 +330,20 @@ contract RegistryUnitTests is Test {
 
     function _checkHashes(address vault, address delegate, bytes32 hash, bool on) internal {
         if (on) {
-            assertEq(harness.exposed_vaultDelegationHashes(vault).length, 1);
-            assertEq(harness.exposed_vaultDelegationHashes(vault)[0], hash);
-            assertEq(harness.exposed_delegateDelegationHashes(delegate).length, 1);
-            assertEq(harness.exposed_delegateDelegationHashes(delegate)[0], hash);
+            assertEq(harness.exposed_outgoingDelegationHashes(vault).length, 1);
+            assertEq(harness.exposed_outgoingDelegationHashes(vault)[0], hash);
+            assertEq(harness.exposed_incomingDelegationHashes(delegate).length, 1);
+            assertEq(harness.exposed_incomingDelegationHashes(delegate)[0], hash);
         } else {
-            assertEq(harness.exposed_vaultDelegationHashes(vault).length, 0);
-            assertEq(harness.exposed_delegateDelegationHashes(delegate).length, 0);
+            assertEq(harness.exposed_outgoingDelegationHashes(vault).length, 0);
+            assertEq(harness.exposed_incomingDelegationHashes(delegate).length, 0);
         }
     }
 
     function _checkStorage(uint256 amount, address contract_, address delegate, bytes32 hash, bytes32 rights, uint256 tokenId, address vault) internal {
         assertEq(harness.exposed_delegations(hash).length, uint256(type(StoragePositions).max) + 1);
-        assertEq(address(uint160(uint256(harness.exposed_delegations(hash)[uint256(StoragePositions.delegate)]))), delegate);
-        assertEq(address(uint160(uint256(harness.exposed_delegations(hash)[uint256(StoragePositions.vault)]))), vault);
+        assertEq(address(uint160(uint256(harness.exposed_delegations(hash)[uint256(StoragePositions.to)]))), delegate);
+        assertEq(address(uint160(uint256(harness.exposed_delegations(hash)[uint256(StoragePositions.from)]))), vault);
         assertEq(harness.exposed_delegations(hash)[uint256(StoragePositions.rights)], rights);
         assertEq(address(uint160(uint256(harness.exposed_delegations(hash)[uint256(StoragePositions.contract_)]))), contract_);
         assertEq(uint256(harness.exposed_delegations(hash)[uint256(StoragePositions.tokenId)]), tokenId);

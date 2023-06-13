@@ -101,15 +101,15 @@ contract DelegateRegistryTest is Test {
         reg.delegateAll(delegate0, rights, true);
         reg.delegateAll(delegate1, rights, true);
         // Read
-        IDelegateRegistry.Delegation[] memory info = reg.getDelegationsForVault(vault);
+        IDelegateRegistry.Delegation[] memory info = reg.getOutgoingDelegations(vault);
         assertEq(info.length, 2);
-        assertEq(info[0].vault, vault);
-        assertEq(info[0].delegate, delegate0);
-        assertEq(info[1].vault, vault);
-        assertEq(info[1].delegate, delegate1);
+        assertEq(info[0].from, vault);
+        assertEq(info[0].to, delegate0);
+        assertEq(info[1].from, vault);
+        assertEq(info[1].to, delegate1);
         // Remove
         reg.delegateAll(delegate0, rights, false);
-        info = reg.getDelegationsForVault(vault);
+        info = reg.getOutgoingDelegations(vault);
         assertEq(info.length, 1);
     }
 
@@ -121,12 +121,12 @@ contract DelegateRegistryTest is Test {
         batchData[1] = abi.encodeWithSelector(IDelegateRegistry.delegateAll.selector, delegate1, "", true);
         reg.multicall(batchData);
 
-        IDelegateRegistry.Delegation[] memory delegations = reg.getDelegationsForVault(vault);
+        IDelegateRegistry.Delegation[] memory delegations = reg.getOutgoingDelegations(vault);
         assertEq(delegations.length, 2);
-        assertEq(delegations[0].vault, vault);
-        assertEq(delegations[1].vault, vault);
-        assertEq(delegations[0].delegate, delegate0);
-        assertEq(delegations[1].delegate, delegate1);
+        assertEq(delegations[0].from, vault);
+        assertEq(delegations[1].from, vault);
+        assertEq(delegations[0].to, delegate0);
+        assertEq(delegations[1].to, delegate1);
         assertTrue(delegations[0].type_ == IDelegateRegistry.DelegationType.ALL);
         assertTrue(delegations[1].type_ == IDelegateRegistry.DelegationType.ALL);
     }
@@ -175,23 +175,23 @@ contract DelegateRegistryTest is Test {
         // vault0 revokes all three tiers for delegate0, check incremental decrease in delegate enumerations
         changePrank(vault0);
         // check six in total, three from vault0 and three from vault1
-        assertEq(reg.getDelegationsForDelegate(delegate0).length, 10);
-        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 10);
+        assertEq(reg.getIncomingDelegations(delegate0).length, 10);
+        assertEq(reg.getIncomingDelegationHashes(delegate0).length, 10);
         reg.delegateAll(delegate0, rights, false);
-        assertEq(reg.getDelegationsForDelegate(delegate0).length, 9);
-        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 9);
+        assertEq(reg.getIncomingDelegations(delegate0).length, 9);
+        assertEq(reg.getIncomingDelegationHashes(delegate0).length, 9);
         reg.delegateContract(delegate0, contract0, rights, false);
-        assertEq(reg.getDelegationsForDelegate(delegate0).length, 8);
-        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 8);
+        assertEq(reg.getIncomingDelegations(delegate0).length, 8);
+        assertEq(reg.getIncomingDelegationHashes(delegate0).length, 8);
         reg.delegateERC721(delegate0, contract0, tokenId0, rights, false);
-        assertEq(reg.getDelegationsForDelegate(delegate0).length, 7);
-        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 7);
+        assertEq(reg.getIncomingDelegations(delegate0).length, 7);
+        assertEq(reg.getIncomingDelegationHashes(delegate0).length, 7);
         reg.delegateERC20(delegate0, contract0, amount0, rights, false);
-        assertEq(reg.getDelegationsForDelegate(delegate0).length, 6);
-        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 6);
+        assertEq(reg.getIncomingDelegations(delegate0).length, 6);
+        assertEq(reg.getIncomingDelegationHashes(delegate0).length, 6);
         reg.delegateERC1155(delegate0, contract0, tokenId0, amount0, rights, false);
-        assertEq(reg.getDelegationsForDelegate(delegate0).length, 5);
-        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 5);
+        assertEq(reg.getIncomingDelegations(delegate0).length, 5);
+        assertEq(reg.getIncomingDelegationHashes(delegate0).length, 5);
 
         // vault0 re-delegates to delegate0
         changePrank(vault0);
@@ -200,10 +200,10 @@ contract DelegateRegistryTest is Test {
         reg.delegateERC721(delegate0, contract0, tokenId0, rights, true);
         reg.delegateERC20(delegate0, contract0, amount0, rights, true);
         reg.delegateERC1155(delegate0, contract0, tokenId0, amount0, rights, true);
-        assertEq(reg.getDelegationsForDelegate(delegate0).length, 10);
-        assertEq(reg.getDelegationsForDelegate(delegate1).length, 5);
-        assertEq(reg.getDelegationHashesForDelegate(delegate0).length, 10);
-        assertEq(reg.getDelegationHashesForDelegate(delegate1).length, 5);
+        assertEq(reg.getIncomingDelegations(delegate0).length, 10);
+        assertEq(reg.getIncomingDelegations(delegate1).length, 5);
+        assertEq(reg.getIncomingDelegationHashes(delegate0).length, 10);
+        assertEq(reg.getIncomingDelegationHashes(delegate1).length, 5);
     }
 
     function testVaultEnumerations(address vault, address delegate0, address delegate1, address contract0, address contract1, uint256 tokenId, uint256 amount)
@@ -223,7 +223,7 @@ contract DelegateRegistryTest is Test {
 
         // Read
         IDelegateRegistry.Delegation[] memory vaultDelegations;
-        vaultDelegations = reg.getDelegationsForVault(vault);
+        vaultDelegations = reg.getOutgoingDelegations(vault);
         assertEq(vaultDelegations.length, 6);
         assertTrue(vaultDelegations[1].type_ == IDelegateRegistry.DelegationType.CONTRACT);
     }
@@ -245,14 +245,14 @@ contract DelegateRegistryTest is Test {
     function testGetDelegationsGas() public {
         uint256 delegationsLimit = 2600; // Actual limit is x5
         _createUniqueDelegations(0, delegationsLimit);
-        IDelegateRegistry.Delegation[] memory vaultDelegations = reg.getDelegationsForVault(address(this));
+        IDelegateRegistry.Delegation[] memory vaultDelegations = reg.getOutgoingDelegations(address(this));
         assertEq(vaultDelegations.length, 5 * delegationsLimit);
     }
 
     function testGetDelegationHashesGas() public {
         uint256 hashesLimit = 20800; // Actual limit is x5
         _createUniqueDelegations(0, hashesLimit);
-        bytes32[] memory vaultDelegationHashes = reg.getDelegationHashesForVault(address(this));
+        bytes32[] memory vaultDelegationHashes = reg.getOutgoingDelegationHashes(address(this));
         assertEq(vaultDelegationHashes.length, 5 * hashesLimit);
     }
 }
