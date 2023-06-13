@@ -160,21 +160,21 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForAll(address to, address from, bytes32 rights) public view override returns (bool valid) {
-        bytes32 location = _computeDelegationLocation(_computeDelegationHashForAll(to, "", from));
-        valid = _validateDelegation(location, from);
+        valid = _validateDelegation(_computeDelegationLocation(_computeDelegationHashForAll(to, "", from)), from);
         if (rights != "" && !valid) {
-            location = _computeDelegationLocation(_computeDelegationHashForAll(to, rights, from));
-            valid = _validateDelegation(location, from);
+            valid = _validateDelegation(_computeDelegationLocation(_computeDelegationHashForAll(to, rights, from)), from);
         }
     }
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForContract(address to, address from, address contract_, bytes32 rights) public view override returns (bool valid) {
-        bytes32 location = _computeDelegationLocation(_computeDelegationHashForContract(contract_, to, "", from));
-        valid = checkDelegateForAll(to, from, "") || _validateDelegation(location, from);
+        valid = checkDelegateForAll(to, from, "")
+            || _validateDelegation(_computeDelegationLocation(_computeDelegationHashForContract(contract_, to, "", from)), from);
         if (rights != "" && !valid) {
-            location = _computeDelegationLocation(_computeDelegationHashForContract(contract_, to, rights, from));
-            valid = checkDelegateForAll(to, from, rights) || _validateDelegation(location, from);
+            valid = (
+                _validateDelegation(_computeDelegationLocation(_computeDelegationHashForAll(to, rights, from)), from)
+                    || _validateDelegation(_computeDelegationLocation(_computeDelegationHashForContract(contract_, to, rights, from)), from)
+            );
         }
     }
 
