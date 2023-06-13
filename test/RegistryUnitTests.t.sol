@@ -11,8 +11,8 @@ contract RegistryUnitTests is Test {
     Registry public registry;
 
     enum StoragePositions {
-        delegate,
-        vault,
+        to,
+        from,
         rights,
         contract_,
         tokenId,
@@ -342,8 +342,8 @@ contract RegistryUnitTests is Test {
 
     function _checkStorage(uint256 amount, address contract_, address delegate, bytes32 hash, bytes32 rights, uint256 tokenId, address vault) internal {
         assertEq(harness.exposed_delegations(hash).length, uint256(type(StoragePositions).max) + 1);
-        assertEq(address(uint160(uint256(harness.exposed_delegations(hash)[uint256(StoragePositions.delegate)]))), delegate);
-        assertEq(address(uint160(uint256(harness.exposed_delegations(hash)[uint256(StoragePositions.vault)]))), vault);
+        assertEq(address(uint160(uint256(harness.exposed_delegations(hash)[uint256(StoragePositions.to)]))), delegate);
+        assertEq(address(uint160(uint256(harness.exposed_delegations(hash)[uint256(StoragePositions.from)]))), vault);
         assertEq(harness.exposed_delegations(hash)[uint256(StoragePositions.rights)], rights);
         assertEq(address(uint160(uint256(harness.exposed_delegations(hash)[uint256(StoragePositions.contract_)]))), contract_);
         assertEq(uint256(harness.exposed_delegations(hash)[uint256(StoragePositions.tokenId)]), tokenId);
