@@ -9,8 +9,9 @@ pragma solidity >=0.8.13;
  */
 interface IDelegateRegistry {
     /// @notice Delegation type
-    enum DelegationType {
-        NONE,
+    enum DelegationType
+    // NONE,
+    {
         ALL,
         CONTRACT,
         ERC721,
@@ -45,6 +46,9 @@ interface IDelegateRegistry {
     event ERC1155Delegated(
         address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable
     );
+
+    /// @notice Emitted if multicall calldata is malformed
+    error MulticallFailed();
 
     /**
      * -----------  WRITE -----------
@@ -104,33 +108,36 @@ interface IDelegateRegistry {
     function delegateERC1155(address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external;
 
     /**
-     * ----------- Consumable -----------
+     * ----------- CHECKS -----------
      */
 
     /**
-     * @notice Returns true if the delegate is granted rights to act on your behalf for an entire vault
+     * @notice Check if a delegate can act on a vault's behalf for an entire wallet
      * @param delegate The hotwallet to act on your behalf
      * @param vault The cold wallet who issued the delegation
      * @param rights Specific rights to check for, leave empty for full rights only
+     * @return valid Whether delegate is granted to act on the vault's behalf
      */
     function checkDelegateForAll(address delegate, address vault, bytes32 rights) external view returns (bool);
 
     /**
-     * @notice Returns true if the delegate is granted rights to act on your behalf for a specific contract
+     * @notice Check if a delegate can act on a vault's behalf for a specific contract
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address for the contract you're delegating
      * @param vault The cold wallet who issued the delegation
      * @param rights Specific rights to check for, leave empty for full rights only
+     * @return valid Whether delegate is granted to act on vault's behalf for entire wallet or that specific contract
      */
     function checkDelegateForContract(address delegate, address vault, address contract_, bytes32 rights) external view returns (bool);
 
     /**
-     * @notice Returns true if the delegate is granted rights to act on your behalf for a specific ERC721 token
+     * @notice Check if a delegate can act on a vault's behalf for a specific token
      * @param delegate The hotwallet to act on your behalf
      * @param contract_ The address for the contract you're delegating
      * @param tokenId The token id for the token you're delegating
      * @param vault The cold wallet who issued the delegation
      * @param rights Specific rights to check for, leave empty for full rights only
+     * @return valid Whether delegate is granted to act on vault's behalf for entire wallet, that contract, or that specific tokenId
      */
     function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights) external view returns (bool);
 
@@ -140,6 +147,7 @@ interface IDelegateRegistry {
      * @param contract_ The address of the token contract
      * @param vault The cold wallet who issued the delegation
      * @param rights Specific rights to check for, leave empty for full rights only
+     * @return balance The delegated balance, which will be 0 if the delegation does not exist
      */
     function checkDelegateForERC20(address delegate, address vault, address contract_, bytes32 rights) external view returns (uint256);
 
@@ -150,11 +158,12 @@ interface IDelegateRegistry {
      * @param tokenId the token id for the token you're delegating the amount of
      * @param vault The cold wallet who issued the delegation
      * @param rights Specific rights to check for, leave empty for full rights only
+     * @return balance The delegated balance, which will be 0 if the delegation does not exist
      */
     function checkDelegateForERC1155(address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights) external view returns (uint256);
 
     /**
-     * -----------  READ -----------
+     * ----------- ENUMERATIONS -----------
      */
 
     /**

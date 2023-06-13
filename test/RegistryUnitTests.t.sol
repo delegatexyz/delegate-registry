@@ -62,16 +62,16 @@ contract RegistryUnitTests is Test {
         for (uint256 i = 0; i < negativeCases.length; i++) {
             cases = new bytes[](1);
             cases[0] = negativeCases[i];
-            vm.expectRevert(bytes("multicall failed"));
+            vm.expectRevert(IRegistry.MulticallFailed.selector);
             registry.multicall(cases);
         }
         // Negative multiple case
         cases = _randomizeAndReduce(negativeCases, negativeCases);
-        vm.expectRevert(bytes("multicall failed"));
+        vm.expectRevert(IRegistry.MulticallFailed.selector);
         registry.multicall(cases);
         // Multiple negative or positive cases (at least one of both)
         cases = _randomizeAndReduce(positiveCases, negativeCases);
-        vm.expectRevert(bytes("multicall failed"));
+        vm.expectRevert(IRegistry.MulticallFailed.selector);
         registry.multicall(cases);
     }
 
