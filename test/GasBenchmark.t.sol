@@ -6,7 +6,7 @@ import {DelegationRegistry as Registry} from "src/DelegationRegistry.sol";
 import {IDelegationRegistry as IRegistry} from "src/IDelegationRegistry.sol";
 
 /// @dev for testing gas of write and consumable functions
-/// @dev "forge test --match-test GasBenchmark --gas-report"
+/// @dev "forge test --match-contract GasBenchmark --gas-report"
 contract GasBenchmark is Test {
     Registry registry;
 
@@ -44,13 +44,16 @@ contract GasBenchmark is Test {
         IRegistry.DelegationInfo[] memory delegations = _createDelegations(keccak256(abi.encode(seed, "delegations")));
         registry.delegateForAll(delegations[0].delegate, true);
         registry.checkDelegateForAll(delegations[0].delegate, vault);
+        registry.checkDelegateForAll(delegations[0].delegate, address(1));
         // Benchmark delegate contract and check contract
         registry = new Registry();
         registry.delegateForContract(delegations[1].delegate, delegations[1].contract_, true);
         registry.checkDelegateForContract(delegations[1].delegate, vault, delegations[1].contract_);
+        registry.checkDelegateForContract(delegations[1].delegate, vault, address(1));
         // Benchmark delegate erc721 and check erc721
         registry = new Registry();
         registry.delegateForToken(delegations[2].delegate, delegations[2].contract_, delegations[2].tokenId, true);
         registry.checkDelegateForToken(delegations[2].delegate, vault, delegations[2].contract_, delegations[2].tokenId);
+        registry.checkDelegateForToken(delegations[2].delegate, vault, address(1), delegations[2].tokenId);
     }
 }
