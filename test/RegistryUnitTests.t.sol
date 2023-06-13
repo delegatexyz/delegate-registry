@@ -97,10 +97,10 @@ contract RegistryUnitTests is Test {
         data[7] = abi.encodeWithSelector(registry.checkDelegateForERC721.selector, delegate, vault, contract_, tokenId, rights);
         data[8] = abi.encodeWithSelector(registry.checkDelegateForERC20.selector, delegate, vault, contract_, rights);
         data[9] = abi.encodeWithSelector(registry.checkDelegateForERC1155.selector, delegate, vault, contract_, tokenId, rights);
-        data[10] = abi.encodeWithSelector(registry.getDelegationsForDelegate.selector, delegate);
-        data[11] = abi.encodeWithSelector(registry.getDelegationsForVault.selector, vault);
-        data[12] = abi.encodeWithSelector(registry.getDelegationHashesForDelegate.selector, delegate);
-        data[13] = abi.encodeWithSelector(registry.getDelegationHashesForVault.selector, vault);
+        data[10] = abi.encodeWithSelector(registry.getIncomingDelegations.selector, delegate);
+        data[11] = abi.encodeWithSelector(registry.getOutgoingDelegations.selector, vault);
+        data[12] = abi.encodeWithSelector(registry.getIncomingDelegationHashes.selector, delegate);
+        data[13] = abi.encodeWithSelector(registry.getOutgoingDelegationHashes.selector, vault);
         bytes32[] memory hashes = new bytes32[](1);
         hashes[0] = hash;
         data[14] = abi.encodeWithSelector(registry.getDelegationsFromHashes.selector, hashes);

@@ -11,13 +11,13 @@ import {IDelegateRegistry} from "./IDelegateRegistry.sol";
  * @notice A standalone immutable registry storing delegated permissions from one wallet to another
  */
 contract DelegateRegistry is IDelegateRegistry {
-    /// @dev Only this mapping should be used to verify delegations; the other mappings are for record keeping only
+    /// @dev Only this mapping should be used to verify delegations; the other mappings are for recordkeeping only
     mapping(bytes32 delegationHash => bytes32[6] delegationStorage) internal _delegations;
 
-    /// @dev Vault delegation outbox, for pushing new hashes only
+    /// @dev Vault delegation enumeration outbox, for pushing new hashes only
     mapping(address vault => bytes32[] delegationHashes) internal _vaultDelegationHashes;
 
-    /// @dev Delegate delegation inbox, for pushing new hashes only
+    /// @dev Delegate delegation enumeration inbox, for pushing new hashes only
     mapping(address delegate => bytes32[] delegationHashes) internal _delegateDelegationHashes;
 
     /// @dev Standardizes storage positions of delegation data
@@ -233,22 +233,22 @@ contract DelegateRegistry is IDelegateRegistry {
      */
 
     /// @inheritdoc IDelegateRegistry
-    function getDelegationsForDelegate(address delegate) external view override returns (Delegation[] memory delegations) {
+    function getIncomingDelegations(address delegate) external view override returns (Delegation[] memory delegations) {
         delegations = _getValidDelegationsFromHashes(_delegateDelegationHashes[delegate]);
     }
 
     /// @inheritdoc IDelegateRegistry
-    function getDelegationsForVault(address vault) external view returns (Delegation[] memory delegations) {
+    function getOutgoingDelegations(address vault) external view returns (Delegation[] memory delegations) {
         delegations = _getValidDelegationsFromHashes(_vaultDelegationHashes[vault]);
     }
 
     /// @inheritdoc IDelegateRegistry
-    function getDelegationHashesForDelegate(address delegate) external view returns (bytes32[] memory delegationHashes) {
+    function getIncomingDelegationHashes(address delegate) external view returns (bytes32[] memory delegationHashes) {
         delegationHashes = _getValidDelegationHashesFromHashes(_delegateDelegationHashes[delegate]);
     }
 
     /// @inheritdoc IDelegateRegistry
-    function getDelegationHashesForVault(address vault) external view returns (bytes32[] memory delegationHashes) {
+    function getOutgoingDelegationHashes(address vault) external view returns (bytes32[] memory delegationHashes) {
         delegationHashes = _getValidDelegationHashesFromHashes(_vaultDelegationHashes[vault]);
     }
 
@@ -381,7 +381,7 @@ contract DelegateRegistry is IDelegateRegistry {
         }
     }
 
-    /// @dev Helper function that takes an array of delegation hashes and returns an array of Delegation structs with their on chain information
+    /// @dev Helper function that takes an array of delegation hashes and returns an array of Delegation structs with their onchain information
     function _getValidDelegationsFromHashes(bytes32[] storage hashes) private view returns (Delegation[] memory delegations) {
         uint256 count = 0;
         uint256 hashesLength = hashes.length;
