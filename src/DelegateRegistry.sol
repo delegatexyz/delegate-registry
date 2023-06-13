@@ -8,7 +8,7 @@ import {IDelegateRegistry} from "./IDelegateRegistry.sol";
  * @custom:version 2.0
  * @custom:coauthor foobar (0xfoobar)
  * @custom:coauthor mireynolds
- * @notice A standalone immutable registry storing delegated permissions from one wallet to another
+ * @notice A standalone immutable registry storing delegated permissions from one address to another
  */
 contract DelegateRegistry is IDelegateRegistry {
     /// @dev Only this mapping should be used to verify delegations; the other mappings are for recordkeeping only
@@ -179,12 +179,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function checkDelegateForERC721(address to, address from, address contract_, uint256 tokenId, bytes32 rights)
-        external
-        view
-        override
-        returns (bool valid)
-    {
+    function checkDelegateForERC721(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view override returns (bool valid) {
         bytes32 location = _computeDelegationLocation(_computeDelegationHashForERC721(contract_, to, "", tokenId, from));
         valid = checkDelegateForContract(to, from, contract_, "") || _validateDelegation(location, from);
         if (rights != "" && !valid) {
@@ -305,11 +300,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @dev Helper function to compute delegation hash for ERC721 delegation
-    function _computeDelegationHashForERC721(address contract_, address to, bytes32 rights, uint256 tokenId, address from)
-        internal
-        pure
-        returns (bytes32)
-    {
+    function _computeDelegationHashForERC721(address contract_, address to, bytes32 rights, uint256 tokenId, address from) internal pure returns (bytes32) {
         return _encodeLastByteWithType(keccak256(abi.encode(contract_, to, rights, tokenId, from)), DelegationType.ERC721);
     }
 
@@ -319,11 +310,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @dev Helper function to compute delegation hash for ERC1155 delegation
-    function _computeDelegationHashForERC1155(address contract_, address to, bytes32 rights, uint256 tokenId, address from)
-        internal
-        pure
-        returns (bytes32)
-    {
+    function _computeDelegationHashForERC1155(address contract_, address to, bytes32 rights, uint256 tokenId, address from) internal pure returns (bytes32) {
         return _encodeLastByteWithType(keccak256(abi.encode(contract_, to, rights, tokenId, from)), DelegationType.ERC1155);
     }
 

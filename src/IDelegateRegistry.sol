@@ -5,7 +5,7 @@ pragma solidity >=0.8.13;
  * @title IDelegateRegistry
  * @custom:version 2.0
  * @custom:author foobar (0xfoobar)
- * @notice A standalone immutable registry storing delegated permissions from one wallet to another
+ * @notice A standalone immutable registry storing delegated permissions from one address to another
  */
 interface IDelegateRegistry {
     /// @notice Delegation type
@@ -112,54 +112,54 @@ interface IDelegateRegistry {
 
     /**
      * @notice Check if a delegate can act on a from's behalf for an entire wallet
-     * @param delegate The potential delegate address
+     * @param to The potential delegate address
      * @param from The potential address who delegated rights
      * @param rights Specific rights to check for, leave empty for full rights only
      * @return valid Whether delegate is granted to act on the from's behalf
      */
-    function checkDelegateForAll(address delegate, address from, bytes32 rights) external view returns (bool);
+    function checkDelegateForAll(address to, address from, bytes32 rights) external view returns (bool);
 
     /**
      * @notice Check if a delegate can act on a from's behalf for a specific contract
-     * @param delegate The delegated address to check
+     * @param to The delegated address to check
      * @param contract_ The specific contract address being checked
      * @param from The cold wallet who issued the delegation
      * @param rights Specific rights to check for, leave empty for full rights only
      * @return valid Whether delegate is granted to act on from's behalf for entire wallet or that specific contract
      */
-    function checkDelegateForContract(address delegate, address from, address contract_, bytes32 rights) external view returns (bool);
+    function checkDelegateForContract(address to, address from, address contract_, bytes32 rights) external view returns (bool);
 
     /**
      * @notice Check if a delegate can act on a from's behalf for a specific token
-     * @param delegate The delegated address to check
+     * @param to The delegated address to check
      * @param contract_ The specific contract address being checked
      * @param tokenId The token id for the token to delegating
      * @param from The wallet that issued the delegation
      * @param rights Specific rights to check for, leave empty for full rights only
      * @return valid Whether delegate is granted to act on from's behalf for entire wallet, that contract, or that specific tokenId
      */
-    function checkDelegateForERC721(address delegate, address from, address contract_, uint256 tokenId, bytes32 rights) external view returns (bool);
+    function checkDelegateForERC721(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view returns (bool);
 
     /**
      * @notice Returns the amount of ERC20 tokens the delegate is granted rights to act on the behalf of
-     * @param delegate The delegated address to check
+     * @param to The delegated address to check
      * @param contract_ The address of the token contract
      * @param from The cold wallet who issued the delegation
      * @param rights Specific rights to check for, leave empty for full rights only
      * @return balance The delegated balance, which will be 0 if the delegation does not exist
      */
-    function checkDelegateForERC20(address delegate, address from, address contract_, bytes32 rights) external view returns (uint256);
+    function checkDelegateForERC20(address to, address from, address contract_, bytes32 rights) external view returns (uint256);
 
     /**
      * @notice Returns the amount of a ERC1155 tokens the delegate is granted rights to act on the behalf of
-     * @param delegate The delegated address to check
+     * @param to The delegated address to check
      * @param contract_ The address of the token contract
      * @param tokenId The token id to check the delegated amount of
      * @param from The cold wallet who issued the delegation
      * @param rights Specific rights to check for, leave empty for full rights only
      * @return balance The delegated balance, which will be 0 if the delegation does not exist
      */
-    function checkDelegateForERC1155(address delegate, address from, address contract_, uint256 tokenId, bytes32 rights) external view returns (uint256);
+    function checkDelegateForERC1155(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view returns (uint256);
 
     /**
      * ----------- ENUMERATIONS -----------
