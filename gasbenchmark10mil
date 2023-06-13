@@ -1,13 +1,13 @@
 | src/DelegateRegistry.sol:DelegateRegistry contract |                 |        |        |        |         |
 |----------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                    | Deployment Size |        |        |        |         |
-| 1688571                                            | 8466            |        |        |        |         |
+| 1721806                                            | 8632            |        |        |        |         |
 | Function Name                                      | min             | avg    | median | max    | # calls |
 | checkDelegateForAll                                | 3330            | 3693   | 3693   | 4056   | 2       |
-| checkDelegateForContract                           | 6226            | 6977   | 6977   | 7729   | 2       |
-| checkDelegateForERC1155                            | 9259            | 11311  | 11311  | 13363  | 2       |
-| checkDelegateForERC20                              | 9169            | 11199  | 11199  | 13229  | 2       |
-| checkDelegateForERC721                             | 9185            | 10341  | 10341  | 11497  | 2       |
+| checkDelegateForContract                           | 6127            | 6878   | 6878   | 7630   | 2       |
+| checkDelegateForERC1155                            | 9056            | 10254  | 10254  | 11452  | 2       |
+| checkDelegateForERC20                              | 8966            | 10142  | 10142  | 11319  | 2       |
+| checkDelegateForERC721                             | 8982            | 10138  | 10138  | 11294  | 2       |
 | delegateAll                                        | 136145          | 136145 | 136145 | 136145 | 2       |
 | delegateContract                                   | 136874          | 147824 | 147824 | 158774 | 2       |
 | delegateERC1155                                    | 181787          | 192737 | 192737 | 203687 | 2       |

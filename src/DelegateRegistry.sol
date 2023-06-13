@@ -159,7 +159,7 @@ contract DelegateRegistry is IDelegateRegistry {
      */
 
     /// @inheritdoc IDelegateRegistry
-    function checkDelegateForAll(address to, address from, bytes32 rights) public view override returns (bool valid) {
+    function checkDelegateForAll(address to, address from, bytes32 rights) external view override returns (bool valid) {
         valid = _validateDelegation(_computeLocation(_computeHashForAll(to, "", from)), from);
         if (rights != "" && !valid) {
             valid = _validateDelegation(_computeLocation(_computeHashForAll(to, rights, from)), from);
@@ -167,8 +167,9 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function checkDelegateForContract(address to, address from, address contract_, bytes32 rights) public view override returns (bool valid) {
-        valid = checkDelegateForAll(to, from, "") || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, "", from)), from);
+    function checkDelegateForContract(address to, address from, address contract_, bytes32 rights) external view override returns (bool valid) {
+        valid = _validateDelegation(_computeLocation(_computeHashForAll(to, "", from)), from)
+            || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, "", from)), from);
         if (rights != "" && !valid) {
             valid = (
                 _validateDelegation(_computeLocation(_computeHashForAll(to, rights, from)), from)
@@ -179,7 +180,8 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC721(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view override returns (bool valid) {
-        valid = checkDelegateForContract(to, from, contract_, "")
+        valid = _validateDelegation(_computeLocation(_computeHashForAll(to, "", from)), from)
+            || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, "", from)), from)
             || _validateDelegation(_computeLocation(_computeHashForERC721(contract_, to, "", tokenId, from)), from);
         if (rights != "" && !valid) {
             valid = (
@@ -193,14 +195,16 @@ contract DelegateRegistry is IDelegateRegistry {
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC20(address to, address from, address contract_, bytes32 rights) external view override returns (uint256 amount) {
         bytes32 location = _computeLocation(_computeHashForERC20(contract_, to, "", from));
-        amount = checkDelegateForContract(to, from, contract_, "")
-            ? type(uint256).max
-            : (_validateDelegation(location, from) ? _loadDelegationUint(location, StoragePositions.amount) : 0);
+        amount = (
+            _validateDelegation(_computeLocation(_computeHashForAll(to, "", from)), from)
+                || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, "", from)), from)
+        ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, StoragePositions.amount) : 0);
         if (rights != "" && amount != type(uint256).max) {
             location = _computeLocation(_computeHashForERC20(contract_, to, rights, from));
-            uint256 rightsBalance = checkDelegateForContract(to, from, contract_, rights)
-                ? type(uint256).max
-                : (_validateDelegation(location, from) ? _loadDelegationUint(location, StoragePositions.amount) : 0);
+            uint256 rightsBalance = (
+                _validateDelegation(_computeLocation(_computeHashForAll(to, rights, from)), from)
+                    || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, rights, from)), from)
+            ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, StoragePositions.amount) : 0);
             amount = rightsBalance > amount ? rightsBalance : amount;
         }
     }
@@ -213,14 +217,16 @@ contract DelegateRegistry is IDelegateRegistry {
         returns (uint256 amount)
     {
         bytes32 location = _computeLocation(_computeHashForERC1155(contract_, to, "", tokenId, from));
-        amount = checkDelegateForContract(to, from, contract_, "")
-            ? type(uint256).max
-            : (_validateDelegation(location, from) ? _loadDelegationUint(location, StoragePositions.amount) : 0);
+        amount = (
+            _validateDelegation(_computeLocation(_computeHashForAll(to, "", from)), from)
+                || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, "", from)), from)
+        ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, StoragePositions.amount) : 0);
         if (rights != "" && amount != type(uint256).max) {
             location = _computeLocation(_computeHashForERC1155(contract_, to, rights, tokenId, from));
-            uint256 rightsBalance = checkDelegateForContract(to, from, contract_, rights)
-                ? type(uint256).max
-                : (_validateDelegation(location, from) ? _loadDelegationUint(location, StoragePositions.amount) : 0);
+            uint256 rightsBalance = (
+                _validateDelegation(_computeLocation(_computeHashForAll(to, rights, from)), from)
+                    || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, rights, from)), from)
+            ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, StoragePositions.amount) : 0);
             amount = rightsBalance > amount ? rightsBalance : amount;
         }
     }
