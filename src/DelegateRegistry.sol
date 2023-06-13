@@ -263,15 +263,8 @@ contract DelegateRegistry is IDelegateRegistry {
                 location = _computeDelegationLocation(hashes[i]);
                 vault = _loadDelegationAddress(location, StoragePositions.from);
                 if (vault == DELEGATION_EMPTY || vault == DELEGATION_REVOKED) {
-                    delegations[i] = Delegation({
-                        type_: DelegationType.NONE,
-                        to: address(0),
-                        from: address(0),
-                        rights: "",
-                        amount: 0,
-                        contract_: address(0),
-                        tokenId: 0
-                    });
+                    delegations[i] =
+                        Delegation({type_: DelegationType.NONE, to: address(0), from: address(0), rights: "", amount: 0, contract_: address(0), tokenId: 0});
                 } else {
                     delegations[i] = Delegation({
                         type_: _decodeLastByteToType(hashes[i]),
@@ -422,16 +415,18 @@ contract DelegateRegistry is IDelegateRegistry {
         uint256 hashesLength = hashes.length;
         bytes32 hash;
         bytes32[] memory filteredHashes = new bytes32[](hashesLength);
-        for (uint256 i = 0; i < hashesLength; ++i) {
-            hash = hashes[i];
-            if (_loadDelegationAddress(_computeDelegationLocation(hash), StoragePositions.from) > DELEGATION_REVOKED) {
-                filteredHashes[count] = hash;
-                ++count;
+        unchecked {
+            for (uint256 i = 0; i < hashesLength; ++i) {
+                hash = hashes[i];
+                if (_loadDelegationAddress(_computeDelegationLocation(hash), StoragePositions.from) > DELEGATION_REVOKED) {
+                    filteredHashes[count] = hash;
+                    ++count;
+                }
             }
-        }
-        validHashes = new bytes32[](count);
-        for (uint256 i = 0; i < count; ++i) {
-            validHashes[i] = filteredHashes[i];
+            validHashes = new bytes32[](count);
+            for (uint256 i = 0; i < count; ++i) {
+                validHashes[i] = filteredHashes[i];
+            }
         }
     }
 
