@@ -478,9 +478,7 @@ contract DelegateSingularIntegrations is Test {
         // Check outcomes of getIncomingDelegationHashes
         assertEq(registry.getIncomingDelegationHashes(_delegate).length == 1, _enable);
         if (_enable) {
-            assertEq(
-                registry.getIncomingDelegationHashes(_delegate)[0], harness.exposed_computeDelegationHashForERC20(_contract, _delegate, _rights, _vault)
-            );
+            assertEq(registry.getIncomingDelegationHashes(_delegate)[0], harness.exposed_computeDelegationHashForERC20(_contract, _delegate, _rights, _vault));
         }
         // Check outcomes of getOutgoingDelegationHashes
         assertEq(registry.getOutgoingDelegationHashes(_vault).length == 1, _enable);

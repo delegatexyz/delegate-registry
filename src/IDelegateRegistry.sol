@@ -168,29 +168,29 @@ interface IDelegateRegistry {
      */
 
     /**
-     * @notice Returns all enabled delegations a given delegate has been granted
-     * @param delegate The delegate to retrieve delegations for
+     * @notice Returns all enabled delegations a given delegate has received
+     * @param delegate The address to retrieve delegations for
      * @return delegations Array of Delegation structs
      */
     function getIncomingDelegations(address delegate) external view returns (Delegation[] memory delegations);
 
     /**
-     * @notice Returns all enabled delegations a vault has granted
-     * @param vault The vault to retrieve delegations for
+     * @notice Returns all enabled delegations an address has given out
+     * @param vault The address to retrieve delegations for
      * @return delegations Array of Delegation structs
      */
     function getOutgoingDelegations(address vault) external view returns (Delegation[] memory delegations);
 
     /**
-     * @notice Returns all hashes associated with enabled delegations a delegate has been granted
+     * @notice Returns all hashes associated with enabled delegations an address has received
      * @param delegate The delegate to retrieve the delegation hashes for
      * @return delegationHashes Array of delegation hashes
      */
     function getIncomingDelegationHashes(address delegate) external view returns (bytes32[] memory delegationHashes);
 
     /**
-     * @notice Returns all hashes associated with enabled delegations a vault has granted
-     * @param vault The vault to retrieve the delegation hashes for
+     * @notice Returns all hashes associated with enabled delegations an address has given out
+     * @param vault The address to retrieve the delegation hashes for
      * @return delegationHashes Array of delegation hashes
      */
     function getOutgoingDelegationHashes(address vault) external view returns (bytes32[] memory delegationHashes);
@@ -198,8 +198,7 @@ interface IDelegateRegistry {
     /**
      * @notice Returns the delegations for a given array of delegation hashes
      * @param delegationHashes is an array of hashes that correspond to delegations
-     * @return delegations Array of Delegation structs, empty structs will be returned for invalid or nonexistent
-     * delegations
+     * @return delegations Array of Delegation structs, return empty structs for nonexistent or revoked delegations
      */
     function getDelegationsFromHashes(bytes32[] calldata delegationHashes) external view returns (Delegation[] memory delegations);
 }
