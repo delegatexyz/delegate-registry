@@ -175,7 +175,7 @@ contract RegistryUnitTests is Test {
         // Create new harness
         harness = new Harness();
         // Calculate hash
-        bytes32 hash = harness.exposed_computeDelegationHashForAll(delegate, rights, vault);
+        bytes32 hash = harness.exposed_computeHashForAll(delegate, rights, vault);
         // Hashes should not exist yet
         _checkHashes(vault, delegate, hash, false);
         // Storage should not exist yet
@@ -215,7 +215,7 @@ contract RegistryUnitTests is Test {
     function testDelegateContract(address vault, address delegate, address contract_, bytes32 rights, bool enable, uint256 n) public {
         vm.assume(vault > address(1) && n > 0 && n < 10);
         harness = new Harness();
-        bytes32 hash = harness.exposed_computeDelegationHashForContract(contract_, delegate, rights, vault);
+        bytes32 hash = harness.exposed_computeHashForContract(contract_, delegate, rights, vault);
         _checkHashes(vault, delegate, hash, false);
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         for (uint256 i = 0; i < n; i++) {
@@ -244,7 +244,7 @@ contract RegistryUnitTests is Test {
     function testDelegateERC721(address vault, address delegate, address contract_, uint256 tokenId, bytes32 rights, bool enable, uint256 n) public {
         vm.assume(vault > address(1) && n > 0 && n < 10);
         harness = new Harness();
-        bytes32 hash = harness.exposed_computeDelegationHashForERC721(contract_, delegate, rights, tokenId, vault);
+        bytes32 hash = harness.exposed_computeHashForERC721(contract_, delegate, rights, tokenId, vault);
         _checkHashes(vault, delegate, hash, false);
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         for (uint256 i = 0; i < n; i++) {
@@ -273,7 +273,7 @@ contract RegistryUnitTests is Test {
     function testDelegateERC20(address vault, address delegate, address contract_, uint256 amount, bytes32 rights, bool enable, uint256 n) public {
         vm.assume(vault > address(1) && n > 0 && n < 10);
         harness = new Harness();
-        bytes32 hash = harness.exposed_computeDelegationHashForERC20(contract_, delegate, rights, vault);
+        bytes32 hash = harness.exposed_computeHashForERC20(contract_, delegate, rights, vault);
         _checkHashes(vault, delegate, hash, false);
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         for (uint256 i = 0; i < n; i++) {
@@ -304,7 +304,7 @@ contract RegistryUnitTests is Test {
     function testDelegateERC1155(address vault, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) public {
         vm.assume(vault > address(1));
         harness = new Harness();
-        bytes32 hash = harness.exposed_computeDelegationHashForERC1155(contract_, delegate, rights, tokenId, vault);
+        bytes32 hash = harness.exposed_computeHashForERC1155(contract_, delegate, rights, tokenId, vault);
         _checkHashes(vault, delegate, hash, false);
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         for (uint256 i = 0; i < (1 + amount % 10); i++) {

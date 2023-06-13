@@ -1,16 +1,16 @@
 | src/DelegateRegistry.sol:DelegateRegistry contract |                 |        |        |        |         |
 |----------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                    | Deployment Size |        |        |        |         |
-| 1692178                                            | 8484            |        |        |        |         |
+| 1721806                                            | 8632            |        |        |        |         |
 | Function Name                                      | min             | avg    | median | max    | # calls |
-| checkDelegateForAll                                | 3339            | 3704   | 3704   | 4069   | 2       |
-| checkDelegateForContract                           | 6244            | 7417   | 7417   | 8590   | 2       |
-| checkDelegateForERC1155                            | 9273            | 11753  | 11753  | 14234  | 2       |
-| checkDelegateForERC20                              | 9183            | 11640  | 11640  | 14097  | 2       |
-| checkDelegateForERC721                             | 9212            | 11652  | 11652  | 14093  | 2       |
-| delegateAll                                        | 136141          | 136141 | 136141 | 136141 | 2       |
-| delegateContract                                   | 136870          | 147820 | 147820 | 158770 | 2       |
-| delegateERC1155                                    | 181783          | 192733 | 192733 | 203683 | 2       |
-| delegateERC20                                      | 159290          | 170240 | 170240 | 181190 | 2       |
-| delegateERC721                                     | 159345          | 170295 | 170295 | 181245 | 2       |
-| multicall                                          | 778710          | 778710 | 778710 | 778710 | 1       |
+| checkDelegateForAll                                | 3330            | 3693   | 3693   | 4056   | 2       |
+| checkDelegateForContract                           | 6127            | 6878   | 6878   | 7630   | 2       |
+| checkDelegateForERC1155                            | 9056            | 10254  | 10254  | 11452  | 2       |
+| checkDelegateForERC20                              | 8966            | 10142  | 10142  | 11319  | 2       |
+| checkDelegateForERC721                             | 8982            | 10138  | 10138  | 11294  | 2       |
+| delegateAll                                        | 136145          | 136145 | 136145 | 136145 | 2       |
+| delegateContract                                   | 136874          | 147824 | 147824 | 158774 | 2       |
+| delegateERC1155                                    | 181787          | 192737 | 192737 | 203687 | 2       |
+| delegateERC20                                      | 159294          | 170244 | 170244 | 181194 | 2       |
+| delegateERC721                                     | 159349          | 170299 | 170299 | 181249 | 2       |
+| multicall                                          | 778730          | 778730 | 778730 | 778730 | 1       |
