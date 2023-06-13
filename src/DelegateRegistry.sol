@@ -64,7 +64,7 @@ contract DelegateRegistry is IDelegateRegistry {
             _writeDelegation(location, StoragePositions.vault, DELEGATION_EXISTED);
             if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
         }
-        emit AllDelegated(msg.sender, delegate, rights, enable);
+        emit DelegateAll(msg.sender, delegate, rights, enable);
     }
 
     /// @inheritdoc IDelegateRegistry
@@ -83,7 +83,7 @@ contract DelegateRegistry is IDelegateRegistry {
             _writeDelegation(location, StoragePositions.vault, DELEGATION_EXISTED);
             if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
         }
-        emit ContractDelegated(msg.sender, delegate, contract_, rights, enable);
+        emit DelegateContract(msg.sender, delegate, contract_, rights, enable);
     }
 
     /// @inheritdoc IDelegateRegistry
@@ -104,7 +104,7 @@ contract DelegateRegistry is IDelegateRegistry {
             _writeDelegation(location, StoragePositions.tokenId, "");
             if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
         }
-        emit ERC721Delegated(msg.sender, delegate, contract_, tokenId, rights, enable);
+        emit DelegateERC721(msg.sender, delegate, contract_, tokenId, rights, enable);
     }
 
     // @inheritdoc IDelegateRegistry
@@ -125,7 +125,7 @@ contract DelegateRegistry is IDelegateRegistry {
             _writeDelegation(location, StoragePositions.amount, "");
             if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
         }
-        emit ERC20Delegated(msg.sender, delegate, contract_, amount, rights, enable);
+        emit DelegateERC20(msg.sender, delegate, contract_, amount, rights, enable);
     }
 
     /**
@@ -151,7 +151,7 @@ contract DelegateRegistry is IDelegateRegistry {
             _writeDelegation(location, StoragePositions.tokenId, "");
             if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
         }
-        emit ERC1155Delegated(msg.sender, delegate, contract_, tokenId, amount, rights, enable);
+        emit DelegateERC1155(msg.sender, delegate, contract_, tokenId, amount, rights, enable);
     }
 
     /**
@@ -262,9 +262,9 @@ contract DelegateRegistry is IDelegateRegistry {
             for (uint256 i = 0; i < hashes.length; ++i) {
                 location = _computeDelegationLocation(hashes[i]);
                 vault = _loadDelegationAddress(location, StoragePositions.vault);
-                if (vault == address(1) || vault == address(0)) {
+                if (vault == DELEGATION_UNKNOWN || vault == DELEGATION_EXISTED) {
                     delegations[i] = Delegation({
-                        type_: _decodeLastByteToType(hashes[i]),
+                        type_: DelegationType.NONE,
                         delegate: address(0),
                         vault: address(0),
                         rights: "",

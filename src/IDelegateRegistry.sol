@@ -9,9 +9,8 @@ pragma solidity >=0.8.13;
  */
 interface IDelegateRegistry {
     /// @notice Delegation type
-    enum DelegationType
-    // NONE,
-    {
+    enum DelegationType {
+        NONE,
         ALL,
         CONTRACT,
         ERC721,
@@ -31,19 +30,19 @@ interface IDelegateRegistry {
     }
 
     /// @notice Emitted when a user delegates rights for their entire wallet
-    event AllDelegated(address indexed vault, address indexed delegate, bytes32 rights, bool enable);
+    event DelegateAll(address indexed vault, address indexed delegate, bytes32 rights, bool enable);
 
     /// @notice Emitted when a user delegates rights for a specific contract
-    event ContractDelegated(address indexed vault, address indexed delegate, address indexed contract_, bytes32 rights, bool enable);
+    event DelegateContract(address indexed vault, address indexed delegate, address indexed contract_, bytes32 rights, bool enable);
 
     /// @notice Emitted when a user delegates rights for a specific ERC721 token
-    event ERC721Delegated(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bytes32 rights, bool enable);
+    event DelegateERC721(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bytes32 rights, bool enable);
 
     /// @notice Emitted when a user delegates rights for a specific amount of ERC20 tokens
-    event ERC20Delegated(address indexed vault, address indexed delegate, address indexed contract_, uint256 amount, bytes32 rights, bool enable);
+    event DelegateERC20(address indexed vault, address indexed delegate, address indexed contract_, uint256 amount, bytes32 rights, bool enable);
 
     /// @notice Emitted when a user delegates rights for a specific amount of ERC1155 tokens
-    event ERC1155Delegated(
+    event DelegateERC1155(
         address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable
     );
 

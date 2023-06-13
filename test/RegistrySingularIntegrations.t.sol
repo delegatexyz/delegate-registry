@@ -614,9 +614,9 @@ contract DelegateSingularIntegrations is Test {
             assertEq(delegation.tokenId, _tokenId);
             assertEq(delegation.amount, _amount);
         } else {
-            assertEq(uint256(delegation.type_), uint256(_type));
+            assertEq(uint256(delegation.type_), uint256(IRegistry.DelegationType.NONE));
             assertEq(delegation.delegate, address(0));
-            assertLe(uint160(delegation.vault), uint160(address(1)));
+            assertEq(uint160(delegation.vault), uint160(0));
             assertEq(delegation.rights, "");
             assertEq(delegation.contract_, address(0));
             assertEq(delegation.tokenId, 0);
