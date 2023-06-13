@@ -396,10 +396,7 @@ contract DelegateRegistry is IDelegateRegistry {
         unchecked {
             for (uint256 i = 0; i < hashesLength; ++i) {
                 hash = hashes[i];
-                if (_loadDelegationAddress(_computeLocation(hash), StoragePositions.from) > DELEGATION_REVOKED) {
-                    filteredHashes[count] = hash;
-                    ++count;
-                }
+                if (_loadDelegationAddress(_computeLocation(hash), StoragePositions.from) > DELEGATION_REVOKED) filteredHashes[count++] = hash;
             }
             validHashes = new bytes32[](count);
             for (uint256 i = 0; i < count; ++i) {
