@@ -14,7 +14,7 @@ bytecode_hash = "none"
 # via_ir = true
 
 [fmt]
-line_length = 160
+line_length = 170
 wrap_comments = true # Increases readability of comments
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

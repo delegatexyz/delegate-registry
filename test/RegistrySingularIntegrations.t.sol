@@ -64,8 +64,7 @@ contract DelegateSingularIntegrations is Test {
         _fRights = fRights;
         _amount = amount;
         _type = type_;
-        uint256 randomize =
-            uint256(keccak256(abi.encode(vault, fVault, delegate, fDelegate, contract_, fContract, tokenId, fTokenId, rights, fRights, amount, type_)));
+        uint256 randomize = uint256(keccak256(abi.encode(vault, fVault, delegate, fDelegate, contract_, fContract, tokenId, fTokenId, rights, fRights, amount, type_)));
         _enable = randomize % 2 == 1;
         _multicall = uint256(keccak256(abi.encode(randomize))) % 2 == 1;
     }
@@ -87,9 +86,7 @@ contract DelegateSingularIntegrations is Test {
     }
 
     // Tests delegateAll case with default rights
-    function testDelegateAllDefault(address vault, address fVault, address delegate, address fDelegate, bytes32 fRights, address fContract, uint256 fTokenId)
-        public
-    {
+    function testDelegateAllDefault(address vault, address fVault, address delegate, address fDelegate, bytes32 fRights, address fContract, uint256 fTokenId) public {
         bytes32 rights = "";
         _setParameters(vault, fVault, delegate, fDelegate, address(0), fContract, 0, fTokenId, rights, fRights, 0, IRegistry.DelegationType.ALL);
         _testDelegateAll();

@@ -142,9 +142,7 @@ contract AirdropTest is Test {
         }
     }
 
-    function testAirdropWithDelegate(uint256 addressSeed, uint256 amountSeed, uint256 n, address referenceToken, uint256 delegateSeed, uint256 allowanceSeed)
-        public
-    {
+    function testAirdropWithDelegate(uint256 addressSeed, uint256 amountSeed, uint256 n, address referenceToken, uint256 delegateSeed, uint256 allowanceSeed) public {
         vm.assume(n > 1 && n < MAX_AIRDROP_SIZE && addressSeed != amountSeed && addressSeed != delegateSeed && addressSeed != allowanceSeed);
         vm.assume(amountSeed != delegateSeed && amountSeed != allowanceSeed);
         vm.assume(delegateSeed != allowanceSeed);

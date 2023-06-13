@@ -161,9 +161,7 @@ contract DelegateRegistry is IDelegateRegistry {
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForAll(address to, address from, bytes32 rights) external view override returns (bool valid) {
         valid = _validateDelegation(_computeLocation(_computeHashForAll(to, "", from)), from);
-        if (rights != "" && !valid) {
-            valid = _validateDelegation(_computeLocation(_computeHashForAll(to, rights, from)), from);
-        }
+        if (rights != "" && !valid) valid = _validateDelegation(_computeLocation(_computeHashForAll(to, rights, from)), from);
     }
 
     /// @inheritdoc IDelegateRegistry
@@ -171,10 +169,8 @@ contract DelegateRegistry is IDelegateRegistry {
         valid = _validateDelegation(_computeLocation(_computeHashForAll(to, "", from)), from)
             || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, "", from)), from);
         if (rights != "" && !valid) {
-            valid = (
-                _validateDelegation(_computeLocation(_computeHashForAll(to, rights, from)), from)
-                    || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, rights, from)), from)
-            );
+            valid = _validateDelegation(_computeLocation(_computeHashForAll(to, rights, from)), from)
+                || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, rights, from)), from);
         }
     }
 
@@ -184,11 +180,9 @@ contract DelegateRegistry is IDelegateRegistry {
             || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, "", from)), from)
             || _validateDelegation(_computeLocation(_computeHashForERC721(contract_, to, "", tokenId, from)), from);
         if (rights != "" && !valid) {
-            valid = (
-                _validateDelegation(_computeLocation(_computeHashForAll(to, rights, from)), from)
-                    || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, rights, from)), from)
-                    || _validateDelegation(_computeLocation(_computeHashForERC721(contract_, to, rights, tokenId, from)), from)
-            );
+            valid = _validateDelegation(_computeLocation(_computeHashForAll(to, rights, from)), from)
+                || _validateDelegation(_computeLocation(_computeHashForContract(contract_, to, rights, from)), from)
+                || _validateDelegation(_computeLocation(_computeHashForERC721(contract_, to, rights, tokenId, from)), from);
         }
     }
 
@@ -210,12 +204,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function checkDelegateForERC1155(address to, address from, address contract_, uint256 tokenId, bytes32 rights)
-        external
-        view
-        override
-        returns (uint256 amount)
-    {
+    function checkDelegateForERC1155(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view override returns (uint256 amount) {
         bytes32 location = _computeLocation(_computeHashForERC1155(contract_, to, "", tokenId, from));
         amount = (
             _validateDelegation(_computeLocation(_computeHashForAll(to, "", from)), from)
@@ -265,8 +254,7 @@ contract DelegateRegistry is IDelegateRegistry {
                 location = _computeLocation(hashes[i]);
                 from = _loadDelegationAddress(location, StoragePositions.from);
                 if (from == DELEGATION_EMPTY || from == DELEGATION_REVOKED) {
-                    delegations[i] =
-                        Delegation({type_: DelegationType.NONE, to: address(0), from: address(0), rights: "", amount: 0, contract_: address(0), tokenId: 0});
+                    delegations[i] = Delegation({type_: DelegationType.NONE, to: address(0), from: address(0), rights: "", amount: 0, contract_: address(0), tokenId: 0});
                 } else {
                     delegations[i] = Delegation({
                         type_: _decodeLastByteToType(hashes[i]),
@@ -377,10 +365,7 @@ contract DelegateRegistry is IDelegateRegistry {
         unchecked {
             for (uint256 i = 0; i < hashesLength; ++i) {
                 hash = hashes[i];
-                if (_loadDelegationAddress(_computeLocation(hash), StoragePositions.from) > DELEGATION_REVOKED) {
-                    filteredHashes[count] = hash;
-                    ++count;
-                }
+                if (_loadDelegationAddress(_computeLocation(hash), StoragePositions.from) > DELEGATION_REVOKED) filteredHashes[count++] = hash;
             }
             delegations = new Delegation[](count);
             bytes32 location;

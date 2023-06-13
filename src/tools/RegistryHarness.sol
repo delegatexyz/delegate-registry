@@ -25,11 +25,7 @@ contract RegistryHarness is DelegateRegistry {
         return _computeHashForContract(contract_, delegate, rights, vault);
     }
 
-    function exposed_computeHashForERC721(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault)
-        external
-        pure
-        returns (bytes32)
-    {
+    function exposed_computeHashForERC721(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault) external pure returns (bytes32) {
         return _computeHashForERC721(contract_, delegate, rights, tokenId, vault);
     }
 
@@ -37,11 +33,7 @@ contract RegistryHarness is DelegateRegistry {
         return _computeHashForERC20(contract_, delegate, rights, vault);
     }
 
-    function exposed_computeHashForERC1155(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault)
-        external
-        pure
-        returns (bytes32)
-    {
+    function exposed_computeHashForERC1155(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault) external pure returns (bytes32) {
         return _computeHashForERC1155(contract_, delegate, rights, tokenId, vault);
     }
 

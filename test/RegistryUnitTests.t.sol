@@ -107,11 +107,7 @@ contract RegistryUnitTests is Test {
         data[15] = abi.encodeWithSelector(registry.supportsInterface.selector, interfaceId);
     }
 
-    function _multicallNegativeCases(address vault, address delegate, bytes32 hash, uint8 position, uint256 tokenId)
-        internal
-        pure
-        returns (bytes[] memory data)
-    {
+    function _multicallNegativeCases(address vault, address delegate, bytes32 hash, uint8 position, uint256 tokenId) internal pure returns (bytes[] memory data) {
         data = new bytes[](4);
         data[0] = abi.encodeWithSelector(bytes4(keccak256(bytes("_pushDelegationHashes(address,address,bytes32)"))), vault, delegate, hash);
         data[1] = abi.encodeWithSelector(bytes4(keccak256(bytes("_writeDelegation(bytes32,uint8,bytes32)"))), hash, position, hash);
@@ -297,9 +293,7 @@ contract RegistryUnitTests is Test {
         }
     }
 
-    event DelegateERC1155(
-        address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable
-    );
+    event DelegateERC1155(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable);
 
     function testDelegateERC1155(address vault, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) public {
         vm.assume(vault > address(1));
@@ -354,16 +348,9 @@ contract RegistryUnitTests is Test {
      * ----------- consumables -----------
      */
 
-    function testCheckDelegateForAll(
-        address vault,
-        bytes32 rights,
-        bool enable,
-        address delegate,
-        address contract_,
-        uint256 tokenId,
-        uint256 amount,
-        bytes32 fRights
-    ) public {
+    function testCheckDelegateForAll(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights)
+        public
+    {
         vm.assume(vault > address(1));
         if (amount % 2 == 0) vm.assume(rights == "");
         // new registry
@@ -440,16 +427,9 @@ contract RegistryUnitTests is Test {
         assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, rights));
     }
 
-    function testCheckDelegateForERC721(
-        address vault,
-        bytes32 rights,
-        bool enable,
-        address delegate,
-        address contract_,
-        uint256 tokenId,
-        uint256 amount,
-        bytes32 fRights
-    ) public {
+    function testCheckDelegateForERC721(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights)
+        public
+    {
         vm.assume(vault > address(1));
         if (amount % 2 == 0) vm.assume(rights == "");
         registry = new Registry();
@@ -498,16 +478,9 @@ contract RegistryUnitTests is Test {
         assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
     }
 
-    function testCheckDelegateForERC20(
-        address vault,
-        bytes32 rights,
-        bool enable,
-        address delegate,
-        address contract_,
-        uint256 tokenId,
-        uint256 amount,
-        bytes32 fRights
-    ) public {
+    function testCheckDelegateForERC20(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights)
+        public
+    {
         vm.assume(vault > address(1));
         if (amount % 2 == 0) vm.assume(rights == "");
         registry = new Registry();
