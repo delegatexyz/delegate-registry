@@ -3,11 +3,11 @@
 | Deployment Cost                                    | Deployment Size |        |        |        |         |
 | 1692178                                            | 8484            |        |        |        |         |
 | Function Name                                      | min             | avg    | median | max    | # calls |
-| checkDelegateForAll                                | 3339            | 3339   | 3339   | 3339   | 1       |
-| checkDelegateForContract                           | 6244            | 6244   | 6244   | 6244   | 1       |
-| checkDelegateForERC1155                            | 9273            | 9273   | 9273   | 9273   | 1       |
-| checkDelegateForERC20                              | 9183            | 9183   | 9183   | 9183   | 1       |
-| checkDelegateForERC721                             | 9212            | 9212   | 9212   | 9212   | 1       |
+| checkDelegateForAll                                | 3339            | 3704   | 3704   | 4069   | 2       |
+| checkDelegateForContract                           | 6244            | 7417   | 7417   | 8590   | 2       |
+| checkDelegateForERC1155                            | 9273            | 11753  | 11753  | 14234  | 2       |
+| checkDelegateForERC20                              | 9183            | 11640  | 11640  | 14097  | 2       |
+| checkDelegateForERC721                             | 9212            | 11652  | 11652  | 14093  | 2       |
 | delegateAll                                        | 136141          | 136141 | 136141 | 136141 | 2       |
 | delegateContract                                   | 136870          | 147820 | 147820 | 158770 | 2       |
 | delegateERC1155                                    | 181783          | 192733 | 192733 | 203683 | 2       |

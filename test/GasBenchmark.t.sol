@@ -68,22 +68,27 @@ contract GasBenchmark is Test {
         IRegistry.Delegation[] memory delegations = _createDelegations(keccak256(abi.encode(seed, "delegations")));
         registry.delegateAll(delegations[0].to, delegations[0].rights, true);
         registry.checkDelegateForAll(delegations[0].to, vault, delegations[0].rights);
+        registry.checkDelegateForAll(delegations[0].to, vault, "fakeRights");
         // Benchmark delegate contract and check contract
         registry = new Registry();
         registry.delegateContract(delegations[1].to, delegations[1].contract_, delegations[1].rights, true);
         registry.checkDelegateForContract(delegations[1].to, vault, delegations[1].contract_, delegations[1].rights);
+        registry.checkDelegateForContract(delegations[1].to, vault, delegations[1].contract_, "fakeRights");
         // Benchmark delegate erc721 and check erc721
         registry = new Registry();
         registry.delegateERC721(delegations[2].to, delegations[2].contract_, delegations[2].tokenId, delegations[2].rights, true);
         registry.checkDelegateForERC721(delegations[2].to, vault, delegations[2].contract_, delegations[2].tokenId, delegations[2].rights);
+        registry.checkDelegateForERC721(delegations[2].to, vault, delegations[2].contract_, delegations[2].tokenId, "fakeRights");
         // Benchmark delegate erc20 and check erc20
         registry = new Registry();
         registry.delegateERC20(delegations[3].to, delegations[3].contract_, delegations[3].amount, delegations[3].rights, true);
         registry.checkDelegateForERC20(delegations[3].to, vault, delegations[3].contract_, delegations[3].rights);
-        // Benchmark delegate erc1155 and check erc20
+        registry.checkDelegateForERC20(delegations[3].to, vault, delegations[3].contract_, "fakeRights");
+        // Benchmark delegate erc1155 and check erc1155
         registry = new Registry();
         registry.delegateERC1155(delegations[4].to, delegations[4].contract_, delegations[4].tokenId, delegations[4].amount, delegations[4].rights, true);
         registry.checkDelegateForERC1155(delegations[4].to, vault, delegations[4].contract_, delegations[4].tokenId, delegations[4].rights);
+        registry.checkDelegateForERC1155(delegations[4].to, vault, delegations[4].contract_, delegations[4].tokenId, "fakeRights");
         // Benchmark multicall
         registry = new Registry();
         IRegistry.Delegation[] memory multicallDelegations = new IRegistry.Delegation[](5);

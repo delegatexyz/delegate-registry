@@ -8,7 +8,7 @@ pragma solidity >=0.8.13;
  * @notice A standalone immutable registry storing delegated permissions from one address to another
  */
 interface IDelegateRegistry {
-    /// @notice Delegation type
+    /// @notice Delegation type, NONE is used when a delegation does not exist or is revoked
     enum DelegationType {
         NONE,
         ALL,
@@ -18,7 +18,7 @@ interface IDelegateRegistry {
         ERC1155
     }
 
-    /// @notice Struct for returning arbitrary delegations
+    /// @notice Struct for returning delegations
     struct Delegation {
         DelegationType type_;
         address to;
@@ -29,19 +29,19 @@ interface IDelegateRegistry {
         uint256 amount;
     }
 
-    /// @notice Emitted when an address delegates rights for their entire wallet
+    /// @notice Emitted when an address delegates or revokes rights for their entire wallet
     event DelegateAll(address indexed from, address indexed to, bytes32 rights, bool enable);
 
-    /// @notice Emitted when an address delegates rights for a specific contract
+    /// @notice Emitted when an address delegates or revokes rights for a contract address
     event DelegateContract(address indexed from, address indexed to, address indexed contract_, bytes32 rights, bool enable);
 
-    /// @notice Emitted when an address delegates rights for a specific ERC721 token
+    /// @notice Emitted when an address delegates or revokes rights for an ERC721 tokenId
     event DelegateERC721(address indexed from, address indexed to, address indexed contract_, uint256 tokenId, bytes32 rights, bool enable);
 
-    /// @notice Emitted when an address delegates rights for a specific amount of ERC20 tokens
+    /// @notice Emitted when an address delegates or revokes rights for an amount of ERC20 tokens
     event DelegateERC20(address indexed from, address indexed to, address indexed contract_, uint256 amount, bytes32 rights, bool enable);
 
-    /// @notice Emitted when an address delegates rights for a specific amount of ERC1155 tokens
+    /// @notice Emitted when an address delegates or revokes rights for an amount of an ERC1155 tokenId
     event DelegateERC1155(address indexed from, address indexed to, address indexed contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable);
 
     /// @notice Thrown if multicall calldata is malformed
@@ -61,7 +61,7 @@ interface IDelegateRegistry {
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for all contracts
      * @param to The address to act as delegate
-     * @param rights The rights granted to the delegate, leave empty for full rights
+     * @param rights Specific subdelegation rights granted to the delegate, pass an empty bytestring to encompass all rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      */
     function delegateAll(address to, bytes32 rights, bool enable) external;
@@ -70,7 +70,7 @@ interface IDelegateRegistry {
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific contract
      * @param to The address to act as delegate
      * @param contract_ The contract whose rights are being delegated
-     * @param rights The rights granted to the delegate, leave empty for full rights
+     * @param rights Specific subdelegation rights granted to the delegate, pass an empty bytestring to encompass all rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      */
     function delegateContract(address to, address contract_, bytes32 rights, bool enable) external;
@@ -80,7 +80,7 @@ interface IDelegateRegistry {
      * @param to The address to act as delegate
      * @param contract_ The contract whose rights are being delegated
      * @param tokenId The token id to delegate
-     * @param rights The rights granted to the delegate, leave empty for full rights
+     * @param rights Specific subdelegation rights granted to the delegate, pass an empty bytestring to encompass all rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      */
     function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external;
@@ -90,7 +90,7 @@ interface IDelegateRegistry {
      * @param to The address to act as delegate
      * @param contract_ The address for the fungible token contract
      * @param amount The amount to delegate
-     * @param rights The rights granted to the delegate, leave empty for full rights
+     * @param rights Specific subdelegation rights granted to the delegate, pass an empty bytestring to encompass all rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      */
     function delegateERC20(address to, address contract_, uint256 amount, bytes32 rights, bool enable) external;
@@ -101,7 +101,7 @@ interface IDelegateRegistry {
      * @param contract_ The address of the contract that holds the token
      * @param tokenId The token id to delegate
      * @param amount The amount of that token id to delegate
-     * @param rights The rights granted to the delegate, leave empty for full rights
+     * @param rights Specific subdelegation rights granted to the delegate, pass an empty bytestring to encompass all rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      */
     function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external;
@@ -111,31 +111,31 @@ interface IDelegateRegistry {
      */
 
     /**
-     * @notice Check if a delegate can act on a from's behalf for an entire wallet
+     * @notice Check if `to` is a delegate of `from` for the entire wallet
      * @param to The potential delegate address
      * @param from The potential address who delegated rights
-     * @param rights Specific rights to check for, leave empty for full rights only
+     * @param rights Specific rights to check for, pass the zero value to ignore subdelegations and check full delegations only
      * @return valid Whether delegate is granted to act on the from's behalf
      */
     function checkDelegateForAll(address to, address from, bytes32 rights) external view returns (bool);
 
     /**
-     * @notice Check if a delegate can act on a from's behalf for a specific contract
+     * @notice Check if `to` is a delegate of `from` for the specified `contract_` or the entire wallet
      * @param to The delegated address to check
      * @param contract_ The specific contract address being checked
      * @param from The cold wallet who issued the delegation
-     * @param rights Specific rights to check for, leave empty for full rights only
+     * @param rights Specific rights to check for, pass the zero value to ignore subdelegations and check full delegations only
      * @return valid Whether delegate is granted to act on from's behalf for entire wallet or that specific contract
      */
     function checkDelegateForContract(address to, address from, address contract_, bytes32 rights) external view returns (bool);
 
     /**
-     * @notice Check if a delegate can act on a from's behalf for a specific token
+     * @notice Check if `to` is a delegate of `from` for the specific `contract` and `tokenId`, the entire `contract_`, or the entire wallet
      * @param to The delegated address to check
      * @param contract_ The specific contract address being checked
      * @param tokenId The token id for the token to delegating
      * @param from The wallet that issued the delegation
-     * @param rights Specific rights to check for, leave empty for full rights only
+     * @param rights Specific rights to check for, pass the zero value to ignore subdelegations and check full delegations only
      * @return valid Whether delegate is granted to act on from's behalf for entire wallet, that contract, or that specific tokenId
      */
     function checkDelegateForERC721(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view returns (bool);
@@ -145,7 +145,7 @@ interface IDelegateRegistry {
      * @param to The delegated address to check
      * @param contract_ The address of the token contract
      * @param from The cold wallet who issued the delegation
-     * @param rights Specific rights to check for, leave empty for full rights only
+     * @param rights Specific rights to check for, pass the zero value to ignore subdelegations and check full delegations only
      * @return balance The delegated balance, which will be 0 if the delegation does not exist
      */
     function checkDelegateForERC20(address to, address from, address contract_, bytes32 rights) external view returns (uint256);
@@ -156,7 +156,7 @@ interface IDelegateRegistry {
      * @param contract_ The address of the token contract
      * @param tokenId The token id to check the delegated amount of
      * @param from The cold wallet who issued the delegation
-     * @param rights Specific rights to check for, leave empty for full rights only
+     * @param rights Specific rights to check for, pass the zero value to ignore subdelegations and check full delegations only
      * @return balance The delegated balance, which will be 0 if the delegation does not exist
      */
     function checkDelegateForERC1155(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view returns (uint256);

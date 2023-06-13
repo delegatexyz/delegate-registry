@@ -11,7 +11,7 @@ import {IDelegateRegistry} from "./IDelegateRegistry.sol";
  * @notice A standalone immutable registry storing delegated permissions from one address to another
  */
 contract DelegateRegistry is IDelegateRegistry {
-    /// @dev Only this mapping should be used to verify delegations; the other mappings are for recordkeeping only
+    /// @dev Only this mapping should be used to verify delegations; the other mapping arrays are for enumerations
     mapping(bytes32 delegationHash => bytes32[6] delegationStorage) internal _delegations;
 
     /// @dev Vault delegation enumeration outbox, for pushing new hashes only
