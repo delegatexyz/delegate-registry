@@ -330,13 +330,13 @@ contract RegistryUnitTests is Test {
 
     function _checkHashes(address vault, address delegate, bytes32 hash, bool on) internal {
         if (on) {
-            assertEq(harness.exposed_vaultDelegationHashes(vault).length, 1);
-            assertEq(harness.exposed_vaultDelegationHashes(vault)[0], hash);
-            assertEq(harness.exposed_delegateDelegationHashes(delegate).length, 1);
-            assertEq(harness.exposed_delegateDelegationHashes(delegate)[0], hash);
+            assertEq(harness.exposed_outgoingDelegationHashes(vault).length, 1);
+            assertEq(harness.exposed_outgoingDelegationHashes(vault)[0], hash);
+            assertEq(harness.exposed_incomingDelegationHashes(delegate).length, 1);
+            assertEq(harness.exposed_incomingDelegationHashes(delegate)[0], hash);
         } else {
-            assertEq(harness.exposed_vaultDelegationHashes(vault).length, 0);
-            assertEq(harness.exposed_delegateDelegationHashes(delegate).length, 0);
+            assertEq(harness.exposed_outgoingDelegationHashes(vault).length, 0);
+            assertEq(harness.exposed_incomingDelegationHashes(delegate).length, 0);
         }
     }
 

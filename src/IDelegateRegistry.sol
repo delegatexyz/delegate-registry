@@ -30,21 +30,19 @@ interface IDelegateRegistry {
     }
 
     /// @notice Emitted when an address delegates rights for their entire wallet
-    event DelegateAll(address indexed vault, address indexed delegate, bytes32 rights, bool enable);
+    event DelegateAll(address indexed from, address indexed to, bytes32 rights, bool enable);
 
     /// @notice Emitted when an address delegates rights for a specific contract
-    event DelegateContract(address indexed vault, address indexed delegate, address indexed contract_, bytes32 rights, bool enable);
+    event DelegateContract(address indexed from, address indexed to, address indexed contract_, bytes32 rights, bool enable);
 
     /// @notice Emitted when an address delegates rights for a specific ERC721 token
-    event DelegateERC721(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bytes32 rights, bool enable);
+    event DelegateERC721(address indexed from, address indexed to, address indexed contract_, uint256 tokenId, bytes32 rights, bool enable);
 
     /// @notice Emitted when an address delegates rights for a specific amount of ERC20 tokens
-    event DelegateERC20(address indexed vault, address indexed delegate, address indexed contract_, uint256 amount, bytes32 rights, bool enable);
+    event DelegateERC20(address indexed from, address indexed to, address indexed contract_, uint256 amount, bytes32 rights, bool enable);
 
     /// @notice Emitted when an address delegates rights for a specific amount of ERC1155 tokens
-    event DelegateERC1155(
-        address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable
-    );
+    event DelegateERC1155(address indexed from, address indexed to, address indexed contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable);
 
     /// @notice Thrown if multicall calldata is malformed
     error MulticallFailed();
@@ -62,51 +60,51 @@ interface IDelegateRegistry {
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for all contracts
-     * @param delegate The address to act as delegate
+     * @param to The address to act as delegate
      * @param rights The rights granted to the delegate, leave empty for full rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      */
-    function delegateAll(address delegate, bytes32 rights, bool enable) external;
+    function delegateAll(address to, bytes32 rights, bool enable) external;
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific contract
-     * @param delegate The address to act as delegate
+     * @param to The address to act as delegate
      * @param contract_ The contract whose rights are being delegated
      * @param rights The rights granted to the delegate, leave empty for full rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      */
-    function delegateContract(address delegate, address contract_, bytes32 rights, bool enable) external;
+    function delegateContract(address to, address contract_, bytes32 rights, bool enable) external;
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific ERC721 token
-     * @param delegate The address to act as delegate
+     * @param to The address to act as delegate
      * @param contract_ The contract whose rights are being delegated
      * @param tokenId The token id to delegate
      * @param rights The rights granted to the delegate, leave empty for full rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      */
-    function delegateERC721(address delegate, address contract_, uint256 tokenId, bytes32 rights, bool enable) external;
+    function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external;
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific amount of ERC20 tokens
-     * @param delegate The address to act as delegate
+     * @param to The address to act as delegate
      * @param contract_ The address for the fungible token contract
      * @param amount The amount to delegate
      * @param rights The rights granted to the delegate, leave empty for full rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      */
-    function delegateERC20(address delegate, address contract_, uint256 amount, bytes32 rights, bool enable) external;
+    function delegateERC20(address to, address contract_, uint256 amount, bytes32 rights, bool enable) external;
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific amount of ERC1155 tokens
-     * @param delegate The address to act as delegate
+     * @param to The address to act as delegate
      * @param contract_ The address of the contract that holds the token
      * @param tokenId The token id to delegate
      * @param amount The amount of that token id to delegate
      * @param rights The rights granted to the delegate, leave empty for full rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      */
-    function delegateERC1155(address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external;
+    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external;
 
     /**
      * ----------- CHECKS -----------
@@ -169,31 +167,31 @@ interface IDelegateRegistry {
 
     /**
      * @notice Returns all enabled delegations a given delegate has received
-     * @param delegate The address to retrieve delegations for
+     * @param to The address to retrieve delegations for
      * @return delegations Array of Delegation structs
      */
-    function getIncomingDelegations(address delegate) external view returns (Delegation[] memory delegations);
+    function getIncomingDelegations(address to) external view returns (Delegation[] memory delegations);
 
     /**
      * @notice Returns all enabled delegations an address has given out
-     * @param vault The address to retrieve delegations for
+     * @param from The address to retrieve delegations for
      * @return delegations Array of Delegation structs
      */
-    function getOutgoingDelegations(address vault) external view returns (Delegation[] memory delegations);
+    function getOutgoingDelegations(address from) external view returns (Delegation[] memory delegations);
 
     /**
      * @notice Returns all hashes associated with enabled delegations an address has received
-     * @param delegate The delegate to retrieve the delegation hashes for
+     * @param to The address to retrieve incoming delegation hashes for
      * @return delegationHashes Array of delegation hashes
      */
-    function getIncomingDelegationHashes(address delegate) external view returns (bytes32[] memory delegationHashes);
+    function getIncomingDelegationHashes(address to) external view returns (bytes32[] memory delegationHashes);
 
     /**
      * @notice Returns all hashes associated with enabled delegations an address has given out
-     * @param vault The address to retrieve the delegation hashes for
+     * @param from The address to retrieve outgoing delegation hashes for
      * @return delegationHashes Array of delegation hashes
      */
-    function getOutgoingDelegationHashes(address vault) external view returns (bytes32[] memory delegationHashes);
+    function getOutgoingDelegationHashes(address from) external view returns (bytes32[] memory delegationHashes);
 
     /**
      * @notice Returns the delegations for a given array of delegation hashes
