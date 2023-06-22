@@ -12,6 +12,7 @@ optimizer_runs = 9_999_999
 bytecode_hash = "none"
 # Increases deployment size by 10%, cuts down on runtime gas costs by ~1%,, increases compiletime 10x. Enable on deployment
 # via_ir = true
+# extra_output_files = ['irOptimized']
 
 [fmt]
 line_length = 170
