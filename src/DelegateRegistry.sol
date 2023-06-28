@@ -12,13 +12,13 @@ import {IDelegateRegistry} from "./IDelegateRegistry.sol";
  */
 contract DelegateRegistry is IDelegateRegistry {
     /// @dev Only this mapping should be used to verify delegations; the other mapping arrays are for enumerations
-    mapping(bytes32 delegationHash => bytes32[6] delegationStorage) internal _delegations;
+    mapping(bytes32 delegationHash => bytes32[6] delegationStorage) internal delegations;
 
     /// @dev Vault delegation enumeration outbox, for pushing new hashes only
-    mapping(address from => bytes32[] delegationHashes) internal _outgoingDelegationHashes;
+    mapping(address from => bytes32[] delegationHashes) internal outgoingDelegationHashes;
 
     /// @dev Delegate delegation enumeration inbox, for pushing new hashes only
-    mapping(address to => bytes32[] delegationHashes) internal _incomingDelegationHashes;
+    mapping(address to => bytes32[] delegationHashes) internal incomingDelegationHashes;
 
     /// @dev Standardizes storage positions of delegation data
     enum StoragePositions {
@@ -225,28 +225,28 @@ contract DelegateRegistry is IDelegateRegistry {
      */
 
     /// @inheritdoc IDelegateRegistry
-    function getIncomingDelegations(address to) external view override returns (Delegation[] memory delegations) {
-        delegations = _getValidDelegationsFromHashes(_incomingDelegationHashes[to]);
+    function getIncomingDelegations(address to) external view override returns (Delegation[] memory delegations_) {
+        delegations_ = _getValidDelegationsFromHashes(incomingDelegationHashes[to]);
     }
 
     /// @inheritdoc IDelegateRegistry
-    function getOutgoingDelegations(address from) external view returns (Delegation[] memory delegations) {
-        delegations = _getValidDelegationsFromHashes(_outgoingDelegationHashes[from]);
+    function getOutgoingDelegations(address from) external view returns (Delegation[] memory delegations_) {
+        delegations_ = _getValidDelegationsFromHashes(outgoingDelegationHashes[from]);
     }
 
     /// @inheritdoc IDelegateRegistry
     function getIncomingDelegationHashes(address to) external view returns (bytes32[] memory delegationHashes) {
-        delegationHashes = _getValidDelegationHashesFromHashes(_incomingDelegationHashes[to]);
+        delegationHashes = _getValidDelegationHashesFromHashes(incomingDelegationHashes[to]);
     }
 
     /// @inheritdoc IDelegateRegistry
     function getOutgoingDelegationHashes(address from) external view returns (bytes32[] memory delegationHashes) {
-        delegationHashes = _getValidDelegationHashesFromHashes(_outgoingDelegationHashes[from]);
+        delegationHashes = _getValidDelegationHashesFromHashes(outgoingDelegationHashes[from]);
     }
 
     /// @inheritdoc IDelegateRegistry
-    function getDelegationsFromHashes(bytes32[] calldata hashes) external view returns (Delegation[] memory delegations) {
-        delegations = new Delegation[](hashes.length);
+    function getDelegationsFromHashes(bytes32[] calldata hashes) external view returns (Delegation[] memory delegations_) {
+        delegations_ = new Delegation[](hashes.length);
         bytes32 location;
         address from;
         unchecked {
@@ -254,9 +254,9 @@ contract DelegateRegistry is IDelegateRegistry {
                 location = _computeLocation(hashes[i]);
                 from = _loadDelegationAddress(location, StoragePositions.from);
                 if (from == DELEGATION_EMPTY || from == DELEGATION_REVOKED) {
-                    delegations[i] = Delegation({type_: DelegationType.NONE, to: address(0), from: address(0), rights: "", amount: 0, contract_: address(0), tokenId: 0});
+                    delegations_[i] = Delegation({type_: DelegationType.NONE, to: address(0), from: address(0), rights: "", amount: 0, contract_: address(0), tokenId: 0});
                 } else {
-                    delegations[i] = Delegation({
+                    delegations_[i] = Delegation({
                         type_: _decodeLastByteToType(hashes[i]),
                         to: _loadDelegationAddress(location, StoragePositions.to),
                         from: from,
@@ -322,7 +322,7 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @dev Helper function that computes the data location of a particular delegation hash
     function _computeLocation(bytes32 hash) internal pure returns (bytes32 location) {
-        location = keccak256(abi.encode(hash, 0)); // _delegations mapping is at slot 0
+        location = keccak256(abi.encode(hash, 0)); // delegations mapping is at slot 0
     }
 
     /**
@@ -331,8 +331,8 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @dev Helper function to push new delegation hashes to the incoming and outgoing hashes mappings
     function _pushDelegationHashes(address from, address to, bytes32 delegationHash) private {
-        _outgoingDelegationHashes[from].push(delegationHash);
-        _incomingDelegationHashes[to].push(delegationHash);
+        outgoingDelegationHashes[from].push(delegationHash);
+        incomingDelegationHashes[to].push(delegationHash);
     }
 
     /// @dev Helper function that writes bytes32 data to delegation data location at array position
@@ -357,7 +357,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @dev Helper function that takes an array of delegation hashes and returns an array of Delegation structs with their onchain information
-    function _getValidDelegationsFromHashes(bytes32[] storage hashes) private view returns (Delegation[] memory delegations) {
+    function _getValidDelegationsFromHashes(bytes32[] storage hashes) private view returns (Delegation[] memory delegations_) {
         uint256 count = 0;
         uint256 hashesLength = hashes.length;
         bytes32 hash;
@@ -367,14 +367,14 @@ contract DelegateRegistry is IDelegateRegistry {
                 hash = hashes[i];
                 if (_loadDelegationAddress(_computeLocation(hash), StoragePositions.from) > DELEGATION_REVOKED) filteredHashes[count++] = hash;
             }
-            delegations = new Delegation[](count);
+            delegations_ = new Delegation[](count);
             bytes32 location;
             address from;
             for (uint256 i = 0; i < count; ++i) {
                 hash = filteredHashes[i];
                 location = _computeLocation(hash);
                 from = _loadDelegationAddress(location, StoragePositions.from);
-                delegations[i] = Delegation({
+                delegations_[i] = Delegation({
                     type_: _decodeLastByteToType(hash),
                     to: _loadDelegationAddress(location, StoragePositions.to),
                     from: from,

@@ -1,0 +1,32 @@
+name: Slither Report
+
+on: [push, pull_request]
+
+jobs:
+  slither-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Foundry
+        uses: onbjerg/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Install slither
+        run: pip install slither-analyzer
+      
+      - name: Forge clean
+        run: forge clean
+      
+      - name: Forge build without test & script
+        run: forge build --build-info --skip test --skip script
+      
+      - name: Generate slither report
+        run: slither . --compile-force-framework "foundry" --foundry-out-directory "out" --ignore-compile --fail-medium --skip-clean --filter-paths "lib" --checklist --markdown-root ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/ > slitherReport.md
