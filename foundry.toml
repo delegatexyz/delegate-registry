@@ -10,9 +10,9 @@ evm_version = "paris"
 optimizer_runs = 9_999_999
 # Get reproducible bytecode across machines by removing metadata hash from runtime bytecode, also saves 41 deployment size
 bytecode_hash = "none"
-# Increases deployment size by 10%, cuts down on runtime gas costs by ~1%,, increases compiletime 10x. Enable on deployment
-# via_ir = true
-# extra_output_files = ['irOptimized']
+# Disable ir optimizer, minimal gas savings not worth the potential for bugs
+via_ir = false
+
 
 [fmt]
 line_length = 170

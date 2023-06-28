@@ -155,16 +155,16 @@ contract DelegateSingularIntegrations is Test {
         // Check outcomes of getIncomingDelegationHashes
         assertEq(registry.getIncomingDelegationHashes(_delegate).length == 1, _enable);
         if (_enable) {
-            assertEq(registry.getIncomingDelegationHashes(_delegate)[0], harness.exposed_computeHashForAll(_delegate, _rights, _vault));
+            assertEq(registry.getIncomingDelegationHashes(_delegate)[0], harness.exposedComputeHashForAll(_delegate, _rights, _vault));
         }
         // Check outcomes of getOutgoingDelegationHashes
         assertEq(registry.getOutgoingDelegationHashes(_vault).length == 1, _enable);
         if (_enable) {
-            assertEq(registry.getOutgoingDelegationHashes(_vault)[0], harness.exposed_computeHashForAll(_delegate, _rights, _vault));
+            assertEq(registry.getOutgoingDelegationHashes(_vault)[0], harness.exposedComputeHashForAll(_delegate, _rights, _vault));
         }
         // Check outcomes of getDelegationsFromHashes
         bytes32[] memory hashes = new bytes32[](1);
-        hashes[0] = harness.exposed_computeHashForAll(_delegate, _rights, _vault);
+        hashes[0] = harness.exposedComputeHashForAll(_delegate, _rights, _vault);
         assertEq(registry.getDelegationsFromHashes(hashes).length, 1);
         _checkDelegation(registry.getDelegationsFromHashes(hashes)[0]);
     }
@@ -266,16 +266,16 @@ contract DelegateSingularIntegrations is Test {
         // Check outcomes of getIncomingDelegationHashes
         assertEq(registry.getIncomingDelegationHashes(_delegate).length == 1, _enable);
         if (_enable) {
-            assertEq(registry.getIncomingDelegationHashes(_delegate)[0], harness.exposed_computeHashForContract(_contract, _delegate, _rights, _vault));
+            assertEq(registry.getIncomingDelegationHashes(_delegate)[0], harness.exposedComputeHashForContract(_contract, _delegate, _rights, _vault));
         }
         // Check outcomes of getOutgoingDelegationHashes
         assertEq(registry.getOutgoingDelegationHashes(_vault).length == 1, _enable);
         if (_enable) {
-            assertEq(registry.getOutgoingDelegationHashes(_vault)[0], harness.exposed_computeHashForContract(_contract, _delegate, _rights, _vault));
+            assertEq(registry.getOutgoingDelegationHashes(_vault)[0], harness.exposedComputeHashForContract(_contract, _delegate, _rights, _vault));
         }
         // Check outcomes of getDelegationsFromHashes
         bytes32[] memory hashes = new bytes32[](1);
-        hashes[0] = harness.exposed_computeHashForContract(_contract, _delegate, _rights, _vault);
+        hashes[0] = harness.exposedComputeHashForContract(_contract, _delegate, _rights, _vault);
         assertEq(registry.getDelegationsFromHashes(hashes).length, 1);
         _checkDelegation(registry.getDelegationsFromHashes(hashes)[0]);
     }
@@ -366,16 +366,16 @@ contract DelegateSingularIntegrations is Test {
         // Check outcomes of getIncomingDelegationHashes
         assertEq(registry.getIncomingDelegationHashes(_delegate).length == 1, _enable);
         if (_enable) {
-            assertEq(registry.getIncomingDelegationHashes(_delegate)[0], harness.exposed_computeHashForERC721(_contract, _delegate, _rights, _tokenId, _vault));
+            assertEq(registry.getIncomingDelegationHashes(_delegate)[0], harness.exposedComputeHashForERC721(_contract, _delegate, _rights, _tokenId, _vault));
         }
         // Check outcomes of getOutgoingDelegationHashes
         assertEq(registry.getOutgoingDelegationHashes(_vault).length == 1, _enable);
         if (_enable) {
-            assertEq(registry.getOutgoingDelegationHashes(_vault)[0], harness.exposed_computeHashForERC721(_contract, _delegate, _rights, _tokenId, _vault));
+            assertEq(registry.getOutgoingDelegationHashes(_vault)[0], harness.exposedComputeHashForERC721(_contract, _delegate, _rights, _tokenId, _vault));
         }
         // Check outcomes of getDelegationsFromHashes
         bytes32[] memory hashes = new bytes32[](1);
-        hashes[0] = harness.exposed_computeHashForERC721(_contract, _delegate, _rights, _tokenId, _vault);
+        hashes[0] = harness.exposedComputeHashForERC721(_contract, _delegate, _rights, _tokenId, _vault);
         assertEq(registry.getDelegationsFromHashes(hashes).length, 1);
         _checkDelegation(registry.getDelegationsFromHashes(hashes)[0]);
     }
@@ -468,16 +468,16 @@ contract DelegateSingularIntegrations is Test {
         // Check outcomes of getIncomingDelegationHashes
         assertEq(registry.getIncomingDelegationHashes(_delegate).length == 1, _enable);
         if (_enable) {
-            assertEq(registry.getIncomingDelegationHashes(_delegate)[0], harness.exposed_computeHashForERC20(_contract, _delegate, _rights, _vault));
+            assertEq(registry.getIncomingDelegationHashes(_delegate)[0], harness.exposedComputeHashForERC20(_contract, _delegate, _rights, _vault));
         }
         // Check outcomes of getOutgoingDelegationHashes
         assertEq(registry.getOutgoingDelegationHashes(_vault).length == 1, _enable);
         if (_enable) {
-            assertEq(registry.getOutgoingDelegationHashes(_vault)[0], harness.exposed_computeHashForERC20(_contract, _delegate, _rights, _vault));
+            assertEq(registry.getOutgoingDelegationHashes(_vault)[0], harness.exposedComputeHashForERC20(_contract, _delegate, _rights, _vault));
         }
         // Check outcomes of getDelegationsFromHashes
         bytes32[] memory hashes = new bytes32[](1);
-        hashes[0] = harness.exposed_computeHashForERC20(_contract, _delegate, _rights, _vault);
+        hashes[0] = harness.exposedComputeHashForERC20(_contract, _delegate, _rights, _vault);
         assertEq(registry.getDelegationsFromHashes(hashes).length, 1);
         _checkDelegation(registry.getDelegationsFromHashes(hashes)[0]);
     }
@@ -572,16 +572,16 @@ contract DelegateSingularIntegrations is Test {
         // Check outcomes of getIncomingDelegationHashes
         assertEq(registry.getIncomingDelegationHashes(_delegate).length == 1, _enable);
         if (_enable) {
-            assertEq(registry.getIncomingDelegationHashes(_delegate)[0], harness.exposed_computeHashForERC1155(_contract, _delegate, _rights, _tokenId, _vault));
+            assertEq(registry.getIncomingDelegationHashes(_delegate)[0], harness.exposedComputeHashForERC1155(_contract, _delegate, _rights, _tokenId, _vault));
         }
         // Check outcomes of getOutgoingDelegationHashes
         assertEq(registry.getOutgoingDelegationHashes(_vault).length == 1, _enable);
         if (_enable) {
-            assertEq(registry.getOutgoingDelegationHashes(_vault)[0], harness.exposed_computeHashForERC1155(_contract, _delegate, _rights, _tokenId, _vault));
+            assertEq(registry.getOutgoingDelegationHashes(_vault)[0], harness.exposedComputeHashForERC1155(_contract, _delegate, _rights, _tokenId, _vault));
         }
         // Check outcomes of getDelegationsFromHashes
         bytes32[] memory hashes = new bytes32[](1);
-        hashes[0] = harness.exposed_computeHashForERC1155(_contract, _delegate, _rights, _tokenId, _vault);
+        hashes[0] = harness.exposedComputeHashForERC1155(_contract, _delegate, _rights, _tokenId, _vault);
         assertEq(registry.getDelegationsFromHashes(hashes).length, 1);
         _checkDelegation(registry.getDelegationsFromHashes(hashes)[0]);
     }
