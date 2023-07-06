@@ -30,3 +30,11 @@ jobs:
       
       - name: Generate slither report
         run: slither . --compile-force-framework "foundry" --foundry-out-directory "out" --ignore-compile --fail-medium --skip-clean --filter-paths "lib" --checklist --markdown-root ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/ > slitherReport.md
+
+      - name: Check slither report
+        run: |
+          section=$(awk '/^##/{exit} {print}' slitherReport.md)
+          if [[ $section == *"Medium"* || $section == *"High"* ]]; then
+            echo "Medium or High risk found in slither report. Failing the run."
+            exit 1
+          fi

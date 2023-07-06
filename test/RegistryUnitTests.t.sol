@@ -630,4 +630,28 @@ contract RegistryUnitTests is Test {
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
     }
+
+    /**
+     * ----------- storage access -----------
+     */
+
+    function testReadSlot(bytes32 slot, bytes32 data) public {
+        registry = new Registry();
+        vm.store(address(registry), slot, data);
+        assertEq(data, registry.readSlot(slot));
+    }
+
+    function testReadSlots(uint256 slotSeed, bytes32[] calldata data) public {
+        registry = new Registry();
+        bytes32[] memory slots = new bytes32[](data.length);
+        for (uint256 i = 0; i < data.length; i++) {
+            slots[i] = keccak256(abi.encode(slotSeed, i));
+            vm.store(address(registry), slots[i], data[i]);
+        }
+        bytes32[] memory receivedData = registry.readSlots(slots);
+        assertEq(receivedData.length, data.length);
+        for (uint256 i = 0; i < data.length; i++) {
+            assertEq(receivedData[i], data[i]);
+        }
+    }
 }
