@@ -38,7 +38,8 @@ contract IPLicenseCheckTest is Test {
         // Check false if vault doesn't own NFT
         assertFalse(ipLicenseCheck.checkForIPLicense(wallet, fVault, address(nft), 1, ipLicense));
         // Check false if wallet has a different license
-        assertFalse(ipLicenseCheck.checkForIPLicense(wallet, vault, address(nft), 1, fIpLicense));
+        if (ipLicense != "") assertFalse(ipLicenseCheck.checkForIPLicense(wallet, vault, address(nft), 1, fIpLicense));
+        else assertTrue(ipLicenseCheck.checkForIPLicense(wallet, vault, address(nft), 1, fIpLicense));
         // Check true if vault has nft and wallet has license
         assertTrue(ipLicenseCheck.checkForIPLicense(wallet, vault, address(nft), 1, ipLicense));
     }
@@ -68,7 +69,8 @@ contract IPLicenseCheckTest is Test {
         // Check false if licensor doesn't have licensor rights
         assertFalse(ipLicenseCheck.checkForIPLicenseFromLicensor(wallet, fLicensor, vault, address(nft), 1, ipLicense));
         // Check false if wallet has a different license
-        assertFalse(ipLicenseCheck.checkForIPLicenseFromLicensor(wallet, licensor, vault, address(nft), 1, fIpLicense));
+        if (ipLicense != "") assertFalse(ipLicenseCheck.checkForIPLicenseFromLicensor(wallet, licensor, vault, address(nft), 1, fIpLicense));
+        else assertTrue(ipLicenseCheck.checkForIPLicenseFromLicensor(wallet, licensor, vault, address(nft), 1, fIpLicense));
         // Check true if vault has nft, licensor has licensor rights, and wallet has license
         assertTrue(ipLicenseCheck.checkForIPLicenseFromLicensor(wallet, licensor, vault, address(nft), 1, ipLicense));
     }

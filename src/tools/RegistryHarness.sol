@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import {DelegateRegistry} from "src/DelegateRegistry.sol";
 
+import {RegistryHashes} from "../libraries/RegistryHashes.sol";
+
 /// @dev harness contract that exposes internal registry methods as external ones
 contract RegistryHarness is DelegateRegistry {
     constructor() {
@@ -22,34 +24,34 @@ contract RegistryHarness is DelegateRegistry {
     }
 
     function exposedComputeHashForAll(address delegate, bytes32 rights, address vault) external pure returns (bytes32) {
-        return _computeHashForAll(delegate, rights, vault);
+        return RegistryHashes._computeAll(delegate, rights, vault);
     }
 
     function exposedComputeHashForContract(address contract_, address delegate, bytes32 rights, address vault) external pure returns (bytes32) {
-        return _computeHashForContract(contract_, delegate, rights, vault);
+        return RegistryHashes._computeContract(contract_, delegate, rights, vault);
     }
 
     function exposedComputeHashForERC721(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault) external pure returns (bytes32) {
-        return _computeHashForERC721(contract_, delegate, rights, tokenId, vault);
+        return RegistryHashes._computeERC721(contract_, delegate, rights, tokenId, vault);
     }
 
     function exposedComputeHashForERC20(address contract_, address delegate, bytes32 rights, address vault) external pure returns (bytes32) {
-        return _computeHashForERC20(contract_, delegate, rights, vault);
+        return RegistryHashes._computeERC20(contract_, delegate, rights, vault);
     }
 
     function exposedComputeHashForERC1155(address contract_, address delegate, bytes32 rights, uint256 tokenId, address vault) external pure returns (bytes32) {
-        return _computeHashForERC1155(contract_, delegate, rights, tokenId, vault);
+        return RegistryHashes._computeERC1155(contract_, delegate, rights, tokenId, vault);
     }
 
     function exposedEncodeLastByteWithType(bytes32 input, DelegationType type_) external pure returns (bytes32) {
-        return _encodeLastByteWithType(input, type_);
+        return RegistryHashes._encodeLastByteWithType(input, type_);
     }
 
     function exposedDecodeLastByteToType(bytes32 input) external pure returns (DelegationType) {
-        return _decodeLastByteToType(input);
+        return RegistryHashes._decodeLastByteToType(input);
     }
 
     function exposedComputeLocation(bytes32 hash) external pure returns (bytes32 location) {
-        return _computeLocation(hash);
+        return RegistryHashes._computeLocation(hash);
     }
 }

@@ -63,8 +63,9 @@ interface IDelegateRegistry {
      * @param to The address to act as delegate
      * @param rights Specific subdelegation rights granted to the delegate, pass an empty bytestring to encompass all rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
+     * @return delegationHash the unique identifier of the delegation
      */
-    function delegateAll(address to, bytes32 rights, bool enable) external;
+    function delegateAll(address to, bytes32 rights, bool enable) external returns (bytes32 delegationHash);
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific contract
@@ -72,8 +73,9 @@ interface IDelegateRegistry {
      * @param contract_ The contract whose rights are being delegated
      * @param rights Specific subdelegation rights granted to the delegate, pass an empty bytestring to encompass all rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
+     * @return delegationHash the unique identifier of the delegation
      */
-    function delegateContract(address to, address contract_, bytes32 rights, bool enable) external;
+    function delegateContract(address to, address contract_, bytes32 rights, bool enable) external returns (bytes32 delegationHash);
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific ERC721 token
@@ -82,8 +84,9 @@ interface IDelegateRegistry {
      * @param tokenId The token id to delegate
      * @param rights Specific subdelegation rights granted to the delegate, pass an empty bytestring to encompass all rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
+     * @return delegationHash the unique identifier of the delegation
      */
-    function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external;
+    function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external returns (bytes32 delegationHash);
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific amount of ERC20 tokens
@@ -92,8 +95,9 @@ interface IDelegateRegistry {
      * @param amount The amount to delegate
      * @param rights Specific subdelegation rights granted to the delegate, pass an empty bytestring to encompass all rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
+     * @return delegationHash the unique identifier of the delegation
      */
-    function delegateERC20(address to, address contract_, uint256 amount, bytes32 rights, bool enable) external;
+    function delegateERC20(address to, address contract_, uint256 amount, bytes32 rights, bool enable) external returns (bytes32 delegationHash);
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific amount of ERC1155 tokens
@@ -103,8 +107,9 @@ interface IDelegateRegistry {
      * @param amount The amount of that token id to delegate
      * @param rights Specific subdelegation rights granted to the delegate, pass an empty bytestring to encompass all rights
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
+     * @return delegationHash the unique identifier of the delegation
      */
-    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external;
+    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external returns (bytes32 delegationHash);
 
     /**
      * ----------- CHECKS -----------
@@ -199,4 +204,27 @@ interface IDelegateRegistry {
      * @return delegations Array of Delegation structs, return empty structs for nonexistent or revoked delegations
      */
     function getDelegationsFromHashes(bytes32[] calldata delegationHashes) external view returns (Delegation[] memory delegations);
+
+    /**
+     * ----------- STORAGE ACCESS -----------
+     */
+    /// @dev Standardizes storage positions of delegation data
+    enum StoragePositions {
+        to,
+        from,
+        rights,
+        contract_,
+        tokenId,
+        amount
+    }
+
+    /**
+     * @notice allows external contract to read arbitrary storage slot
+     */
+    function readSlot(bytes32 location) external view returns (bytes32);
+
+    /**
+     * @notice allows external contracts to read an arbitrary array of storage slots
+     */
+    function readSlots(bytes32[] calldata locations) external view returns (bytes32[] memory);
 }
