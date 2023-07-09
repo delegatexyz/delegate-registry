@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
+import {console2} from "forge-std/console2.sol";
 import {IDelegateRegistry as IRegistry} from "src/IDelegateRegistry.sol";
 import {DelegateRegistry as Registry} from "src/DelegateRegistry.sol";
 import {RegistryHarness as Harness} from "src/tools/RegistryHarness.sol";
@@ -10,18 +11,18 @@ contract RegistryUnitTests is Test {
     Harness public harness;
     Registry public registry;
 
-    enum StoragePositions {
-        to,
-        from,
-        rights,
-        contract_,
-        tokenId,
-        amount
-    }
-
     function setUp() public {
         harness = new Harness();
         registry = new Registry();
+    }
+
+    /**
+     * ----------- constants -----------
+     */
+
+    function testConstants() public {
+        assertEq(harness.exposedDelegationEmpty(), address(0));
+        assertEq(harness.exposedDelegationRevoked(), address(1));
     }
 
     /**
@@ -335,13 +336,17 @@ contract RegistryUnitTests is Test {
     }
 
     function _checkStorage(uint256 amount, address contract_, address delegate, bytes32 hash, bytes32 rights, uint256 tokenId, address vault) internal {
-        assertEq(harness.exposedDelegations(hash).length, uint256(type(StoragePositions).max) + 1);
-        assertEq(address(uint160(uint256(harness.exposedDelegations(hash)[uint256(StoragePositions.to)]))), delegate);
-        assertEq(address(uint160(uint256(harness.exposedDelegations(hash)[uint256(StoragePositions.from)]))), vault);
-        assertEq(harness.exposedDelegations(hash)[uint256(StoragePositions.rights)], rights);
-        assertEq(address(uint160(uint256(harness.exposedDelegations(hash)[uint256(StoragePositions.contract_)]))), contract_);
-        assertEq(uint256(harness.exposedDelegations(hash)[uint256(StoragePositions.tokenId)]), tokenId);
-        assertEq(uint256(harness.exposedDelegations(hash)[uint256(StoragePositions.amount)]), amount);
+        assertEq(harness.exposedDelegations(hash).length, uint256(type(IRegistry.StoragePositions).max) + 1);
+        assertEq(address(uint160(uint256(harness.exposedDelegations(hash)[uint256(IRegistry.StoragePositions.secondPacked)]))), delegate);
+        assertEq(address(uint160(uint256(harness.exposedDelegations(hash)[uint256(IRegistry.StoragePositions.firstPacked)]))), vault);
+        assertEq(harness.exposedDelegations(hash)[uint256(IRegistry.StoragePositions.rights)], rights);
+        assertEq(uint256(harness.exposedDelegations(hash)[uint256(IRegistry.StoragePositions.tokenId)]), tokenId);
+        assertEq(uint256(harness.exposedDelegations(hash)[uint256(IRegistry.StoragePositions.amount)]), amount);
+        // Check token contract
+        uint256 contractFirst8Bytes = ((uint256(harness.exposedDelegations(hash)[uint256(IRegistry.StoragePositions.firstPacked)]) >> 160) << 96);
+        uint256 contractLast12Bytes = (uint256(harness.exposedDelegations(hash)[uint256(IRegistry.StoragePositions.secondPacked)]) >> 160);
+        address decodedContract = address(uint160(contractFirst8Bytes | contractLast12Bytes));
+        assertEq(decodedContract, contract_);
     }
 
     /**
@@ -352,7 +357,6 @@ contract RegistryUnitTests is Test {
         public
     {
         vm.assume(vault > address(1));
-        if (amount % 2 == 0) vm.assume(rights == "");
         // new registry
         registry = new Registry();
         // Should return false for any input
@@ -369,11 +373,14 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, enable);
         vm.stopPrank();
-        if (enable) assertTrue(registry.checkDelegateForAll(delegate, vault, rights));
-        else assertFalse(registry.checkDelegateForAll(delegate, vault, rights));
-        if (rights == "") assertTrue(registry.checkDelegateForAll(delegate, vault, fRights));
-        else if (rights != fRights) assertFalse(registry.checkDelegateForAll(delegate, vault, fRights));
-        // revoke and assert false
+        if (enable) {
+            assertTrue(registry.checkDelegateForAll(delegate, vault, rights));
+        } else {
+            assertFalse(registry.checkDelegateForAll(delegate, vault, rights));
+            assertFalse(registry.checkDelegateForAll(delegate, vault, fRights));
+        }
+        if (enable && (rights == "" || rights == fRights)) assertTrue(registry.checkDelegateForAll(delegate, vault, fRights));
+        else assertFalse(registry.checkDelegateForAll(delegate, vault, fRights));
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, false);
         vm.stopPrank();
@@ -391,7 +398,6 @@ contract RegistryUnitTests is Test {
         bytes32 fRights
     ) public {
         vm.assume(vault > address(1));
-        if (amount % 2 == 0) vm.assume(rights == "");
         registry = new Registry();
         assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, rights));
         vm.startPrank(vault);
@@ -404,10 +410,7 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, enable);
         vm.stopPrank();
-        if (enable) assertTrue(registry.checkDelegateForContract(delegate, vault, contract_, rights));
-        else assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, rights));
-        if (rights == "") assertTrue(registry.checkDelegateForContract(delegate, vault, contract_, fRights));
-        else if (rights != fRights) assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, fRights));
+        _checkDelegateForContractLogic(enable, delegate, vault, contract_, rights, fRights);
         // revoke all case, assert false, then check contract_ case
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, false);
@@ -416,10 +419,7 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, enable);
         vm.stopPrank();
-        if (enable) assertTrue(registry.checkDelegateForContract(delegate, vault, contract_, rights));
-        else assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, rights));
-        if (rights == "") assertTrue(registry.checkDelegateForContract(delegate, vault, contract_, fRights));
-        else if (rights != fRights) assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, fRights));
+        _checkDelegateForContractLogic(enable, delegate, vault, contract_, rights, fRights);
         // revoke and check false
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, false);
@@ -427,11 +427,21 @@ contract RegistryUnitTests is Test {
         assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, rights));
     }
 
+    function _checkDelegateForContractLogic(bool enable, address delegate, address vault, address contract_, bytes32 rights, bytes32 fRights) internal {
+        if (enable) {
+            assertTrue(registry.checkDelegateForContract(delegate, vault, contract_, rights));
+        } else {
+            assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, rights));
+            assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, fRights));
+        }
+        if (enable && (rights == "" || rights == fRights)) assertTrue(registry.checkDelegateForContract(delegate, vault, contract_, fRights));
+        else assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, fRights));
+    }
+
     function testCheckDelegateForERC721(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights)
         public
     {
         vm.assume(vault > address(1));
-        if (amount % 2 == 0) vm.assume(rights == "");
         registry = new Registry();
         assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
         vm.startPrank(vault);
@@ -443,10 +453,7 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, enable);
         vm.stopPrank();
-        if (enable) assertTrue(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
-        else assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
-        if (rights == "") assertTrue(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, fRights));
-        else if (rights != fRights) assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, fRights));
+        _checkDelegateForERC721Logic(enable, delegate, vault, contract_, tokenId, rights, fRights);
         // Revoke all then check contract case
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, false);
@@ -455,10 +462,7 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, enable);
         vm.stopPrank();
-        if (enable) assertTrue(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
-        else assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
-        if (rights == "") assertTrue(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, fRights));
-        else if (rights != fRights) assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, fRights));
+        _checkDelegateForERC721Logic(enable, delegate, vault, contract_, tokenId, rights, fRights);
         // Revoke contract then check 721 case
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, false);
@@ -467,10 +471,7 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateERC721(delegate, contract_, tokenId, rights, enable);
         vm.stopPrank();
-        if (enable) assertTrue(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
-        else assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
-        if (rights == "") assertTrue(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, fRights));
-        else if (rights != fRights) assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, fRights));
+        _checkDelegateForERC721Logic(enable, delegate, vault, contract_, tokenId, rights, fRights);
         // revoke and check false
         vm.startPrank(vault);
         registry.delegateERC721(delegate, contract_, tokenId, rights, false);
@@ -478,11 +479,21 @@ contract RegistryUnitTests is Test {
         assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
     }
 
+    function _checkDelegateForERC721Logic(bool enable, address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights, bytes32 fRights) internal {
+        if (enable) {
+            assertTrue(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
+        } else {
+            assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
+            assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, fRights));
+        }
+        if (enable && (rights == "" || rights == fRights)) assertTrue(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, fRights));
+        else assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, fRights));
+    }
+
     function testCheckDelegateForERC20(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights)
         public
     {
         vm.assume(vault > address(1));
-        if (amount % 2 == 0) vm.assume(rights == "");
         registry = new Registry();
         assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
         vm.startPrank(vault);
@@ -494,10 +505,7 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, enable);
         vm.stopPrank();
-        if (enable) assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), type(uint256).max);
-        else assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
-        if (rights == "") assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), type(uint256).max);
-        else if (rights != fRights) assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), 0);
+        _checkDelegateForERC20Logic(enable, delegate, vault, contract_, rights, fRights, type(uint256).max);
         // Revoke all case then check contract case
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, false);
@@ -506,10 +514,7 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, enable);
         vm.stopPrank();
-        if (enable) assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), type(uint256).max);
-        else assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
-        if (rights == "") assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), type(uint256).max);
-        else if (rights != fRights) assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), 0);
+        _checkDelegateForERC20Logic(enable, delegate, vault, contract_, rights, fRights, type(uint256).max);
         // Revoke contract case then check for ERC20 case
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, false);
@@ -518,17 +523,13 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateERC20(delegate, contract_, amount, rights, enable);
         vm.stopPrank();
-        if (enable) assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), amount);
-        else assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
-        if (rights == "") assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), amount);
-        else if (rights != fRights) assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), 0);
+        _checkDelegateForERC20Logic(enable, delegate, vault, contract_, rights, fRights, amount);
         // Revoke and check false
         vm.startPrank(vault);
         registry.delegateERC20(delegate, contract_, amount, rights, false);
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
         // Check bubble up for all and erc20
-        vm.assume(amount < type(uint256).max);
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, true);
         registry.delegateERC20(delegate, contract_, amount, rights, true);
@@ -551,6 +552,17 @@ contract RegistryUnitTests is Test {
         assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
     }
 
+    function _checkDelegateForERC20Logic(bool enable, address delegate, address vault, address contract_, bytes32 rights, bytes32 fRights, uint256 amount) internal {
+        if (enable) {
+            assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), amount);
+        } else {
+            assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
+            assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), 0);
+        }
+        if (enable && (rights == "" || rights == fRights)) assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), amount);
+        else assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), 0);
+    }
+
     function testCheckDelegateForERC1155(
         address vault,
         bytes32 rights,
@@ -562,7 +574,6 @@ contract RegistryUnitTests is Test {
         bytes32 fRights
     ) public {
         vm.assume(vault > address(1));
-        if (amount % 2 == 0) vm.assume(rights == "");
         registry = new Registry();
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
         vm.startPrank(vault);
@@ -574,10 +585,7 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, enable);
         vm.stopPrank();
-        if (enable) assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), type(uint256).max);
-        else assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
-        if (rights == "") assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), type(uint256).max);
-        else if (rights != fRights) assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), 0);
+        _checkDelegateForERC1155Logic(enable, delegate, vault, contract_, tokenId, rights, fRights, type(uint256).max);
         // Revoke all then check contract case
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, false);
@@ -586,10 +594,7 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, enable);
         vm.stopPrank();
-        if (enable) assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), type(uint256).max);
-        else assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
-        if (rights == "") assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), type(uint256).max);
-        else if (rights != fRights) assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), 0);
+        _checkDelegateForERC1155Logic(enable, delegate, vault, contract_, tokenId, rights, fRights, type(uint256).max);
         // Revoke contract then check for ERC1155 case
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, false);
@@ -598,17 +603,13 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateERC1155(delegate, contract_, tokenId, amount, rights, enable);
         vm.stopPrank();
-        if (enable) assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), amount);
-        else assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
-        if (rights == "") assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), amount);
-        else if (rights != fRights) assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), 0);
+        _checkDelegateForERC1155Logic(enable, delegate, vault, contract_, tokenId, rights, fRights, amount);
         // Revoke and check false
         vm.startPrank(vault);
         registry.delegateERC1155(delegate, contract_, tokenId, amount, rights, false);
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
         // Check bubble up for all and erc1155
-        vm.assume(amount < type(uint256).max);
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, true);
         registry.delegateERC1155(delegate, contract_, tokenId, amount, rights, true);
@@ -630,6 +631,30 @@ contract RegistryUnitTests is Test {
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
     }
+
+    function _checkDelegateForERC1155Logic(
+        bool enable,
+        address delegate,
+        address vault,
+        address contract_,
+        uint256 tokenId,
+        bytes32 rights,
+        bytes32 fRights,
+        uint256 amount
+    ) internal {
+        if (enable) {
+            assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), amount);
+        } else {
+            assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
+            assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), 0);
+        }
+        if (enable && (rights == "" || rights == fRights)) assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), amount);
+        else assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), 0);
+    }
+
+    /**
+     * ----------- TODO: Enumerations -----------
+     */
 
     /**
      * ----------- storage access -----------
@@ -653,5 +678,124 @@ contract RegistryUnitTests is Test {
         for (uint256 i = 0; i < data.length; i++) {
             assertEq(receivedData[i], data[i]);
         }
+    }
+
+    /**
+     * ----------- ERC165 -----------
+     */
+
+    function testSupportsInterface(bytes32 notInterface) public {
+        bytes4 formattedNotInterface = bytes4(notInterface);
+        vm.assume(formattedNotInterface != type(IRegistry).interfaceId);
+        vm.assume(formattedNotInterface != 0x01ffc9a7);
+        assertFalse(registry.supportsInterface(formattedNotInterface));
+        assertTrue(registry.supportsInterface(type(IRegistry).interfaceId));
+        assertTrue(registry.supportsInterface(0x01ffc9a7));
+    }
+
+    /**
+     * ----------- Internal helper functions -----------
+     */
+
+    function testPushDelegationHashes(uint256 seed, uint256 n) public {
+        vm.assume(n < 100);
+        address[] memory fromAddresses = new address[](n);
+        address[] memory toAddresses = new address[](n);
+        bytes32[] memory delegationHashes = new bytes32[](n);
+        for (uint256 i = 0; i < n; i++) {
+            fromAddresses[i] = address(uint160(uint256(keccak256(abi.encode("from", i)))));
+            toAddresses[i] = address(uint160(uint256(keccak256(abi.encode("to", i)))));
+            delegationHashes[i] = keccak256(abi.encode("delegationHash", i));
+            harness.exposedPushDelegationHashes(fromAddresses[i], toAddresses[i], delegationHashes[i]);
+            assertEq(harness.exposedIncomingDelegationHashes(toAddresses[i])[0], delegationHashes[i]);
+            assertEq(harness.exposedOutgoingDelegationHashes(fromAddresses[i])[0], delegationHashes[i]);
+            assertEq(harness.exposedIncomingDelegationHashes(toAddresses[i]).length, 1);
+            assertEq(harness.exposedOutgoingDelegationHashes(fromAddresses[i]).length, 1);
+            if (i != 0) {
+                uint256 spotCheck = seed % i;
+                assertEq(harness.exposedIncomingDelegationHashes(toAddresses[spotCheck])[0], delegationHashes[spotCheck]);
+                assertEq(harness.exposedOutgoingDelegationHashes(fromAddresses[spotCheck])[0], delegationHashes[spotCheck]);
+                assertEq(harness.exposedIncomingDelegationHashes(toAddresses[spotCheck]).length, 1);
+                assertEq(harness.exposedOutgoingDelegationHashes(fromAddresses[spotCheck]).length, 1);
+            }
+        }
+    }
+
+    function testWriteDelegationBytes32(bytes32 location, bytes32 notLocation, bytes32 data) public {
+        harness.exposedWriteDelegation(location, IRegistry.StoragePositions.firstPacked, data);
+        bytes32 formattedLocation = bytes32(uint256(location) + uint256(IRegistry.StoragePositions.firstPacked));
+        bytes32 slotContains = harness.readSlot(formattedLocation);
+        assertEq(slotContains, data);
+        bytes32 notSlotContains = harness.readSlot(notLocation);
+        if (notLocation == formattedLocation) assertEq(notSlotContains, data);
+        else assertEq(notSlotContains, "");
+    }
+
+    function testWriteDelegationUint256(bytes32 location, bytes32 notLocation, uint256 data) public {
+        harness.exposedWriteDelegation(location, IRegistry.StoragePositions.firstPacked, data);
+        bytes32 formattedLocation = bytes32(uint256(location) + uint256(IRegistry.StoragePositions.firstPacked));
+        uint256 slotContains = uint256(harness.readSlot(formattedLocation));
+        assertEq(slotContains, data);
+        uint256 notSlotContains = uint256(harness.readSlot(notLocation));
+        if (notLocation == formattedLocation) assertEq(notSlotContains, data);
+        else assertEq(notSlotContains, 0);
+    }
+
+    // @dev see IDelegateRegistry for packed layout
+    function testWriteDelegationAddresses(bytes32 location, address from, address to, address contract_) public {
+        harness.exposedWriteDelegationAddresses(location, IRegistry.StoragePositions.firstPacked, IRegistry.StoragePositions.secondPacked, from, to, contract_);
+        uint256 contractUint256 = uint256(uint160(contract_));
+        uint256 first8BytesContract = (contractUint256 >> 96);
+        uint256 last12BytesContract = ((contractUint256 << 160) >> 160);
+        bytes32 formattedLocation1 = bytes32(uint256(location) + uint256(IRegistry.StoragePositions.firstPacked));
+        bytes32 formattedLocation2 = bytes32(uint256(location) + uint256(IRegistry.StoragePositions.secondPacked));
+        bytes32 slot1 = harness.readSlot(formattedLocation1);
+        bytes32 slot2 = harness.readSlot(formattedLocation2);
+        // Checking from, to, contract_ here
+        assertEq(from, address(uint160(uint256(slot1))));
+        assertEq(to, address(uint160(uint256(slot2))));
+        assertEq(first8BytesContract, (uint256(slot1) >> 160));
+        assertEq(last12BytesContract, (uint256(slot2) >> 160));
+    }
+
+    /// TODO: enumeration helper functions
+
+    function testLoadDelegationBytes32(bytes32 location, bytes32 data) public {
+        bytes32 formattedLocation = bytes32(uint256(location) + uint256(IRegistry.StoragePositions.firstPacked));
+        vm.store(address(harness), formattedLocation, data);
+        assertEq(data, harness.exposedLoadDelegationBytes32(location, IRegistry.StoragePositions.firstPacked));
+    }
+
+    function testLoadDelegationUint256(bytes32 location, uint256 data) public {
+        bytes32 formattedLocation = bytes32(uint256(location) + uint256(IRegistry.StoragePositions.firstPacked));
+        vm.store(address(harness), formattedLocation, bytes32(data));
+        assertEq(data, harness.exposedLoadDelegationUint(location, IRegistry.StoragePositions.firstPacked));
+    }
+
+    function testLoadFrom(bytes32 location, uint256 from) public {
+        bytes32 formattedLocation = bytes32(uint256(location) + uint256(IRegistry.StoragePositions.firstPacked));
+        vm.store(address(harness), formattedLocation, bytes32(from));
+        assertEq(address(uint160(((from << 96) >> 96))), harness.exposedLoadFrom(location, IRegistry.StoragePositions.firstPacked));
+    }
+
+    function testLoadDelegationAddresses(bytes32 location, address from, address to, address contract_) public {
+        harness.exposedWriteDelegationAddresses(location, IRegistry.StoragePositions.firstPacked, IRegistry.StoragePositions.secondPacked, from, to, contract_);
+        (address checkFrom, address checkTo, address checkContract) =
+            harness.exposedLoadDelegationAddresses(location, IRegistry.StoragePositions.firstPacked, IRegistry.StoragePositions.secondPacked);
+        assertEq(from, checkFrom);
+        assertEq(to, checkTo);
+        assertEq(contract_, checkContract);
+    }
+
+    function testValidateDelegation(bytes32 location, address from, bytes32 notLocation, address notFrom) public {
+        bytes32 formattedLocation = bytes32(uint256(location) + uint256(IRegistry.StoragePositions.firstPacked));
+        vm.store(address(harness), formattedLocation, bytes32(uint256(uint160(from))));
+        vm.assume(formattedLocation != notLocation);
+        vm.assume(from != notFrom);
+        if (from > address(1)) assertTrue(harness.exposedValidateDelegation(formattedLocation, from));
+        else assertFalse(harness.exposedValidateDelegation(formattedLocation, from));
+        assertFalse(harness.exposedValidateDelegation(formattedLocation, notFrom));
+        assertFalse(harness.exposedValidateDelegation(notLocation, from));
+        assertFalse(harness.exposedValidateDelegation(notLocation, notFrom));
     }
 }
