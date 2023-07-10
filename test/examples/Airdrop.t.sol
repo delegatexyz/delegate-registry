@@ -88,6 +88,7 @@ contract AirdropTest is Test {
     }
 
     function testAirdropWithoutDelegate(uint256 addressSeed, uint256 amountSeed, uint256 n, address referenceToken) public {
+        vm.assume(referenceToken != address(0));
         vm.assume(n > 1 && n < MAX_AIRDROP_SIZE && addressSeed != amountSeed);
         _createAirdrop(addressSeed, amountSeed, n);
         // Calculate total tokens to mint

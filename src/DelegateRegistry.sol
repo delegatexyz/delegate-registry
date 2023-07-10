@@ -305,8 +305,8 @@ contract DelegateRegistry is IDelegateRegistry {
         internal
     {
         assembly {
-            sstore(add(location, firstPacked), or(shl(160, shr(96, contract_)), from))
-            sstore(add(location, secondPacked), or(shl(160, contract_), to))
+            sstore(add(location, firstPacked), or(shl(160, shr(96, shr(96,shl(96,contract_)))), shr(96,shl(96,from))))
+            sstore(add(location, secondPacked), or(shl(160, shr(96,shl(96,contract_))), shr(96,shl(96,to))))
         }
     }
 
@@ -391,7 +391,7 @@ contract DelegateRegistry is IDelegateRegistry {
 
             from := shr(96, shl(96, firstSlot))
             to := shr(96, shl(96, secondSlot))
-            contract_ := or(shl(96, shr(160, firstSlot)), shr(160, secondSlot))
+            contract_ := or(shl(96, shr(160, shr(32,shl(32,firstSlot)))), shr(160, secondSlot))
         }
     }
 
