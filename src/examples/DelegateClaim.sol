@@ -22,6 +22,8 @@ contract DelegateClaim {
      * @param referenceToken_ The address of the reference token.
      */
     constructor(address registry_, address referenceToken_, bytes32 acceptedRight_) {
+        require(registry_ != address(0), "RegistryZero");
+        require(referenceToken_ != address(0), "ReferenceTokenZero");
         delegateRegistry = IDelegateRegistry(registry_);
         referenceToken = referenceToken_;
         acceptedRight = acceptedRight_;

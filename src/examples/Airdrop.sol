@@ -24,9 +24,9 @@ contract Airdrop is ERC20, DelegateClaim {
      * @param merkleRoot_ The root hash of the merkle tree representing the airdrop.
      * @param merkle_ The address of the murky Merkle contract used for proof verification.
      */
-    constructor(address registry_, address referenceToken_, bytes32 acceptedRight, uint256 totalSupply_, bytes32 merkleRoot_, address merkle_)
+    constructor(address registry_, address referenceToken_, bytes32 airdropRight, uint256 totalSupply_, bytes32 merkleRoot_, address merkle_)
         ERC20("Airdrop", "Air")
-        DelegateClaim(registry_, referenceToken_, acceptedRight)
+        DelegateClaim(registry_, referenceToken_, airdropRight)
     {
         _mint(address(this), totalSupply_);
         merkleRoot = merkleRoot_;

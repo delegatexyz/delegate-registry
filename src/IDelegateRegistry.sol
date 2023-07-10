@@ -210,10 +210,9 @@ interface IDelegateRegistry {
      */
     /// @dev Standardizes storage positions of delegation data
     enum StoragePositions {
-        to,
-        from,
+        firstPacked, //     | 4 bytes empty | first 8 bytes of contract address | 20 bytes of from address |
+        secondPacked, //     | last 12 bytes of contract address | 20 bytes of to address |
         rights,
-        contract_,
         tokenId,
         amount
     }
