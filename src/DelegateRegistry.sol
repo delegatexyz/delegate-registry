@@ -36,7 +36,6 @@ contract DelegateRegistry is IDelegateRegistry {
         bool success;
         unchecked {
             for (uint256 i = 0; i < data.length; ++i) {
-                // Disabling as this loop does not lead to a DOS since the registry is delegateCalling itself
                 //slither-disable-next-line calls-loop
                 (success, results[i]) = address(this).delegatecall(data[i]);
                 if (!success) revert MulticallFailed();
@@ -277,7 +276,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /**
-     * ----------- Internal -----------
+     * ----------- INTERNAL -----------
      */
 
     /// @dev Helper function to push new delegation hashes to the incoming and outgoing hashes mappings
