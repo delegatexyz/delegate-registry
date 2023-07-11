@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: CC0-1.0
 pragma solidity ^0.8.20;
 
-import {IDelegateRegistry} from "./IDelegateRegistry.sol";
-
-import {RegistryHashes} from "./libraries/RegistryHashes.sol";
+import {IDelegateRegistry as IDelegateRegistry} from "./IDelegateRegistry.sol";
+import {RegistryHashes as Hashes} from "./libraries/RegistryHashes.sol";
+import {RegistryStorage as Storage} from "./libraries/RegistryStorage.sol";
 
 /**
  * @title DelegateRegistry
@@ -45,64 +45,64 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function delegateAll(address to, bytes32 rights, bool enable) external override returns (bytes32 hash) {
-        hash = RegistryHashes.allHash(msg.sender, rights, to);
-        bytes32 location = RegistryHashes.location(hash);
-        if (_loadFrom(location, StoragePositions.firstPacked) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
+        hash = Hashes.allHash(msg.sender, rights, to);
+        bytes32 location = Hashes.location(hash);
+        if (_loadFrom(location, Storage.Positions.firstPacked) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
         if (enable) {
-            _writeDelegationAddresses(location, StoragePositions.firstPacked, StoragePositions.secondPacked, msg.sender, to, address(0));
-            if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
+            _writeDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked, msg.sender, to, address(0));
+            if (rights != "") _writeDelegation(location, Storage.Positions.rights, rights);
         } else {
-            _writeDelegationAddresses(location, StoragePositions.firstPacked, StoragePositions.secondPacked, DELEGATION_REVOKED, address(0), address(0));
-            if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
+            _writeDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked, DELEGATION_REVOKED, address(0), address(0));
+            if (rights != "") _writeDelegation(location, Storage.Positions.rights, "");
         }
         emit DelegateAll(msg.sender, to, rights, enable);
     }
 
     /// @inheritdoc IDelegateRegistry
     function delegateContract(address to, address contract_, bytes32 rights, bool enable) external override returns (bytes32 hash) {
-        hash = RegistryHashes.contractHash(msg.sender, rights, to, contract_);
-        bytes32 location = RegistryHashes.location(hash);
-        if (_loadFrom(location, StoragePositions.firstPacked) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
+        hash = Hashes.contractHash(msg.sender, rights, to, contract_);
+        bytes32 location = Hashes.location(hash);
+        if (_loadFrom(location, Storage.Positions.firstPacked) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
         if (enable) {
-            _writeDelegationAddresses(location, StoragePositions.firstPacked, StoragePositions.secondPacked, msg.sender, to, contract_);
-            if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
+            _writeDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked, msg.sender, to, contract_);
+            if (rights != "") _writeDelegation(location, Storage.Positions.rights, rights);
         } else {
-            _writeDelegationAddresses(location, StoragePositions.firstPacked, StoragePositions.secondPacked, DELEGATION_REVOKED, address(0), address(0));
-            if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
+            _writeDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked, DELEGATION_REVOKED, address(0), address(0));
+            if (rights != "") _writeDelegation(location, Storage.Positions.rights, "");
         }
         emit DelegateContract(msg.sender, to, contract_, rights, enable);
     }
 
     /// @inheritdoc IDelegateRegistry
     function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external override returns (bytes32 hash) {
-        hash = RegistryHashes.erc721Hash(msg.sender, rights, to, tokenId, contract_);
-        bytes32 location = RegistryHashes.location(hash);
-        if (_loadFrom(location, StoragePositions.firstPacked) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
+        hash = Hashes.erc721Hash(msg.sender, rights, to, tokenId, contract_);
+        bytes32 location = Hashes.location(hash);
+        if (_loadFrom(location, Storage.Positions.firstPacked) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
         if (enable) {
-            _writeDelegationAddresses(location, StoragePositions.firstPacked, StoragePositions.secondPacked, msg.sender, to, contract_);
-            _writeDelegation(location, StoragePositions.tokenId, tokenId);
-            if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
+            _writeDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked, msg.sender, to, contract_);
+            _writeDelegation(location, Storage.Positions.tokenId, tokenId);
+            if (rights != "") _writeDelegation(location, Storage.Positions.rights, rights);
         } else {
-            _writeDelegationAddresses(location, StoragePositions.firstPacked, StoragePositions.secondPacked, DELEGATION_REVOKED, address(0), address(0));
-            _writeDelegation(location, StoragePositions.tokenId, "");
-            if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
+            _writeDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked, DELEGATION_REVOKED, address(0), address(0));
+            _writeDelegation(location, Storage.Positions.tokenId, "");
+            if (rights != "") _writeDelegation(location, Storage.Positions.rights, "");
         }
         emit DelegateERC721(msg.sender, to, contract_, tokenId, rights, enable);
     }
 
     // @inheritdoc IDelegateRegistry
     function delegateERC20(address to, address contract_, uint256 amount, bytes32 rights, bool enable) external override returns (bytes32 hash) {
-        hash = RegistryHashes.erc20Hash(msg.sender, rights, to, contract_);
-        bytes32 location = RegistryHashes.location(hash);
-        if (_loadFrom(location, StoragePositions.firstPacked) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
+        hash = Hashes.erc20Hash(msg.sender, rights, to, contract_);
+        bytes32 location = Hashes.location(hash);
+        if (_loadFrom(location, Storage.Positions.firstPacked) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
         if (enable) {
-            _writeDelegationAddresses(location, StoragePositions.firstPacked, StoragePositions.secondPacked, msg.sender, to, contract_);
-            _writeDelegation(location, StoragePositions.amount, amount);
-            if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
+            _writeDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked, msg.sender, to, contract_);
+            _writeDelegation(location, Storage.Positions.amount, amount);
+            if (rights != "") _writeDelegation(location, Storage.Positions.rights, rights);
         } else {
-            _writeDelegationAddresses(location, StoragePositions.firstPacked, StoragePositions.secondPacked, DELEGATION_REVOKED, address(0), address(0));
-            _writeDelegation(location, StoragePositions.amount, "");
-            if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
+            _writeDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked, DELEGATION_REVOKED, address(0), address(0));
+            _writeDelegation(location, Storage.Positions.amount, "");
+            if (rights != "") _writeDelegation(location, Storage.Positions.rights, "");
         }
         emit DelegateERC20(msg.sender, to, contract_, amount, rights, enable);
     }
@@ -112,19 +112,19 @@ contract DelegateRegistry is IDelegateRegistry {
      * @dev The actual amount is not encoded in the hash, just the existence of a amount (since it is an upper bound)
      */
     function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external override returns (bytes32 hash) {
-        hash = RegistryHashes.erc1155Hash(msg.sender, rights, to, tokenId, contract_);
-        bytes32 location = RegistryHashes.location(hash);
-        if (_loadFrom(location, StoragePositions.firstPacked) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
+        hash = Hashes.erc1155Hash(msg.sender, rights, to, tokenId, contract_);
+        bytes32 location = Hashes.location(hash);
+        if (_loadFrom(location, Storage.Positions.firstPacked) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
         if (enable) {
-            _writeDelegationAddresses(location, StoragePositions.firstPacked, StoragePositions.secondPacked, msg.sender, to, contract_);
-            _writeDelegation(location, StoragePositions.amount, amount);
-            _writeDelegation(location, StoragePositions.tokenId, tokenId);
-            if (rights != "") _writeDelegation(location, StoragePositions.rights, rights);
+            _writeDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked, msg.sender, to, contract_);
+            _writeDelegation(location, Storage.Positions.amount, amount);
+            _writeDelegation(location, Storage.Positions.tokenId, tokenId);
+            if (rights != "") _writeDelegation(location, Storage.Positions.rights, rights);
         } else {
-            _writeDelegationAddresses(location, StoragePositions.firstPacked, StoragePositions.secondPacked, DELEGATION_REVOKED, address(0), address(0));
-            _writeDelegation(location, StoragePositions.amount, "");
-            _writeDelegation(location, StoragePositions.tokenId, "");
-            if (rights != "") _writeDelegation(location, StoragePositions.rights, "");
+            _writeDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked, DELEGATION_REVOKED, address(0), address(0));
+            _writeDelegation(location, Storage.Positions.amount, "");
+            _writeDelegation(location, Storage.Positions.tokenId, "");
+            if (rights != "") _writeDelegation(location, Storage.Positions.rights, "");
         }
         emit DelegateERC1155(msg.sender, to, contract_, tokenId, amount, rights, enable);
     }
@@ -135,58 +135,54 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForAll(address to, address from, bytes32 rights) external view override returns (bool valid) {
-        valid = _validateDelegation(RegistryHashes.allLocation(from, "", to), from);
-        if (rights != "" && !valid) valid = _validateDelegation(RegistryHashes.allLocation(from, rights, to), from);
+        valid = _validateDelegation(Hashes.allLocation(from, "", to), from);
+        if (rights != "" && !valid) valid = _validateDelegation(Hashes.allLocation(from, rights, to), from);
     }
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForContract(address to, address from, address contract_, bytes32 rights) external view override returns (bool valid) {
-        valid = _validateDelegation(RegistryHashes.allLocation(from, "", to), from) || _validateDelegation(RegistryHashes.contractLocation(from, "", to, contract_), from);
+        valid = _validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from);
         if (rights != "" && !valid) {
-            valid = _validateDelegation(RegistryHashes.allLocation(from, rights, to), from)
-                || _validateDelegation(RegistryHashes.contractLocation(from, rights, to, contract_), from);
+            valid = _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from);
         }
     }
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC721(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view override returns (bool valid) {
-        valid = _validateDelegation(RegistryHashes.allLocation(from, "", to), from) || _validateDelegation(RegistryHashes.contractLocation(from, "", to, contract_), from)
-            || _validateDelegation(RegistryHashes.erc721Location(from, "", to, tokenId, contract_), from);
+        valid = _validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from)
+            || _validateDelegation(Hashes.erc721Location(from, "", to, tokenId, contract_), from);
         if (rights != "" && !valid) {
-            valid = _validateDelegation(RegistryHashes.allLocation(from, rights, to), from)
-                || _validateDelegation(RegistryHashes.contractLocation(from, rights, to, contract_), from)
-                || _validateDelegation(RegistryHashes.erc721Location(from, rights, to, tokenId, contract_), from);
+            valid = _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from)
+                || _validateDelegation(Hashes.erc721Location(from, rights, to, tokenId, contract_), from);
         }
     }
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC20(address to, address from, address contract_, bytes32 rights) external view override returns (uint256 amount) {
-        bytes32 location = RegistryHashes.erc20Location(from, "", to, contract_);
-        amount = (
-            _validateDelegation(RegistryHashes.allLocation(from, "", to), from) || _validateDelegation(RegistryHashes.contractLocation(from, "", to, contract_), from)
-        ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, StoragePositions.amount) : 0);
+        bytes32 location = Hashes.erc20Location(from, "", to, contract_);
+        amount = (_validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from))
+            ? type(uint256).max
+            : (_validateDelegation(location, from) ? _loadDelegationUint(location, Storage.Positions.amount) : 0);
         if (rights != "" && amount != type(uint256).max) {
-            location = RegistryHashes.erc20Location(from, rights, to, contract_);
+            location = Hashes.erc20Location(from, rights, to, contract_);
             uint256 rightsBalance = (
-                _validateDelegation(RegistryHashes.allLocation(from, rights, to), from)
-                    || _validateDelegation(RegistryHashes.contractLocation(from, rights, to, contract_), from)
-            ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, StoragePositions.amount) : 0);
+                _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from)
+            ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, Storage.Positions.amount) : 0);
             amount = rightsBalance > amount ? rightsBalance : amount;
         }
     }
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC1155(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view override returns (uint256 amount) {
-        bytes32 location = RegistryHashes.erc1155Location(from, "", to, tokenId, contract_);
-        amount = (
-            _validateDelegation(RegistryHashes.allLocation(from, "", to), from) || _validateDelegation(RegistryHashes.contractLocation(from, "", to, contract_), from)
-        ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, StoragePositions.amount) : 0);
+        bytes32 location = Hashes.erc1155Location(from, "", to, tokenId, contract_);
+        amount = (_validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from))
+            ? type(uint256).max
+            : (_validateDelegation(location, from) ? _loadDelegationUint(location, Storage.Positions.amount) : 0);
         if (rights != "" && amount != type(uint256).max) {
-            location = RegistryHashes.erc1155Location(from, rights, to, tokenId, contract_);
+            location = Hashes.erc1155Location(from, rights, to, tokenId, contract_);
             uint256 rightsBalance = (
-                _validateDelegation(RegistryHashes.allLocation(from, rights, to), from)
-                    || _validateDelegation(RegistryHashes.contractLocation(from, rights, to, contract_), from)
-            ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, StoragePositions.amount) : 0);
+                _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from)
+            ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, Storage.Positions.amount) : 0);
             amount = rightsBalance > amount ? rightsBalance : amount;
         }
     }
@@ -220,20 +216,20 @@ contract DelegateRegistry is IDelegateRegistry {
         delegations_ = new Delegation[](hashes.length);
         unchecked {
             for (uint256 i = 0; i < hashes.length; ++i) {
-                bytes32 location = RegistryHashes.location(hashes[i]);
-                address from = _loadFrom(location, StoragePositions.firstPacked);
+                bytes32 location = Hashes.location(hashes[i]);
+                address from = _loadFrom(location, Storage.Positions.firstPacked);
                 if (from == DELEGATION_EMPTY || from == DELEGATION_REVOKED) {
                     delegations_[i] = Delegation({type_: DelegationType.NONE, to: address(0), from: address(0), rights: "", amount: 0, contract_: address(0), tokenId: 0});
                 } else {
-                    (, address to, address contract_) = _loadDelegationAddresses(location, StoragePositions.firstPacked, StoragePositions.secondPacked);
+                    (, address to, address contract_) = _loadDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked);
                     delegations_[i] = Delegation({
-                        type_: RegistryHashes.decodeType(hashes[i]),
+                        type_: Hashes.decodeType(hashes[i]),
                         to: to,
                         from: from,
-                        rights: _loadDelegationBytes32(location, StoragePositions.rights),
-                        amount: _loadDelegationUint(location, StoragePositions.amount),
+                        rights: _loadDelegationBytes32(location, Storage.Positions.rights),
+                        amount: _loadDelegationUint(location, Storage.Positions.amount),
                         contract_: contract_,
-                        tokenId: _loadDelegationUint(location, StoragePositions.tokenId)
+                        tokenId: _loadDelegationUint(location, Storage.Positions.tokenId)
                     });
                 }
             }
@@ -282,26 +278,27 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @dev Helper function that writes bytes32 data to delegation data location at array position
-    function _writeDelegation(bytes32 location, StoragePositions position, bytes32 data) internal {
+    function _writeDelegation(bytes32 location, Storage.Positions position, bytes32 data) internal {
         assembly {
             sstore(add(location, position), data)
         }
     }
 
     /// @dev Helper function that writes uint256 data to delegation data location at array position
-    function _writeDelegation(bytes32 location, StoragePositions position, uint256 data) internal {
+    function _writeDelegation(bytes32 location, Storage.Positions position, uint256 data) internal {
         assembly {
             sstore(add(location, position), data)
         }
     }
 
     /// @dev Helper function that writes addresses according to the packing rule for delegation storage
-    function _writeDelegationAddresses(bytes32 location, StoragePositions firstPacked, StoragePositions secondPacked, address from, address to, address contract_)
+    function _writeDelegationAddresses(bytes32 location, Storage.Positions firstPacked, Storage.Positions secondPacked, address from, address to, address contract_)
         internal
     {
+        (bytes32 firstSlot, bytes32 secondSlot) = Storage.packAddresses(from, to, contract_);
         assembly {
-            sstore(add(location, firstPacked), or(shl(160, shr(192, shl(96, contract_))), shr(96, shl(96, from))))
-            sstore(add(location, secondPacked), or(shl(160, shr(96, shl(96, contract_))), shr(96, shl(96, to))))
+            sstore(add(location, firstPacked), firstSlot)
+            sstore(add(location, secondPacked), secondSlot)
         }
     }
 
@@ -314,22 +311,22 @@ contract DelegateRegistry is IDelegateRegistry {
         unchecked {
             for (uint256 i = 0; i < hashesLength; ++i) {
                 hash = hashes[i];
-                if (_loadFrom(RegistryHashes.location(hash), StoragePositions.firstPacked) > DELEGATION_REVOKED) filteredHashes[count++] = hash;
+                if (_loadFrom(Hashes.location(hash), Storage.Positions.firstPacked) > DELEGATION_REVOKED) filteredHashes[count++] = hash;
             }
             delegations_ = new Delegation[](count);
             bytes32 location;
             for (uint256 i = 0; i < count; ++i) {
                 hash = filteredHashes[i];
-                location = RegistryHashes.location(hash);
-                (address from, address to, address contract_) = _loadDelegationAddresses(location, StoragePositions.firstPacked, StoragePositions.secondPacked);
+                location = Hashes.location(hash);
+                (address from, address to, address contract_) = _loadDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked);
                 delegations_[i] = Delegation({
-                    type_: RegistryHashes.decodeType(hash),
+                    type_: Hashes.decodeType(hash),
                     to: to,
                     from: from,
-                    rights: _loadDelegationBytes32(location, StoragePositions.rights),
-                    amount: _loadDelegationUint(location, StoragePositions.amount),
+                    rights: _loadDelegationBytes32(location, Storage.Positions.rights),
+                    amount: _loadDelegationUint(location, Storage.Positions.amount),
                     contract_: contract_,
-                    tokenId: _loadDelegationUint(location, StoragePositions.tokenId)
+                    tokenId: _loadDelegationUint(location, Storage.Positions.tokenId)
                 });
             }
         }
@@ -344,7 +341,7 @@ contract DelegateRegistry is IDelegateRegistry {
         unchecked {
             for (uint256 i = 0; i < hashesLength; ++i) {
                 hash = hashes[i];
-                if (_loadFrom(RegistryHashes.location(hash), StoragePositions.firstPacked) > DELEGATION_REVOKED) filteredHashes[count++] = hash;
+                if (_loadFrom(Hashes.location(hash), Storage.Positions.firstPacked) > DELEGATION_REVOKED) filteredHashes[count++] = hash;
             }
             validHashes = new bytes32[](count);
             for (uint256 i = 0; i < count; ++i) {
@@ -354,44 +351,45 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @dev Helper function that loads delegation data from a particular array position and returns as bytes32
-    function _loadDelegationBytes32(bytes32 location, StoragePositions position) internal view returns (bytes32 data) {
+    function _loadDelegationBytes32(bytes32 location, Storage.Positions position) internal view returns (bytes32 data) {
         assembly {
             data := sload(add(location, position))
         }
     }
 
     /// @dev Helper function that loads delegation data from a particular array position and returns as uint256
-    function _loadDelegationUint(bytes32 location, StoragePositions position) internal view returns (uint256 data) {
+    function _loadDelegationUint(bytes32 location, Storage.Positions position) internal view returns (uint256 data) {
         assembly {
             data := sload(add(location, position))
         }
     }
 
     // @dev Helper function that loads the from address from storage according to the packing rule for delegation storage
-    function _loadFrom(bytes32 location, StoragePositions firstPacked) internal view returns (address from) {
+    function _loadFrom(bytes32 location, Storage.Positions firstPacked) internal view returns (address) {
+        bytes32 data;
         assembly {
-            from := shr(96, shl(96, sload(add(location, firstPacked))))
+            data := sload(add(location, firstPacked))
         }
+        return Storage.unpackAddress(data);
     }
 
     /// @dev Helper function that loads the address for the delegation according to the packing rule for delegation storage
-    function _loadDelegationAddresses(bytes32 location, StoragePositions firstPacked, StoragePositions secondPacked)
+    function _loadDelegationAddresses(bytes32 location, Storage.Positions firstPacked, Storage.Positions secondPacked)
         internal
         view
         returns (address from, address to, address contract_)
     {
+        bytes32 firstSlot;
+        bytes32 secondSlot;
         assembly {
-            let firstSlot := sload(add(location, firstPacked))
-            let secondSlot := sload(add(location, secondPacked))
-
-            from := shr(96, shl(96, firstSlot))
-            to := shr(96, shl(96, secondSlot))
-            contract_ := or(shl(96, shr(192, shl(32, firstSlot))), shr(160, secondSlot))
+            firstSlot := sload(add(location, firstPacked))
+            secondSlot := sload(add(location, secondPacked))
         }
+        (from, to, contract_) = Storage.unPackAddresses(firstSlot, secondSlot);
     }
 
     /// @dev Helper function to establish whether a delegation is enabled
     function _validateDelegation(bytes32 location, address from) internal view returns (bool) {
-        return (_loadFrom(location, StoragePositions.firstPacked) == from && from > DELEGATION_REVOKED);
+        return (_loadFrom(location, Storage.Positions.firstPacked) == from && from > DELEGATION_REVOKED);
     }
 }
