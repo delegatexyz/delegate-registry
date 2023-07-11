@@ -5,6 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 import {IDelegateRegistry as IRegistry} from "src/IDelegateRegistry.sol";
 import {DelegateRegistry as Registry} from "src/DelegateRegistry.sol";
+import {RegistryHashes as Hashes} from "src/libraries/RegistryHashes.sol";
 import {RegistryHarness as Harness} from "src/tools/RegistryHarness.sol";
 
 contract RegistryUnitTests is Test {
@@ -172,7 +173,7 @@ contract RegistryUnitTests is Test {
         // Create new harness
         harness = new Harness();
         // Calculate hash
-        bytes32 hash = harness.exposedComputeHashForAll(delegate, rights, vault);
+        bytes32 hash = Hashes.allHash(vault, rights, delegate);
         // Hashes should not exist yet
         _checkHashes(vault, delegate, hash, false);
         // Storage should not exist yet
@@ -212,7 +213,7 @@ contract RegistryUnitTests is Test {
     function testDelegateContract(address vault, address delegate, address contract_, bytes32 rights, bool enable, uint256 n) public {
         vm.assume(vault > address(1) && n > 0 && n < 10);
         harness = new Harness();
-        bytes32 hash = harness.exposedComputeHashForContract(contract_, delegate, rights, vault);
+        bytes32 hash = Hashes.contractHash(vault, rights, delegate, contract_);
         _checkHashes(vault, delegate, hash, false);
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         for (uint256 i = 0; i < n; i++) {
@@ -241,7 +242,7 @@ contract RegistryUnitTests is Test {
     function testDelegateERC721(address vault, address delegate, address contract_, uint256 tokenId, bytes32 rights, bool enable, uint256 n) public {
         vm.assume(vault > address(1) && n > 0 && n < 10);
         harness = new Harness();
-        bytes32 hash = harness.exposedComputeHashForERC721(contract_, delegate, rights, tokenId, vault);
+        bytes32 hash = Hashes.erc721Hash(vault, rights, delegate, tokenId, contract_);
         _checkHashes(vault, delegate, hash, false);
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         for (uint256 i = 0; i < n; i++) {
@@ -270,7 +271,7 @@ contract RegistryUnitTests is Test {
     function testDelegateERC20(address vault, address delegate, address contract_, uint256 amount, bytes32 rights, bool enable, uint256 n) public {
         vm.assume(vault > address(1) && n > 0 && n < 10);
         harness = new Harness();
-        bytes32 hash = harness.exposedComputeHashForERC20(contract_, delegate, rights, vault);
+        bytes32 hash = Hashes.erc20Hash(vault, rights, delegate, contract_);
         _checkHashes(vault, delegate, hash, false);
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         for (uint256 i = 0; i < n; i++) {
@@ -299,7 +300,7 @@ contract RegistryUnitTests is Test {
     function testDelegateERC1155(address vault, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) public {
         vm.assume(vault > address(1));
         harness = new Harness();
-        bytes32 hash = harness.exposedComputeHashForERC1155(contract_, delegate, rights, tokenId, vault);
+        bytes32 hash = Hashes.erc1155Hash(vault, rights, delegate, tokenId, contract_);
         _checkHashes(vault, delegate, hash, false);
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         for (uint256 i = 0; i < (1 + amount % 10); i++) {
@@ -743,6 +744,7 @@ contract RegistryUnitTests is Test {
 
     // @dev see IDelegateRegistry for packed layout
     function testWriteDelegationAddresses(bytes32 location, address from, address to, address contract_) public {
+        vm.assume(uint256(location) < type(uint256).max - 10); // Prevents overflow
         harness.exposedWriteDelegationAddresses(location, IRegistry.StoragePositions.firstPacked, IRegistry.StoragePositions.secondPacked, from, to, contract_);
         uint256 contractUint256 = uint256(uint160(contract_));
         uint256 first8BytesContract = (contractUint256 >> 96);

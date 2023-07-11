@@ -1,0 +1,18 @@
+| src/tools/HashHarness.sol:HashHarness contract |                 |     |        |     |         |
+|------------------------------------------------|-----------------|-----|--------|-----|---------|
+| Deployment Cost                                | Deployment Size |     |        |     |         |
+| 416655                                         | 2113            |     |        |     |         |
+| Function Name                                  | min             | avg | median | max | # calls |
+| allHash                                        | 634             | 634 | 634    | 634 | 1       |
+| allLocation                                    | 746             | 746 | 746    | 746 | 1       |
+| contractHash                                   | 835             | 835 | 835    | 835 | 1       |
+| contractLocation                               | 873             | 873 | 873    | 873 | 1       |
+| decodeType                                     | 393             | 393 | 393    | 393 | 1       |
+| encodeType                                     | 351             | 351 | 351    | 351 | 1       |
+| erc1155Hash                                    | 843             | 843 | 843    | 843 | 1       |
+| erc1155Location                                | 876             | 876 | 876    | 876 | 1       |
+| erc20Hash                                      | 814             | 814 | 814    | 814 | 1       |
+| erc20Location                                  | 831             | 831 | 831    | 831 | 1       |
+| erc721Hash                                     | 821             | 821 | 821    | 821 | 1       |
+| erc721Location                                 | 910             | 910 | 910    | 910 | 1       |
+| location                                       | 406             | 406 | 406    | 406 | 1       |
