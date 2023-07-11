@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import {DelegateRegistry} from "src/DelegateRegistry.sol";
 
+import {RegistryStorage} from "src/libraries/RegistryStorage.sol";
+
 /// @dev harness contract that exposes internal registry methods as external ones
 contract RegistryHarness is DelegateRegistry {
     constructor() {
@@ -35,17 +37,22 @@ contract RegistryHarness is DelegateRegistry {
         _pushDelegationHashes(from, to, delegationHash);
     }
 
-    function exposedWriteDelegation(bytes32 location, StoragePositions position, bytes32 data) external {
+    function exposedWriteDelegation(bytes32 location, RegistryStorage.Positions position, bytes32 data) external {
         _writeDelegation(location, position, data);
     }
 
-    function exposedWriteDelegation(bytes32 location, StoragePositions position, uint256 data) external {
+    function exposedWriteDelegation(bytes32 location, RegistryStorage.Positions position, uint256 data) external {
         _writeDelegation(location, position, data);
     }
 
-    function exposedWriteDelegationAddresses(bytes32 location, StoragePositions firstPacked, StoragePositions secondPacked, address from, address to, address contract_)
-        external
-    {
+    function exposedWriteDelegationAddresses(
+        bytes32 location,
+        RegistryStorage.Positions firstPacked,
+        RegistryStorage.Positions secondPacked,
+        address from,
+        address to,
+        address contract_
+    ) external {
         _writeDelegationAddresses(location, firstPacked, secondPacked, from, to, contract_);
     }
 
@@ -61,19 +68,19 @@ contract RegistryHarness is DelegateRegistry {
         delete temporaryStorage;
     }
 
-    function exposedLoadDelegationBytes32(bytes32 location, StoragePositions position) external view returns (bytes32 data) {
+    function exposedLoadDelegationBytes32(bytes32 location, RegistryStorage.Positions position) external view returns (bytes32 data) {
         return _loadDelegationBytes32(location, position);
     }
 
-    function exposedLoadDelegationUint(bytes32 location, StoragePositions position) external view returns (uint256 data) {
+    function exposedLoadDelegationUint(bytes32 location, RegistryStorage.Positions position) external view returns (uint256 data) {
         return _loadDelegationUint(location, position);
     }
 
-    function exposedLoadFrom(bytes32 location, StoragePositions firstPacked) external view returns (address from) {
+    function exposedLoadFrom(bytes32 location, RegistryStorage.Positions firstPacked) external view returns (address from) {
         return _loadFrom(location, firstPacked);
     }
 
-    function exposedLoadDelegationAddresses(bytes32 location, StoragePositions firstPacked, StoragePositions secondPacked)
+    function exposedLoadDelegationAddresses(bytes32 location, RegistryStorage.Positions firstPacked, RegistryStorage.Positions secondPacked)
         external
         view
         returns (address from, address to, address contract_)

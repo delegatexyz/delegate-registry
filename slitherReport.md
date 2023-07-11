@@ -14,52 +14,52 @@ src/DelegateRegistry.sol#L255-L261
 
 
  - [ ] ID-1
-[DelegateRegistry._loadDelegationBytes32(bytes32,IDelegateRegistry.StoragePositions)](src/DelegateRegistry.sol#L357-L361) uses assembly
-	- [INLINE ASM](src/DelegateRegistry.sol#L358-L360)
+[DelegateRegistry._writeDelegation(bytes32,RegistryStorage.Positions,bytes32)](src/DelegateRegistry.sol#L285-L289) uses assembly
+	- [INLINE ASM](src/DelegateRegistry.sol#L286-L288)
 
-src/DelegateRegistry.sol#L357-L361
+src/DelegateRegistry.sol#L285-L289
 
 
  - [ ] ID-2
-[DelegateRegistry._loadDelegationUint(bytes32,IDelegateRegistry.StoragePositions)](src/DelegateRegistry.sol#L364-L368) uses assembly
-	- [INLINE ASM](src/DelegateRegistry.sol#L365-L367)
+[DelegateRegistry._loadDelegationAddresses(bytes32,RegistryStorage.Positions,RegistryStorage.Positions)](src/DelegateRegistry.sol#L387-L399) uses assembly
+	- [INLINE ASM](src/DelegateRegistry.sol#L394-L397)
 
-src/DelegateRegistry.sol#L364-L368
+src/DelegateRegistry.sol#L387-L399
 
 
  - [ ] ID-3
-[DelegateRegistry._writeDelegation(bytes32,IDelegateRegistry.StoragePositions,uint256)](src/DelegateRegistry.sol#L292-L296) uses assembly
+[DelegateRegistry._writeDelegation(bytes32,RegistryStorage.Positions,uint256)](src/DelegateRegistry.sol#L292-L296) uses assembly
 	- [INLINE ASM](src/DelegateRegistry.sol#L293-L295)
 
 src/DelegateRegistry.sol#L292-L296
 
 
  - [ ] ID-4
-[DelegateRegistry._writeDelegation(bytes32,IDelegateRegistry.StoragePositions,bytes32)](src/DelegateRegistry.sol#L285-L289) uses assembly
-	- [INLINE ASM](src/DelegateRegistry.sol#L286-L288)
-
-src/DelegateRegistry.sol#L285-L289
-
-
- - [ ] ID-5
-[DelegateRegistry._writeDelegationAddresses(bytes32,IDelegateRegistry.StoragePositions,IDelegateRegistry.StoragePositions,address,address,address)](src/DelegateRegistry.sol#L299-L306) uses assembly
-	- [INLINE ASM](src/DelegateRegistry.sol#L302-L305)
-
-src/DelegateRegistry.sol#L299-L306
-
-
- - [ ] ID-6
-[DelegateRegistry._loadFrom(bytes32,IDelegateRegistry.StoragePositions)](src/DelegateRegistry.sol#L371-L375) uses assembly
+[DelegateRegistry._loadDelegationUint(bytes32,RegistryStorage.Positions)](src/DelegateRegistry.sol#L371-L375) uses assembly
 	- [INLINE ASM](src/DelegateRegistry.sol#L372-L374)
 
 src/DelegateRegistry.sol#L371-L375
 
 
- - [ ] ID-7
-[DelegateRegistry._loadDelegationAddresses(bytes32,IDelegateRegistry.StoragePositions,IDelegateRegistry.StoragePositions)](src/DelegateRegistry.sol#L378-L391) uses assembly
-	- [INLINE ASM](src/DelegateRegistry.sol#L383-L390)
+ - [ ] ID-5
+[DelegateRegistry._loadFrom(bytes32,RegistryStorage.Positions)](src/DelegateRegistry.sol#L378-L384) uses assembly
+	- [INLINE ASM](src/DelegateRegistry.sol#L380-L382)
 
-src/DelegateRegistry.sol#L378-L391
+src/DelegateRegistry.sol#L378-L384
+
+
+ - [ ] ID-6
+[DelegateRegistry._loadDelegationBytes32(bytes32,RegistryStorage.Positions)](src/DelegateRegistry.sol#L364-L368) uses assembly
+	- [INLINE ASM](src/DelegateRegistry.sol#L365-L367)
+
+src/DelegateRegistry.sol#L364-L368
+
+
+ - [ ] ID-7
+[DelegateRegistry._writeDelegationAddresses(bytes32,RegistryStorage.Positions,RegistryStorage.Positions,address,address,address)](src/DelegateRegistry.sol#L299-L312) uses assembly
+	- [INLINE ASM](src/DelegateRegistry.sol#L308-L311)
+
+src/DelegateRegistry.sol#L299-L312
 
 
  - [ ] ID-8
