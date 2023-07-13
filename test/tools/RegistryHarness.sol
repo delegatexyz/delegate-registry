@@ -58,14 +58,12 @@ contract RegistryHarness is DelegateRegistry {
 
     function exposedGetValidDelegationsFromHashes(bytes32[] calldata hashes) external returns (Delegation[] memory delegations_) {
         temporaryStorage = hashes;
-        delegations_ = _getValidDelegationsFromHashes(temporaryStorage);
-        delete temporaryStorage;
+        return _getValidDelegationsFromHashes(temporaryStorage);
     }
 
     function exposedGetValidDelegationHashesFromHashes(bytes32[] calldata hashes) external returns (bytes32[] memory validHashes) {
         temporaryStorage = hashes;
-        validHashes = _getValidDelegationHashesFromHashes(temporaryStorage);
-        delete temporaryStorage;
+        return _getValidDelegationHashesFromHashes(temporaryStorage);
     }
 
     function exposedLoadDelegationBytes32(bytes32 location, RegistryStorage.Positions position) external view returns (bytes32 data) {

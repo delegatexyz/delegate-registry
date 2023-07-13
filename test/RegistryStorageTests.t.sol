@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 import {IDelegateRegistry as IRegistry} from "src/IDelegateRegistry.sol";
 import {RegistryStorage as Storage} from "src/libraries/RegistryStorage.sol";
-import {RegistryHarness as Harness} from "src/tools/RegistryHarness.sol";
+import {RegistryHarness as Harness} from "./tools/RegistryHarness.sol";
 
 contract RegistryStorageTests is Test {
     Harness harness;

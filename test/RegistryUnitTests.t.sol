@@ -7,7 +7,7 @@ import {IDelegateRegistry as IRegistry} from "src/IDelegateRegistry.sol";
 import {DelegateRegistry as Registry} from "src/DelegateRegistry.sol";
 import {RegistryStorage as Storage} from "src/libraries/RegistryStorage.sol";
 import {RegistryHashes as Hashes} from "src/libraries/RegistryHashes.sol";
-import {RegistryHarness as Harness} from "src/tools/RegistryHarness.sol";
+import {RegistryHarness as Harness} from "./tools/RegistryHarness.sol";
 
 contract RegistryUnitTests is Test {
     Harness public harness;
@@ -658,22 +658,98 @@ contract RegistryUnitTests is Test {
      * ----------- TODO: Enumerations -----------
      */
 
+    function testGetValidDelegationsFromHashesEquivalence(
+        address from,
+        bytes32 rights,
+        address to,
+        uint256 amount,
+        uint256 tokenId,
+        address contract_,
+        bool[5] calldata enables
+    ) public {
+        vm.assume(from > address(1));
+        bytes32[] memory delegationHashes = new bytes32[](5);
+        vm.startPrank(from);
+        delegationHashes[0] = harness.delegateAll(to, rights, enables[0]);
+        delegationHashes[1] = harness.delegateContract(to, contract_, rights, enables[1]);
+        delegationHashes[2] = harness.delegateERC721(to, contract_, tokenId, rights, enables[2]);
+        delegationHashes[3] = harness.delegateERC20(to, contract_, amount, rights, enables[3]);
+        delegationHashes[4] = harness.delegateERC1155(to, contract_, tokenId, amount, rights, enables[4]);
+        vm.stopPrank();
+        uint256 numberOfEnables;
+        for (uint256 i = 0; i < 5; i++) {
+            if (enables[i]) {
+                numberOfEnables++;
+            }
+        }
+        IRegistry.Delegation[] memory validDelegations = harness.exposedGetValidDelegationsFromHashes(delegationHashes);
+        IRegistry.Delegation[] memory incomingDelegations = harness.getIncomingDelegations(to);
+        IRegistry.Delegation[] memory outgoingDelegations = harness.getOutgoingDelegations(from);
+        assertEq(validDelegations.length, numberOfEnables);
+        assertEq(incomingDelegations.length, numberOfEnables);
+        assertEq(outgoingDelegations.length, numberOfEnables);
+        assertEq(keccak256(abi.encode(validDelegations)), keccak256(abi.encode(incomingDelegations)));
+        assertEq(keccak256(abi.encode(validDelegations)), keccak256(abi.encode(outgoingDelegations)));
+        assertEq(keccak256(abi.encode(incomingDelegations)), keccak256(abi.encode(outgoingDelegations)));
+    }
+
+    function testGetValidDelegationHashesFromHashes(
+        address from,
+        bytes32 rights,
+        address to,
+        uint256 amount,
+        uint256 tokenId,
+        address contract_,
+        bool[5] calldata enables
+    ) public {
+        bytes32[] memory delegationHashes = new bytes32[](5);
+        vm.startPrank(from);
+        delegationHashes[0] = harness.delegateAll(to, rights, enables[0]);
+        delegationHashes[1] = harness.delegateContract(to, contract_, rights, enables[1]);
+        delegationHashes[2] = harness.delegateERC721(to, contract_, tokenId, rights, enables[2]);
+        delegationHashes[3] = harness.delegateERC20(to, contract_, amount, rights, enables[3]);
+        delegationHashes[4] = harness.delegateERC1155(to, contract_, tokenId, amount, rights, enables[4]);
+        vm.stopPrank();
+        if (from == harness.exposedDelegationEmpty() || from == harness.exposedDelegationRevoked()) {
+            assertEq(harness.exposedGetValidDelegationHashesFromHashes(delegationHashes).length, 0);
+        } else {
+            bytes32[] memory hashesFromHashes = harness.exposedGetValidDelegationHashesFromHashes(delegationHashes);
+            uint256 numberOfEnables;
+            for (uint256 i = 0; i < 5; i++) {
+                if (enables[i]) {
+                    assertEq(hashesFromHashes[numberOfEnables], delegationHashes[i]);
+                    numberOfEnables++;
+                }
+            }
+            assertEq(harness.exposedGetValidDelegationHashesFromHashes(delegationHashes).length, numberOfEnables);
+        }
+    }
+
     function testGetDelegationsFromHashesSpecialFrom(address from, bytes32 rights, address to, uint256 amount, uint256 tokenId, address contract_) public {
         bytes32[] memory delegationHashes = new bytes32[](5);
         vm.startPrank(from);
         delegationHashes[0] = registry.delegateAll(to, rights, true);
+        harness.delegateAll(to, rights, true);
         delegationHashes[1] = registry.delegateContract(to, contract_, rights, true);
+        harness.delegateContract(to, contract_, rights, true);
         delegationHashes[2] = registry.delegateERC721(to, contract_, tokenId, rights, true);
+        harness.delegateERC721(to, contract_, tokenId, rights, true);
         delegationHashes[3] = registry.delegateERC20(to, contract_, amount, rights, true);
+        harness.delegateERC20(to, contract_, amount, rights, true);
         delegationHashes[4] = registry.delegateERC1155(to, contract_, tokenId, amount, rights, true);
+        harness.delegateERC1155(to, contract_, tokenId, amount, rights, true);
         vm.stopPrank();
         IRegistry.Delegation[] memory emptyDelegations = new IRegistry.Delegation[](5);
         IRegistry.Delegation[] memory getDelegations = registry.getDelegationsFromHashes(delegationHashes);
+        IRegistry.Delegation[] memory getHarnessDelegations = harness.exposedGetValidDelegationsFromHashes(delegationHashes);
+
         assertEq(emptyDelegations.length, getDelegations.length);
         if (from == harness.exposedDelegationEmpty() || from == harness.exposedDelegationRevoked()) {
             assertEq(keccak256(abi.encode(emptyDelegations)), keccak256(abi.encode(getDelegations)));
+            assertEq(keccak256(abi.encode(emptyDelegations)), keccak256(abi.encode(getHarnessDelegations)));
         } else {
             assertFalse(keccak256(abi.encode(emptyDelegations)) == keccak256(abi.encode(getDelegations)));
+            assertFalse(keccak256(abi.encode(emptyDelegations)) == keccak256(abi.encode(getHarnessDelegations)));
         }
     }
 

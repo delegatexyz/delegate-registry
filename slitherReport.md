@@ -85,13 +85,13 @@ src/examples/Airdrop.sol#L2
 
 
  - [ ] ID-11
-solc-0.8.20 is not recommended for deployment
+Pragma version[^0.8.20](test/tools/RegistryHarness.sol#L2) necessitates a version too recent to be trusted. Consider deploying with 0.8.18.
+
+test/tools/RegistryHarness.sol#L2
+
 
  - [ ] ID-12
-Pragma version[^0.8.20](src/tools/RegistryHarness.sol#L2) necessitates a version too recent to be trusted. Consider deploying with 0.8.18.
-
-src/tools/RegistryHarness.sol#L2
-
+solc-0.8.20 is not recommended for deployment
 
  - [ ] ID-13
 Pragma version[^0.8.20](src/examples/IPLicenseCheck.sol#L2) necessitates a version too recent to be trusted. Consider deploying with 0.8.18.

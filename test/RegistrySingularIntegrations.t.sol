@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {DelegateRegistry as Registry} from "src/DelegateRegistry.sol";
 import {RegistryHashes as Hashes} from "src/libraries/RegistryHashes.sol";
 import {IDelegateRegistry as IRegistry} from "src/IDelegateRegistry.sol";
-import {RegistryHarness as Harness} from "src/tools/RegistryHarness.sol";
+import {RegistryHarness as Harness} from "./tools/RegistryHarness.sol";
 
 contract DelegateSingularIntegrations is Test {
     Registry public registry;
