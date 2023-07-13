@@ -58,6 +58,39 @@ contract RegistryHashTests is Test {
         assertEq(Hashes.erc1155Location(from, rights, to, tokenId, contract_), Hashes.location(Hashes.erc1155Hash(from, rights, to, tokenId, contract_)));
     }
 
+    /// @dev tests for storage collisions between hashes, only holding from != notFrom as a constant
+    function testRegistryHashesForStorageCollisions(
+        address from,
+        bytes32 rights,
+        address to,
+        uint256 tokenId,
+        address contract_,
+        address notFrom,
+        bytes32 searchRights,
+        address searchTo,
+        uint256 searchTokenId,
+        address searchContract_
+    ) public {
+        vm.assume(from != notFrom);
+        bytes32[] memory uniqueHashes = new bytes32[](10);
+        uniqueHashes[0] = Hashes.allLocation(from, rights, to);
+        uniqueHashes[1] = Hashes.allLocation(notFrom, searchRights, searchTo);
+        uniqueHashes[2] = Hashes.contractLocation(from, rights, to, contract_);
+        uniqueHashes[3] = Hashes.contractLocation(notFrom, searchRights, searchTo, searchContract_);
+        uniqueHashes[4] = Hashes.erc721Location(from, rights, to, tokenId, contract_);
+        uniqueHashes[5] = Hashes.erc721Location(notFrom, searchRights, searchTo, searchTokenId, searchContract_);
+        uniqueHashes[6] = Hashes.erc20Location(from, rights, to, contract_);
+        uniqueHashes[7] = Hashes.erc20Location(notFrom, searchRights, searchTo, searchContract_);
+        uniqueHashes[8] = Hashes.erc1155Location(from, rights, to, tokenId, contract_);
+        uniqueHashes[9] = Hashes.erc1155Location(notFrom, searchRights, searchTo, searchTokenId, searchContract_);
+        for (uint256 i = 0; i < uniqueHashes.length; i++) {
+            for (uint256 j = 0; j < uniqueHashes.length; j++) {
+                if (j != i) assertTrue(uniqueHashes[i] != uniqueHashes[j]);
+                else assertEq(uniqueHashes[i], uniqueHashes[j]);
+            }
+        }
+    }
+
     /// @dev tests for collisions between the types, additionally searches for collisions by holding from != notFrom constant and fuzzes variations of the other
     /// parameters
     function testRegistryHashesForTypeCollisions(
