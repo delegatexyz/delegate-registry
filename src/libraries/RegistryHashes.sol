@@ -34,20 +34,6 @@ library RegistryHashes {
     uint256 internal constant delegationSlot = 0;
 
     /**
-     * @notice Helper function to encode the last byte of a delegation hash with a delegation type
-     * @param inputHash is the hash to encode the type in
-     * @param inputType is the type to encode in the hash
-     * @dev Will not revert for inputType larger than type(IDelegationRegistry.DelegationType).max, and any inputType larger than uint8 will be cleaned to its byte
-     * furthest to the right
-     * @return outputHash is inputHash with its last byte overwritten with the inputType
-     */
-    function encodeType(bytes32 inputHash, uint256 inputType) internal pure returns (bytes32 outputHash) {
-        assembly {
-            outputHash := or(and(inputHash, deleteLastByte), and(inputType, extractLastByte))
-        }
-    }
-
-    /**
      * @notice Helper function to decode last byte of a delegation hash to obtain its delegation type
      * @param inputHash to decode the type from
      * @return decodedType of the delegation

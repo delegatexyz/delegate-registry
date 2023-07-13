@@ -33,7 +33,6 @@ contract RegistryHashTests is Test {
     /// @dev tests methods against previously used solidity methods
     function testRegistryHashes(bytes32 _input, uint256 seed, address from, bytes32 rights, address to, address contract_, uint256 tokenId) public {
         IRegistry.DelegationType _type = _selectRandomType(seed);
-        assertEq(Hashes.encodeType(_input, uint256(_type)), _encodeLastByteWithType(_input, _type));
         bytes32 decodeTest = _encodeLastByteWithType(_input, _type);
         assertEq(uint256(Hashes.decodeType(decodeTest)), uint256(_decodeLastByteToType(decodeTest)));
         assertEq(Hashes.location(_input), _computeLocation(_input));
@@ -123,6 +122,42 @@ contract RegistryHashTests is Test {
                 else assertEq(uniqueHashes[i], uniqueHashes[j]);
             }
         }
+    }
+
+    /// @dev Test for registry hash functions that could be impacted by incorrect inputs
+    function testRegistryHashesLargeInputs(uint256 from, bytes32 rights, uint256 to, uint256 tokenId, uint256 contract_) public {
+        uint256 minSize = type(uint160).max;
+        vm.assume(from > minSize && to > minSize && contract_ > minSize);
+        // Create address types from large inputs
+        address largeFrom;
+        address cleanedFrom;
+        address largeTo;
+        address cleanedTo;
+        address largeContract;
+        address cleanedContract;
+        assembly {
+            largeFrom := from
+            largeTo := to
+            largeContract := contract_
+            cleanedFrom := shr(96, shl(96, from))
+            cleanedTo := shr(96, shl(96, to))
+            cleanedContract := shr(96, shl(96, contract_))
+        }
+        // Assert that hashes and locations of cleaned & not cleaned still give the same output
+        assertEq(Hashes.allHash(largeFrom, rights, largeTo), Hashes.allHash(cleanedFrom, rights, cleanedTo));
+        assertEq(Hashes.allLocation(largeFrom, rights, largeTo), Hashes.allLocation(cleanedFrom, rights, cleanedTo));
+        assertEq(Hashes.contractHash(largeFrom, rights, largeTo, largeContract), Hashes.contractHash(cleanedFrom, rights, cleanedTo, cleanedContract));
+        assertEq(Hashes.contractLocation(largeFrom, rights, largeTo, largeContract), Hashes.contractLocation(cleanedFrom, rights, cleanedTo, cleanedContract));
+        assertEq(Hashes.erc721Hash(largeFrom, rights, largeTo, tokenId, largeContract), Hashes.erc721Hash(cleanedFrom, rights, cleanedTo, tokenId, cleanedContract));
+        assertEq(
+            Hashes.erc721Location(largeFrom, rights, largeTo, tokenId, largeContract), Hashes.erc721Location(cleanedFrom, rights, cleanedTo, tokenId, cleanedContract)
+        );
+        assertEq(Hashes.erc20Hash(largeFrom, rights, largeTo, largeContract), Hashes.erc20Hash(cleanedFrom, rights, cleanedTo, cleanedContract));
+        assertEq(Hashes.erc20Location(largeFrom, rights, largeTo, largeContract), Hashes.erc20Location(cleanedFrom, rights, cleanedTo, cleanedContract));
+        assertEq(Hashes.erc1155Hash(largeFrom, rights, largeTo, tokenId, largeContract), Hashes.erc1155Hash(cleanedFrom, rights, cleanedTo, tokenId, cleanedContract));
+        assertEq(
+            Hashes.erc1155Location(largeFrom, rights, largeTo, tokenId, largeContract), Hashes.erc1155Location(cleanedFrom, rights, cleanedTo, tokenId, cleanedContract)
+        );
     }
 
     /// @dev internal functions of the original registry hash specification to test optimized methods work as intended

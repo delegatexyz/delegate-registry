@@ -658,6 +658,25 @@ contract RegistryUnitTests is Test {
      * ----------- TODO: Enumerations -----------
      */
 
+    function testGetDelegationsFromHashesSpecialFrom(address from, bytes32 rights, address to, uint256 amount, uint256 tokenId, address contract_) public {
+        bytes32[] memory delegationHashes = new bytes32[](5);
+        vm.startPrank(from);
+        delegationHashes[0] = registry.delegateAll(to, rights, true);
+        delegationHashes[1] = registry.delegateContract(to, contract_, rights, true);
+        delegationHashes[2] = registry.delegateERC721(to, contract_, tokenId, rights, true);
+        delegationHashes[3] = registry.delegateERC20(to, contract_, amount, rights, true);
+        delegationHashes[4] = registry.delegateERC1155(to, contract_, tokenId, amount, rights, true);
+        vm.stopPrank();
+        IRegistry.Delegation[] memory emptyDelegations = new IRegistry.Delegation[](5);
+        IRegistry.Delegation[] memory getDelegations = registry.getDelegationsFromHashes(delegationHashes);
+        assertEq(emptyDelegations.length, getDelegations.length);
+        if (from == harness.exposedDelegationEmpty() || from == harness.exposedDelegationRevoked()) {
+            assertEq(keccak256(abi.encode(emptyDelegations)), keccak256(abi.encode(getDelegations)));
+        } else {
+            assertFalse(keccak256(abi.encode(emptyDelegations)) == keccak256(abi.encode(getDelegations)));
+        }
+    }
+
     /**
      * ----------- storage access -----------
      */
