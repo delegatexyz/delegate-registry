@@ -34,7 +34,7 @@ jobs:
       - name: Check slither report
         run: |
           section=$(awk '/^##/{exit} {print}' slitherReport.md)
-          if [[ $section == *"Medium"* || $section == *"High"* || $section == *"Low"* ]]; then
+          if [[ $section == *"Low"* || $section == *"Medium"* || $section == *"High"* ]]; then
             echo "Low, Medium or High risk found in slither report. Failing the run."
             exit 1
           fi

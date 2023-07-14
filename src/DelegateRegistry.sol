@@ -107,10 +107,7 @@ contract DelegateRegistry is IDelegateRegistry {
         emit DelegateERC20(msg.sender, to, contract_, amount, rights, enable);
     }
 
-    /**
-     * @inheritdoc IDelegateRegistry
-     * @dev The actual amount is not encoded in the hash, just the existence of a amount (since it is an upper bound)
-     */
+    /// @inheritdoc IDelegateRegistry
     function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external override returns (bytes32 hash) {
         hash = Hashes.erc1155Hash(msg.sender, rights, to, tokenId, contract_);
         bytes32 location = Hashes.location(hash);
@@ -239,8 +236,6 @@ contract DelegateRegistry is IDelegateRegistry {
     /**
      * ----------- EXTERNAL STORAGE ACCESS -----------
      */
-
-    // WEN EXTSLOAD :(
 
     function readSlot(bytes32 location) external view returns (bytes32 contents) {
         assembly {
