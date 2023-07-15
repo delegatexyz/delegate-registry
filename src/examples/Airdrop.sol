@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: CC0-1.0
 pragma solidity ^0.8.20;
 
-import {Merkle} from "murky/Merkle.sol";
-import {ERC20} from "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
+import {MerkleProof} from "openzeppelin/utils/cryptography/MerkleProof.sol";
+import {ERC20} from "openzeppelin/token/ERC20/ERC20.sol";
+import {Math} from "openzeppelin/utils/math/Math.sol";
 import {DelegateClaim} from "src/examples/DelegateClaim.sol";
 
 /**
@@ -12,7 +12,6 @@ import {DelegateClaim} from "src/examples/DelegateClaim.sol";
  * @dev Inherits the DelegateClaim contract to allow delegates to claim on behalf of vaults.
  */
 contract Airdrop is ERC20, DelegateClaim {
-    Merkle public immutable merkle;
     bytes32 public immutable merkleRoot;
     mapping(address vault => uint256 claimed) public claimed;
 
@@ -22,15 +21,13 @@ contract Airdrop is ERC20, DelegateClaim {
      * @param referenceToken_ The address of the reference token used by delegateClaimable inherited from DelegateClaim.
      * @param totalSupply_ The total supply of the airdrop token.
      * @param merkleRoot_ The root hash of the merkle tree representing the airdrop.
-     * @param merkle_ The address of the murky Merkle contract used for proof verification.
      */
-    constructor(address registry_, address referenceToken_, bytes32 airdropRight, uint256 totalSupply_, bytes32 merkleRoot_, address merkle_)
+    constructor(address registry_, address referenceToken_, bytes32 airdropRight, uint256 totalSupply_, bytes32 merkleRoot_)
         ERC20("Airdrop", "Air")
         DelegateClaim(registry_, referenceToken_, airdropRight)
     {
         _mint(address(this), totalSupply_);
         merkleRoot = merkleRoot_;
-        merkle = Merkle(merkle_);
     }
 
     /**
@@ -43,7 +40,7 @@ contract Airdrop is ERC20, DelegateClaim {
      */
     function claim(address vault, uint256 claimAmount, uint256 airdropSize, bytes32[] calldata merkleProof) external {
         // First verify that airdrop for vault of amount airdropSize exists
-        require(merkle.verifyProof(merkleRoot, merkleProof, keccak256(abi.encodePacked(vault, airdropSize))), "Invalid Proof");
+        require(MerkleProof.verifyCalldata(merkleProof, merkleRoot, keccak256(abi.encodePacked(vault, airdropSize))), "Invalid Proof");
         // Set claimable to the minimum of claimAmount and the maximum remaining airdrop tokens that can be claimed by
         // the vault
         uint256 claimable = Math.min(claimAmount, airdropSize - claimed[vault]);

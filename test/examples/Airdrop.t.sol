@@ -7,7 +7,7 @@ import {console2} from "forge-std/console2.sol";
 import {Merkle} from "murky/Merkle.sol";
 import {Airdrop} from "src/examples/Airdrop.sol";
 import {DelegateRegistry} from "src/DelegateRegistry.sol";
-import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
+import {Math} from "openzeppelin/utils/math/Math.sol";
 
 contract AirdropTest is Test {
     Merkle public merkle;
@@ -97,9 +97,8 @@ contract AirdropTest is Test {
             totalSupply_ += airdropData[i].amount;
         }
         // Create airdrop token
-        airdrop = new Airdrop(address(registry), referenceToken, acceptableRight, totalSupply_, merkleRoot, address(merkle));
+        airdrop = new Airdrop(address(registry), referenceToken, acceptableRight, totalSupply_, merkleRoot);
         // Check data is stored correctly in token
-        assertEq(address(merkle), address(airdrop.merkle()));
         assertEq(address(registry), address(airdrop.delegateRegistry()));
         assertEq(merkleRoot, airdrop.merkleRoot());
         assertEq(referenceToken, airdrop.referenceToken());
@@ -155,7 +154,7 @@ contract AirdropTest is Test {
             totalSupply_ += airdropData[i].amount;
         }
         // Create airdrop token
-        airdrop = new Airdrop(address(registry), referenceToken, acceptableRight, totalSupply_, merkleRoot, address(merkle));
+        airdrop = new Airdrop(address(registry), referenceToken, acceptableRight, totalSupply_, merkleRoot);
         // Create delegates
         _createDelegates(delegateSeed, allowanceSeed, n);
         // Try to claim with delegate

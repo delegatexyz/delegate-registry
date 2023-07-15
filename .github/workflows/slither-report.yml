@@ -29,7 +29,7 @@ jobs:
         run: forge build --build-info --skip test --skip script
       
       - name: Generate slither report
-        run: slither . --compile-force-framework "foundry" --foundry-out-directory "out" --ignore-compile --fail-medium --skip-clean --filter-paths "lib" --checklist --markdown-root ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/ > slitherReport.md
+        run: slither . --compile-force-framework "foundry" --foundry-out-directory "out" --ignore-compile --skip-clean --filter-paths "lib" --checklist --markdown-root ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/ > slitherReport.md
 
       - name: Check slither report
         run: |
