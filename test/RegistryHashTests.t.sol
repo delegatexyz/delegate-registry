@@ -9,15 +9,15 @@ import {RegistryHashes as Hashes} from "src/libraries/RegistryHashes.sol";
 contract RegistryHashTests is Test {
     /// @dev used to cross check internal constant in registry hashes with intended values
     function testRegistryHashConstant() public {
-        assertEq(Hashes.deleteLastByte, bytes32(type(uint256).max << 8));
-        assertEq(Hashes.cleanAddress, bytes32(uint256(type(uint160).max)));
-        assertEq(Hashes.extractLastByte, type(uint8).max);
-        assertEq(Hashes.allType, uint256(IRegistry.DelegationType.ALL));
-        assertEq(Hashes.contractType, uint256(IRegistry.DelegationType.CONTRACT));
-        assertEq(Hashes.erc721Type, uint256(IRegistry.DelegationType.ERC721));
-        assertEq(Hashes.erc20Type, uint256(IRegistry.DelegationType.ERC20));
-        assertEq(Hashes.erc1155Type, uint256(IRegistry.DelegationType.ERC1155));
-        assertEq(Hashes.delegationSlot, 0);
+        assertEq(Hashes.DELETE_LAST_BYTE, type(uint256).max << 8);
+        assertEq(Hashes.CLEAN_ADDRESS, uint256(type(uint160).max));
+        assertEq(Hashes.EXTRACT_LAST_BYTE, type(uint8).max);
+        assertEq(Hashes.ALL_TYPE, uint256(IRegistry.DelegationType.ALL));
+        assertEq(Hashes.CONTRACT_TYPE, uint256(IRegistry.DelegationType.CONTRACT));
+        assertEq(Hashes.ERC721_TYPE, uint256(IRegistry.DelegationType.ERC721));
+        assertEq(Hashes.ERC20_TYPE, uint256(IRegistry.DelegationType.ERC20));
+        assertEq(Hashes.ERC1155_TYPE, uint256(IRegistry.DelegationType.ERC1155));
+        assertEq(Hashes.DELEGATION_SLOT, 0);
     }
 
     /// @dev used to generate random delegation type within enum range

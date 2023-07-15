@@ -11,17 +11,17 @@ library RegistryStorage {
         amount
     }
 
-    /// @dev Used to clean address types of dirty bits with and(address, cleanAddress)
-    bytes32 internal constant cleanAddress = 0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff;
+    /// @dev Used to clean address types of dirty bits with and(address, CLEAN_ADDRESS)
+    uint256 internal constant CLEAN_ADDRESS = 0x00ffffffffffffffffffffffffffffffffffffffff;
 
     /// @dev Used to clean everything but the first 8 bytes of an address
-    bytes32 internal constant cleanFirst8BytesAddress = 0x000000000000000000000000ffffffffffffffff000000000000000000000000;
+    uint256 internal constant CLEAN_FIRST8_BYTES_ADDRESS = 0xffffffffffffffff << 96;
 
     /// @dev Used to clean everything but the last 12 bytes of an address
-    bytes32 internal constant cleanLast12BytesAddress = 0x0000000000000000000000000000000000000000ffffffffffffffffffffffff;
+    uint256 internal constant CLEAN_LAST12_BYTES_ADDRESS = 0xffffffffffffffffffffffff;
 
     /// @dev Used to clean everything but the first 8 bytes of an address in the packed position
-    bytes32 internal constant cleanPacked8BytesAddress = 0x00000000ffffffffffffffff0000000000000000000000000000000000000000;
+    uint256 internal constant CLEAN_PACKED8_BYTES_ADDRESS = 0xffffffffffffffff << 160;
 
     /**
      * @notice Helper function that packs from, to, and contract_ address to into the two slot configuration
@@ -34,8 +34,8 @@ library RegistryStorage {
      */
     function packAddresses(address from, address to, address contract_) internal pure returns (bytes32 firstPacked, bytes32 secondPacked) {
         assembly {
-            firstPacked := or(shl(64, and(contract_, cleanFirst8BytesAddress)), and(from, cleanAddress))
-            secondPacked := or(shl(160, and(contract_, cleanLast12BytesAddress)), and(to, cleanAddress))
+            firstPacked := or(shl(64, and(contract_, CLEAN_FIRST8_BYTES_ADDRESS)), and(from, CLEAN_ADDRESS))
+            secondPacked := or(shl(160, and(contract_, CLEAN_LAST12_BYTES_ADDRESS)), and(to, CLEAN_ADDRESS))
         }
     }
 
@@ -50,9 +50,9 @@ library RegistryStorage {
      */
     function unPackAddresses(bytes32 firstPacked, bytes32 secondPacked) internal pure returns (address from, address to, address contract_) {
         assembly {
-            from := and(firstPacked, cleanAddress)
-            to := and(secondPacked, cleanAddress)
-            contract_ := or(shr(64, and(firstPacked, cleanPacked8BytesAddress)), shr(160, secondPacked))
+            from := and(firstPacked, CLEAN_ADDRESS)
+            to := and(secondPacked, CLEAN_ADDRESS)
+            contract_ := or(shr(64, and(firstPacked, CLEAN_PACKED8_BYTES_ADDRESS)), shr(160, secondPacked))
         }
     }
 
@@ -64,7 +64,7 @@ library RegistryStorage {
      */
     function unpackAddress(bytes32 packedSlot) internal pure returns (address unpacked) {
         assembly {
-            unpacked := and(packedSlot, cleanAddress)
+            unpacked := and(packedSlot, CLEAN_ADDRESS)
         }
     }
 }

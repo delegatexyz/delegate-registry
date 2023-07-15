@@ -746,10 +746,11 @@ contract RegistryUnitTests is Test {
         assertEq(emptyDelegations.length, getDelegations.length);
         if (from == harness.exposedDelegationEmpty() || from == harness.exposedDelegationRevoked()) {
             assertEq(keccak256(abi.encode(emptyDelegations)), keccak256(abi.encode(getDelegations)));
-            assertEq(keccak256(abi.encode(emptyDelegations)), keccak256(abi.encode(getHarnessDelegations)));
+            assertEq(getHarnessDelegations.length, 0);
         } else {
             assertFalse(keccak256(abi.encode(emptyDelegations)) == keccak256(abi.encode(getDelegations)));
             assertFalse(keccak256(abi.encode(emptyDelegations)) == keccak256(abi.encode(getHarnessDelegations)));
+            assertEq(emptyDelegations.length, getHarnessDelegations.length);
         }
     }
 

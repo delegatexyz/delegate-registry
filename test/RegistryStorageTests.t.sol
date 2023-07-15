@@ -22,10 +22,10 @@ contract RegistryStorageTests is Test {
 
     /// @dev Check that storage library constants are as intended
     function testStorageConstants() public {
-        assertEq(Storage.cleanAddress, bytes32(uint256(type(uint160).max)));
-        assertEq(Storage.cleanFirst8BytesAddress, bytes32(uint256(type(uint64).max) << 96));
-        assertEq(Storage.cleanLast12BytesAddress, bytes32(uint256(type(uint96).max)));
-        assertEq(Storage.cleanPacked8BytesAddress, bytes32(uint256(type(uint64).max) << 160));
+        assertEq(Storage.CLEAN_ADDRESS, uint256(type(uint160).max));
+        assertEq(Storage.CLEAN_FIRST8_BYTES_ADDRESS, uint256(type(uint64).max) << 96);
+        assertEq(Storage.CLEAN_LAST12_BYTES_ADDRESS, uint256(type(uint96).max));
+        assertEq(Storage.CLEAN_PACKED8_BYTES_ADDRESS, uint256(type(uint64).max) << 160);
     }
 
     /// @dev Check that pack addresses works as intended
