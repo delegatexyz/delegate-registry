@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: CC0-1.0
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import {MerkleProof} from "openzeppelin/utils/cryptography/MerkleProof.sol";
 import {ERC20} from "openzeppelin/token/ERC20/ERC20.sol";

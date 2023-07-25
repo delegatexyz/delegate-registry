@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: CC0-1.0
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import {IDelegateRegistry as IDelegateRegistry} from "./IDelegateRegistry.sol";
 import {RegistryHashes as Hashes} from "./libraries/RegistryHashes.sol";

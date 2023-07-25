@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: CC0-1.0
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import {Script} from "forge-std/Script.sol";
 import {console2} from "forge-std/console2.sol";
