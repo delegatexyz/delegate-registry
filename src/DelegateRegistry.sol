@@ -20,7 +20,7 @@ contract DelegateRegistry is IDelegateRegistry {
     /// @dev Vault delegation enumeration outbox, for pushing new hashes only
     mapping(address from => bytes32[] delegationHashes) internal outgoingDelegationHashes;
 
-    /// @dev Delegate delegation enumeration inbox, for pushing new hashes only
+    /// @dev Delegate enumeration inbox, for pushing new hashes only
     mapping(address to => bytes32[] delegationHashes) internal incomingDelegationHashes;
 
     /// @dev Standardizes from storage flags to prevent double-writes in the delegation in/outbox if the same delegation is revoked and rewritten
