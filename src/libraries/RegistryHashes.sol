@@ -96,9 +96,9 @@ library RegistryHashes {
             mstore(0x28, to)
             mstore(0x14, from)
             mstore(0x00, rights)
-            mstore(0x00, or(shl(8, keccak256(0x00, 0x48)), ALL_TYPE))
-            mstore(0x20, DELEGATION_SLOT)
-            computedLocation := keccak256(0x00, 0x40)
+            mstore(0x08, or(shl(8, keccak256(0x00, 0x48)), ALL_TYPE))
+            mstore(0x28, DELEGATION_SLOT)
+            computedLocation := keccak256(0x08, 0x40)
             // Restore the upper bits of the free memory pointer, which is zero.
             mstore(0x28, 0)
         }
@@ -146,10 +146,11 @@ library RegistryHashes {
             mstore(0x28, to)
             mstore(0x14, from)
             mstore(0x00, rights)
-            mstore(0x00, or(shl(8, keccak256(0x00, 0x5c)), CONTRACT_TYPE))
-            mstore(0x20, DELEGATION_SLOT)
-            computedLocation := keccak256(0x00, 0x40)
+            mstore(0x1c, or(shl(8, keccak256(0x00, 0x5c)), CONTRACT_TYPE))
+            mstore(0x3c, DELEGATION_SLOT)
+            computedLocation := keccak256(0x1c, 0x40)
             // Restore the upper bits of the free memory pointer, which is zero.
+            // Should be optimized away if `DELEGATION_SLOT` is zero.
             mstore(0x3c, 0)
         }
     }
@@ -202,11 +203,11 @@ library RegistryHashes {
             mstore(0x28, to)
             mstore(0x14, from)
             mstore(0x00, rights)
-            mstore(0x00, or(shl(8, keccak256(0x00, 0x7c)), ERC721_TYPE))
-            mstore(0x20, DELEGATION_SLOT)
-            computedLocation := keccak256(0x00, 0x40)
+            mstore(0x40, or(shl(8, keccak256(0x00, 0x7c)), ERC721_TYPE))
+            mstore(0x60, DELEGATION_SLOT)
+            computedLocation := keccak256(0x40, 0x40)
             mstore(0x40, m) // Restore the free memory pointer.
-            mstore(0x60, 0) // Restore the zero pointer.
+            mstore(0x60, 0) // Restore the zero pointer. Should be optimized away if `DELEGATION_SLOT` is zero.
         }
     }
 
@@ -252,10 +253,11 @@ library RegistryHashes {
             mstore(0x28, to)
             mstore(0x14, from)
             mstore(0x00, rights)
-            mstore(0x00, or(shl(8, keccak256(0x00, 0x5c)), ERC20_TYPE))
-            mstore(0x20, DELEGATION_SLOT)
-            computedLocation := keccak256(0x00, 0x40)
+            mstore(0x1c, or(shl(8, keccak256(0x00, 0x5c)), ERC20_TYPE))
+            mstore(0x3c, DELEGATION_SLOT)
+            computedLocation := keccak256(0x1c, 0x40)
             // Restore the upper bits of the free memory pointer, which is zero.
+            // Should be optimized away if `DELEGATION_SLOT` is zero.
             mstore(0x3c, 0)
         }
     }
@@ -283,7 +285,7 @@ library RegistryHashes {
             mstore(0x00, rights)
             hash := or(shl(8, keccak256(0x00, 0x7c)), ERC1155_TYPE)
             mstore(0x40, m) // Restore the free memory pointer.
-            mstore(0x60, 0) // Restore the zero pointer.
+            mstore(0x60, 0) // Restore the zero pointer. Should be optimized away if `DELEGATION_SLOT` is zero.
         }
     }
 
@@ -308,11 +310,11 @@ library RegistryHashes {
             mstore(0x28, to)
             mstore(0x14, from)
             mstore(0x00, rights)
-            mstore(0x00, or(shl(8, keccak256(0x00, 0x7c)), ERC1155_TYPE))
-            mstore(0x20, DELEGATION_SLOT)
-            computedLocation := keccak256(0x00, 0x40)
+            mstore(0x40, or(shl(8, keccak256(0x00, 0x7c)), ERC1155_TYPE))
+            mstore(0x60, DELEGATION_SLOT)
+            computedLocation := keccak256(0x40, 0x40)
             mstore(0x40, m) // Restore the free memory pointer.
-            mstore(0x60, 0) // Restore the zero pointer.
+            mstore(0x60, 0) // Restore the zero pointer. Should be optimized away if `DELEGATION_SLOT` is zero.
         }
     }
 }

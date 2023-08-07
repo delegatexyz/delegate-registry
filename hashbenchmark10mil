@@ -1,24 +1,24 @@
 No files changed, compilation skipped
 
 Running 1 test for test/HashBenchmark.t.sol:HashBenchmark
-[32m[PASS][0m testHashGas(address,bytes32,address,uint256,address,bytes32) (runs: 256, μ: 19788, ~: 19788)
-Test result: [32mok[0m. 1 passed; 0 failed; 0 skipped; finished in 44.24ms
+[32m[PASS][0m testHashGas(address,bytes32,address,uint256,address,bytes32) (runs: 256, μ: 19737, ~: 19737)
+Test result: [32mok[0m. 1 passed; 0 failed; 0 skipped; finished in 54.85ms
 | test/HashBenchmark.t.sol:HashHarness contract |                 |     |        |     |         |
 |-----------------------------------------------|-----------------|-----|--------|-----|---------|
 | Deployment Cost                               | Deployment Size |     |        |     |         |
-| 280118                                        | 1431            |     |        |     |         |
+| 275918                                        | 1410            |     |        |     |         |
 | Function Name                                 | min             | avg | median | max | # calls |
 | allHash                                       | 666             | 666 | 666    | 666 | 1       |
-| allLocation                                   | 709             | 709 | 709    | 709 | 1       |
+| allLocation                                   | 694             | 694 | 694    | 694 | 1       |
 | contractHash                                  | 759             | 759 | 759    | 759 | 1       |
-| contractLocation                              | 803             | 803 | 803    | 803 | 1       |
+| contractLocation                              | 797             | 797 | 797    | 797 | 1       |
 | decodeType                                    | 371             | 371 | 371    | 371 | 1       |
 | erc1155Hash                                   | 776             | 776 | 776    | 776 | 1       |
-| erc1155Location                               | 887             | 887 | 887    | 887 | 1       |
+| erc1155Location                               | 875             | 875 | 875    | 875 | 1       |
 | erc20Hash                                     | 738             | 738 | 738    | 738 | 1       |
-| erc20Location                                 | 772             | 772 | 772    | 772 | 1       |
+| erc20Location                                 | 766             | 766 | 766    | 766 | 1       |
 | erc721Hash                                    | 821             | 821 | 821    | 821 | 1       |
-| erc721Location                                | 855             | 855 | 855    | 855 | 1       |
+| erc721Location                                | 843             | 843 | 843    | 843 | 1       |
 | location                                      | 384             | 384 | 384    | 384 | 1       |
 
 
