@@ -239,7 +239,7 @@ contract DelegateRegistry is IDelegateRegistry {
      */
 
     function readSlot(bytes32 location) external view returns (bytes32 contents) {
-        assembly {
+        assembly ("memory-safe") {
             contents := sload(location)
         }
     }
@@ -247,7 +247,7 @@ contract DelegateRegistry is IDelegateRegistry {
     function readSlots(bytes32[] calldata locations) external view returns (bytes32[] memory contents) {
         uint256 length = locations.length;
         contents = new bytes32[](length);
-        assembly {
+        assembly ("memory-safe") {
             for { let i := 0 } lt(i, length) { i := add(i, 1) } { mstore(add(contents, mul(add(i, 1), 32)), sload(calldataload(add(68, mul(i, 32))))) }
         }
     }
@@ -275,14 +275,14 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @dev Helper function that writes bytes32 data to delegation data location at array position
     function _writeDelegation(bytes32 location, Storage.Positions position, bytes32 data) internal {
-        assembly {
+        assembly ("memory-safe") {
             sstore(add(location, position), data)
         }
     }
 
     /// @dev Helper function that writes uint256 data to delegation data location at array position
     function _writeDelegation(bytes32 location, Storage.Positions position, uint256 data) internal {
-        assembly {
+        assembly ("memory-safe") {
             sstore(add(location, position), data)
         }
     }
@@ -292,7 +292,7 @@ contract DelegateRegistry is IDelegateRegistry {
         internal
     {
         (bytes32 firstSlot, bytes32 secondSlot) = Storage.packAddresses(from, to, contract_);
-        assembly {
+        assembly ("memory-safe") {
             sstore(add(location, firstPacked), firstSlot)
             sstore(add(location, secondPacked), secondSlot)
         }
@@ -348,14 +348,14 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @dev Helper function that loads delegation data from a particular array position and returns as bytes32
     function _loadDelegationBytes32(bytes32 location, Storage.Positions position) internal view returns (bytes32 data) {
-        assembly {
+        assembly ("memory-safe") {
             data := sload(add(location, position))
         }
     }
 
     /// @dev Helper function that loads delegation data from a particular array position and returns as uint256
     function _loadDelegationUint(bytes32 location, Storage.Positions position) internal view returns (uint256 data) {
-        assembly {
+        assembly ("memory-safe") {
             data := sload(add(location, position))
         }
     }
@@ -363,7 +363,7 @@ contract DelegateRegistry is IDelegateRegistry {
     // @dev Helper function that loads the from address from storage according to the packing rule for delegation storage
     function _loadFrom(bytes32 location, Storage.Positions firstPacked) internal view returns (address) {
         bytes32 data;
-        assembly {
+        assembly ("memory-safe") {
             data := sload(add(location, firstPacked))
         }
         return Storage.unpackAddress(data);
@@ -377,7 +377,7 @@ contract DelegateRegistry is IDelegateRegistry {
     {
         bytes32 firstSlot;
         bytes32 secondSlot;
-        assembly {
+        assembly ("memory-safe") {
             firstSlot := sload(add(location, firstPacked))
             secondSlot := sload(add(location, secondPacked))
         }
