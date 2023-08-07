@@ -9,8 +9,6 @@ import {RegistryHashes as Hashes} from "src/libraries/RegistryHashes.sol";
 contract RegistryHashTests is Test {
     /// @dev used to cross check internal constant in registry hashes with intended values
     function testRegistryHashConstant() public {
-        assertEq(Hashes.DELETE_LAST_BYTE, type(uint256).max << 8);
-        assertEq(Hashes.CLEAN_ADDRESS, uint256(type(uint160).max));
         assertEq(Hashes.EXTRACT_LAST_BYTE, type(uint8).max);
         assertEq(Hashes.ALL_TYPE, uint256(IRegistry.DelegationType.ALL));
         assertEq(Hashes.CONTRACT_TYPE, uint256(IRegistry.DelegationType.CONTRACT));
@@ -162,27 +160,27 @@ contract RegistryHashTests is Test {
 
     /// @dev internal functions of the original registry hash specification to test optimized methods work as intended
     function _computeAll(address from, bytes32 rights, address to) internal pure returns (bytes32) {
-        return _encodeLastByteWithType(keccak256(abi.encode(from, rights, to)), IRegistry.DelegationType.ALL);
+        return _encodeLastByteWithType(keccak256(abi.encodePacked(rights, from, to)), IRegistry.DelegationType.ALL);
     }
 
     function _computeContract(address from, bytes32 rights, address to, address contract_) internal pure returns (bytes32) {
-        return _encodeLastByteWithType(keccak256(abi.encode(from, rights, to, contract_)), IRegistry.DelegationType.CONTRACT);
+        return _encodeLastByteWithType(keccak256(abi.encodePacked(rights, from, to, contract_)), IRegistry.DelegationType.CONTRACT);
     }
 
     function _computeERC721(address from, bytes32 rights, address to, uint256 tokenId, address contract_) internal pure returns (bytes32) {
-        return _encodeLastByteWithType(keccak256(abi.encode(from, rights, to, tokenId, contract_)), IRegistry.DelegationType.ERC721);
+        return _encodeLastByteWithType(keccak256(abi.encodePacked(rights, from, to, contract_, tokenId)), IRegistry.DelegationType.ERC721);
     }
 
     function _computeERC20(address from, bytes32 rights, address to, address contract_) internal pure returns (bytes32) {
-        return _encodeLastByteWithType(keccak256(abi.encode(from, rights, to, contract_)), IRegistry.DelegationType.ERC20);
+        return _encodeLastByteWithType(keccak256(abi.encodePacked(rights, from, to, contract_)), IRegistry.DelegationType.ERC20);
     }
 
     function _computeERC1155(address from, bytes32 rights, address to, uint256 tokenId, address contract_) internal pure returns (bytes32) {
-        return _encodeLastByteWithType(keccak256(abi.encode(from, rights, to, tokenId, contract_)), IRegistry.DelegationType.ERC1155);
+        return _encodeLastByteWithType(keccak256(abi.encodePacked(rights, from, to, contract_, tokenId)), IRegistry.DelegationType.ERC1155);
     }
 
     function _encodeLastByteWithType(bytes32 _input, IRegistry.DelegationType _type) internal pure returns (bytes32) {
-        return (_input & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00) | bytes32(uint256(_type));
+        return bytes32((uint256(_input) << 8) | uint256(_type));
     }
 
     function _decodeLastByteToType(bytes32 _input) internal pure returns (IRegistry.DelegationType) {
