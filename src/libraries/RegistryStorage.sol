@@ -48,7 +48,7 @@ library RegistryStorage {
      * @return contract_ is the contract address associated with the delegation
      * @dev will not revert if from, to, and contract_ are > uint160, any inputs with dirty bits outside the last 20 bytes will be cleaned
      */
-    function unPackAddresses(bytes32 firstPacked, bytes32 secondPacked) internal pure returns (address from, address to, address contract_) {
+    function unpackAddresses(bytes32 firstPacked, bytes32 secondPacked) internal pure returns (address from, address to, address contract_) {
         assembly {
             from := and(firstPacked, CLEAN_ADDRESS)
             to := and(secondPacked, CLEAN_ADDRESS)

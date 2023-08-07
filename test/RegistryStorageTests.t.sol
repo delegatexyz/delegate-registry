@@ -38,8 +38,8 @@ contract RegistryStorageTests is Test {
         // Check contract is stored correctly
         assertEq(uint256(uint160(contract_)) >> 96, uint256(firstPacked) >> 160);
         assertEq((uint256(uint160(contract_)) << 160) >> 160, uint256(secondPacked) >> 160);
-        // Check that unPackAddresses inverts correctly
-        (address checkFrom, address checkTo, address checkContract_) = Storage.unPackAddresses(firstPacked, secondPacked);
+        // Check that unpackAddresses inverts correctly
+        (address checkFrom, address checkTo, address checkContract_) = Storage.unpackAddresses(firstPacked, secondPacked);
         assertEq(from, checkFrom);
         assertEq(to, checkTo);
         assertEq(contract_, checkContract_);
@@ -83,8 +83,8 @@ contract RegistryStorageTests is Test {
         // Check that large numbers were correctly cleaned
         assertEq(uint160(uint256(firstPacked)), uint160(from));
         assertEq(uint160(uint256(secondPacked)), uint160(to));
-        // unPackAddress and check they do not equal inputs
-        (largeFrom, largeTo, largeContract_) = Storage.unPackAddresses(firstPacked, secondPacked);
+        // unpackAddress and check they do not equal inputs
+        (largeFrom, largeTo, largeContract_) = Storage.unpackAddresses(firstPacked, secondPacked);
 
         assembly {
             testLargeFrom := largeFrom

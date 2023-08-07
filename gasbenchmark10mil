@@ -13,4 +13,28 @@
 | delegateERC1155                                    | 159393          | 170343 | 170343 | 181293 | 2       |
 | delegateERC20                                      | 136942          | 147892 | 147892 | 158842 | 2       |
 | delegateERC721                                     | 136936          | 147886 | 147886 | 158836 | 2       |
+| multicall                                          | 689696          | 689696 | 689696 | 689696 | 1       |No files changed, compilation skipped
+
+Running 1 test for test/GasBenchmark.t.sol:GasBenchmark
+[32m[PASS][0m testGas(address,bytes32) (runs: 256, μ: 14540625, ~: 14540813)
+Test result: [32mok[0m. 1 passed; 0 failed; 0 skipped; finished in 291.39ms
+| src/DelegateRegistry.sol:DelegateRegistry contract |                 |        |        |        |         |
+|----------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                    | Deployment Size |        |        |        |         |
+| 2124658                                            | 10644           |        |        |        |         |
+| Function Name                                      | min             | avg    | median | max    | # calls |
+| checkDelegateForAll                                | 2980            | 3183   | 3183   | 3386   | 2       |
+| checkDelegateForContract                           | 5473            | 5895   | 5895   | 6317   | 2       |
+| checkDelegateForERC1155                            | 7990            | 8685   | 8685   | 9380   | 2       |
+| checkDelegateForERC20                              | 7927            | 8610   | 8610   | 9293   | 2       |
+| checkDelegateForERC721                             | 7991            | 8644   | 8644   | 9297   | 2       |
+| delegateAll                                        | 135861          | 135861 | 135861 | 135861 | 2       |
+| delegateContract                                   | 114469          | 125419 | 125419 | 136369 | 2       |
+| delegateERC1155                                    | 159393          | 170343 | 170343 | 181293 | 2       |
+| delegateERC20                                      | 136942          | 147892 | 147892 | 158842 | 2       |
+| delegateERC721                                     | 136936          | 147886 | 147886 | 158836 | 2       |
 | multicall                                          | 689696          | 689696 | 689696 | 689696 | 1       |
+
+
+
+Ran 1 test suites: 1 tests passed, 0 failed, 0 skipped (1 total tests)
