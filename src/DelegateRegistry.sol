@@ -134,22 +134,22 @@ contract DelegateRegistry is IDelegateRegistry {
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForAll(address to, address from, bytes32 rights) external view override returns (bool valid) {
         valid = _validateDelegation(Hashes.allLocation(from, "", to), from);
-        if (Ops.and(rights != "", !valid)) valid = _validateDelegation(Hashes.allLocation(from, rights, to), from);
+        if (!Ops.or(rights == "", valid)) valid = _validateDelegation(Hashes.allLocation(from, rights, to), from);
         assembly ("memory-safe") {
             mstore(0x00, valid)
-            return(0x00, 0x20) // Direct return to save gas
+            return(0x00, 0x20) // Direct return. Skips Solidity's redundant copying to save gas.
         }
     }
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForContract(address to, address from, address contract_, bytes32 rights) external view override returns (bool valid) {
         valid = _validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from);
-        if (Ops.and(rights != "", !valid)) {
+        if (!Ops.or(rights == "", valid)) {
             valid = _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from);
         }
         assembly ("memory-safe") {
             mstore(0x00, valid)
-            return(0x00, 0x20) // Direct return to save gas
+            return(0x00, 0x20) // Direct return. Skips Solidity's redundant copying to save gas.
         }
     }
 
@@ -157,13 +157,13 @@ contract DelegateRegistry is IDelegateRegistry {
     function checkDelegateForERC721(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view override returns (bool valid) {
         valid = _validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from)
             || _validateDelegation(Hashes.erc721Location(from, "", to, tokenId, contract_), from);
-        if (Ops.and(rights != "", !valid)) {
+        if (!Ops.or(rights == "", valid)) {
             valid = _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from)
                 || _validateDelegation(Hashes.erc721Location(from, rights, to, tokenId, contract_), from);
         }
         assembly ("memory-safe") {
             mstore(0x00, valid)
-            return(0x00, 0x20) // Direct return to save gas
+            return(0x00, 0x20) // Direct return. Skips Solidity's redundant copying to save gas.
         }
     }
 
@@ -173,7 +173,7 @@ contract DelegateRegistry is IDelegateRegistry {
         amount = (_validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from))
             ? type(uint256).max
             : (_validateDelegation(location, from) ? _loadDelegationUint(location, Storage.Positions.amount) : 0);
-        if (Ops.and(rights != "", amount != type(uint256).max)) {
+        if (!Ops.or(rights == "", amount == type(uint256).max)) {
             location = Hashes.erc20Location(from, rights, to, contract_);
             uint256 rightsBalance = (
                 _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from)
@@ -182,7 +182,7 @@ contract DelegateRegistry is IDelegateRegistry {
         }
         assembly ("memory-safe") {
             mstore(0x00, amount)
-            return(0x00, 0x20) // Direct return to save gas
+            return(0x00, 0x20) // Direct return. Skips Solidity's redundant copying to save gas.
         }
     }
 
@@ -192,7 +192,7 @@ contract DelegateRegistry is IDelegateRegistry {
         amount = (_validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from))
             ? type(uint256).max
             : (_validateDelegation(location, from) ? _loadDelegationUint(location, Storage.Positions.amount) : 0);
-        if (Ops.and(rights != "", amount != type(uint256).max)) {
+        if (!Ops.or(rights == "", amount == type(uint256).max)) {
             location = Hashes.erc1155Location(from, rights, to, tokenId, contract_);
             uint256 rightsBalance = (
                 _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from)
@@ -201,7 +201,7 @@ contract DelegateRegistry is IDelegateRegistry {
         }
         assembly ("memory-safe") {
             mstore(0x00, amount)
-            return(0x00, 0x20) // Direct return to save gas.
+            return(0x00, 0x20) // Direct return. Skips Solidity's redundant copying to save gas.
         }
     }
 
@@ -410,7 +410,7 @@ contract DelegateRegistry is IDelegateRegistry {
         address revoked = DELEGATION_REVOKED;
         assembly ("memory-safe") {
             // We don't need to clean the upper 96 bits of `from`. It is directly passed in from the
-            // parameter of an external function, and Solidity has checks to ensure that it is clean.
+            // parameter of an external function, and Solidity has included checks to ensure that it is clean.
             result := and(eq(from, loaded), gt(from, revoked))
         }
     }
