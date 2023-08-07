@@ -135,6 +135,10 @@ contract DelegateRegistry is IDelegateRegistry {
     function checkDelegateForAll(address to, address from, bytes32 rights) external view override returns (bool valid) {
         valid = _validateDelegation(Hashes.allLocation(from, "", to), from);
         if (Ops.and(rights != "", !valid)) valid = _validateDelegation(Hashes.allLocation(from, rights, to), from);
+        assembly ("memory-safe") {
+            mstore(0x00, valid)
+            return(0x00, 0x20) // Direct return to save gas
+        }
     }
 
     /// @inheritdoc IDelegateRegistry
@@ -142,6 +146,10 @@ contract DelegateRegistry is IDelegateRegistry {
         valid = _validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from);
         if (Ops.and(rights != "", !valid)) {
             valid = _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from);
+        }
+        assembly ("memory-safe") {
+            mstore(0x00, valid)
+            return(0x00, 0x20) // Direct return to save gas
         }
     }
 
@@ -152,6 +160,10 @@ contract DelegateRegistry is IDelegateRegistry {
         if (Ops.and(rights != "", !valid)) {
             valid = _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from)
                 || _validateDelegation(Hashes.erc721Location(from, rights, to, tokenId, contract_), from);
+        }
+        assembly ("memory-safe") {
+            mstore(0x00, valid)
+            return(0x00, 0x20) // Direct return to save gas
         }
     }
 
@@ -168,6 +180,10 @@ contract DelegateRegistry is IDelegateRegistry {
             ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, Storage.Positions.amount) : 0);
             amount = Ops.max(rightsBalance, amount);
         }
+        assembly ("memory-safe") {
+            mstore(0x00, amount)
+            return(0x00, 0x20) // Direct return to save gas
+        }
     }
 
     /// @inheritdoc IDelegateRegistry
@@ -182,6 +198,10 @@ contract DelegateRegistry is IDelegateRegistry {
                 _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from)
             ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, Storage.Positions.amount) : 0);
             amount = Ops.max(rightsBalance, amount);
+        }
+        assembly ("memory-safe") {
+            mstore(0x00, amount)
+            return(0x00, 0x20) // Direct return to save gas.
         }
     }
 
@@ -385,7 +405,13 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @dev Helper function to establish whether a delegation is enabled
-    function _validateDelegation(bytes32 location, address from) internal view returns (bool) {
-        return _loadFrom(location, Storage.Positions.firstPacked) == from && from > DELEGATION_REVOKED;
+    function _validateDelegation(bytes32 location, address from) internal view returns (bool result) {
+        address loaded = _loadFrom(location, Storage.Positions.firstPacked);
+        address revoked = DELEGATION_REVOKED;
+        assembly ("memory-safe") {
+            // We don't need to clean the upper 96 bits of `from`. It is directly passed in from the
+            // parameter of an external function, and Solidity has checks to ensure that it is clean.
+            result := and(eq(from, loaded), gt(from, revoked))
+        }
     }
 }
