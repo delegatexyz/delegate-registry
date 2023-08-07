@@ -229,6 +229,7 @@ library RegistryHashes {
             mstore(0x14, from)
             mstore(0x00, rights)
             hash := or(shl(8, keccak256(0x00, 0x5c)), ERC20_TYPE)
+            // Restore the upper bits of the free memory pointer, which is zero.
             mstore(0x3c, 0)
         }
     }
@@ -254,6 +255,7 @@ library RegistryHashes {
             mstore(0x00, or(shl(8, keccak256(0x00, 0x5c)), ERC20_TYPE))
             mstore(0x20, DELEGATION_SLOT)
             computedLocation := keccak256(0x00, 0x40)
+            // Restore the upper bits of the free memory pointer, which is zero.
             mstore(0x3c, 0)
         }
     }

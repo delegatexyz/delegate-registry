@@ -381,7 +381,7 @@ contract DelegateRegistry is IDelegateRegistry {
             firstSlot := sload(add(location, firstPacked))
             secondSlot := sload(add(location, secondPacked))
         }
-        (from, to, contract_) = Storage.unPackAddresses(firstSlot, secondSlot);
+        (from, to, contract_) = Storage.unpackAddresses(firstSlot, secondSlot);
     }
 
     /// @dev Helper function to establish whether a delegation is enabled
