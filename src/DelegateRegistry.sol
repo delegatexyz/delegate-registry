@@ -4,6 +4,7 @@ pragma solidity ^0.8.21;
 import {IDelegateRegistry as IDelegateRegistry} from "./IDelegateRegistry.sol";
 import {RegistryHashes as Hashes} from "./libraries/RegistryHashes.sol";
 import {RegistryStorage as Storage} from "./libraries/RegistryStorage.sol";
+import {RegistryOps as Ops} from "./libraries/RegistryOps.sol";
 
 /**
  * @title DelegateRegistry
@@ -133,13 +134,13 @@ contract DelegateRegistry is IDelegateRegistry {
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForAll(address to, address from, bytes32 rights) external view override returns (bool valid) {
         valid = _validateDelegation(Hashes.allLocation(from, "", to), from);
-        if (rights != "" && !valid) valid = _validateDelegation(Hashes.allLocation(from, rights, to), from);
+        if (Ops.and(rights != "", !valid)) valid = _validateDelegation(Hashes.allLocation(from, rights, to), from);
     }
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForContract(address to, address from, address contract_, bytes32 rights) external view override returns (bool valid) {
         valid = _validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from);
-        if (rights != "" && !valid) {
+        if (Ops.and(rights != "", !valid)) {
             valid = _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from);
         }
     }
@@ -148,7 +149,7 @@ contract DelegateRegistry is IDelegateRegistry {
     function checkDelegateForERC721(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view override returns (bool valid) {
         valid = _validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from)
             || _validateDelegation(Hashes.erc721Location(from, "", to, tokenId, contract_), from);
-        if (rights != "" && !valid) {
+        if (Ops.and(rights != "", !valid)) {
             valid = _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from)
                 || _validateDelegation(Hashes.erc721Location(from, rights, to, tokenId, contract_), from);
         }
@@ -160,12 +161,12 @@ contract DelegateRegistry is IDelegateRegistry {
         amount = (_validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from))
             ? type(uint256).max
             : (_validateDelegation(location, from) ? _loadDelegationUint(location, Storage.Positions.amount) : 0);
-        if (rights != "" && amount != type(uint256).max) {
+        if (Ops.and(rights != "", amount != type(uint256).max)) {
             location = Hashes.erc20Location(from, rights, to, contract_);
             uint256 rightsBalance = (
                 _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from)
             ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, Storage.Positions.amount) : 0);
-            amount = rightsBalance > amount ? rightsBalance : amount;
+            amount = Ops.max(rightsBalance, amount);
         }
     }
 
@@ -175,12 +176,12 @@ contract DelegateRegistry is IDelegateRegistry {
         amount = (_validateDelegation(Hashes.allLocation(from, "", to), from) || _validateDelegation(Hashes.contractLocation(from, "", to, contract_), from))
             ? type(uint256).max
             : (_validateDelegation(location, from) ? _loadDelegationUint(location, Storage.Positions.amount) : 0);
-        if (rights != "" && amount != type(uint256).max) {
+        if (Ops.and(rights != "", amount != type(uint256).max)) {
             location = Hashes.erc1155Location(from, rights, to, tokenId, contract_);
             uint256 rightsBalance = (
                 _validateDelegation(Hashes.allLocation(from, rights, to), from) || _validateDelegation(Hashes.contractLocation(from, rights, to, contract_), from)
             ) ? type(uint256).max : (_validateDelegation(location, from) ? _loadDelegationUint(location, Storage.Positions.amount) : 0);
-            amount = rightsBalance > amount ? rightsBalance : amount;
+            amount = Ops.max(rightsBalance, amount);
         }
     }
 
@@ -215,7 +216,7 @@ contract DelegateRegistry is IDelegateRegistry {
             for (uint256 i = 0; i < hashes.length; ++i) {
                 bytes32 location = Hashes.location(hashes[i]);
                 address from = _loadFrom(location, Storage.Positions.firstPacked);
-                if (from == DELEGATION_EMPTY || from == DELEGATION_REVOKED) {
+                if (Ops.or(from == DELEGATION_EMPTY, from == DELEGATION_REVOKED)) {
                     delegations_[i] = Delegation({type_: DelegationType.NONE, to: address(0), from: address(0), rights: "", amount: 0, contract_: address(0), tokenId: 0});
                 } else {
                     (, address to, address contract_) = _loadDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked);
@@ -259,7 +260,7 @@ contract DelegateRegistry is IDelegateRegistry {
     /// @param interfaceId The interface identifier
     /// @return valid Whether the queried interface is supported
     function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
-        return interfaceId == type(IDelegateRegistry).interfaceId || interfaceId == 0x01ffc9a7;
+        return Ops.or(interfaceId == type(IDelegateRegistry).interfaceId, interfaceId == 0x01ffc9a7);
     }
 
     /**
@@ -385,6 +386,6 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @dev Helper function to establish whether a delegation is enabled
     function _validateDelegation(bytes32 location, address from) internal view returns (bool) {
-        return (_loadFrom(location, Storage.Positions.firstPacked) == from && from > DELEGATION_REVOKED);
+        return Ops.and(_loadFrom(location, Storage.Positions.firstPacked) == from, from > DELEGATION_REVOKED);
     }
 }
