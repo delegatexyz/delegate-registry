@@ -386,6 +386,6 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @dev Helper function to establish whether a delegation is enabled
     function _validateDelegation(bytes32 location, address from) internal view returns (bool) {
-        return Ops.and(_loadFrom(location, Storage.Positions.firstPacked) == from, from > DELEGATION_REVOKED);
+        return _loadFrom(location, Storage.Positions.firstPacked) == from && from > DELEGATION_REVOKED;
     }
 }
