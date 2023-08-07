@@ -100,6 +100,7 @@ library RegistryHashes {
             mstore(0x28, DELEGATION_SLOT)
             computedLocation := keccak256(0x08, 0x40)
             // Restore the upper bits of the free memory pointer, which is zero.
+            // Should be optimized away if `DELEGATION_SLOT` is zero.
             mstore(0x28, 0)
         }
     }
