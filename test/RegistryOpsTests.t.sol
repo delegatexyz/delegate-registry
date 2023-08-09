@@ -46,8 +46,14 @@ contract RegistryOpsTests is Test {
         }
         assertEq(xCasted, x != 0);
         assertTrue(xCasted == (x != 0));
+        assertEq(Ops.or(xCasted, yCasted), x != 0 || y != 0);
+        assertTrue(Ops.or(xCasted, yCasted) == (x != 0 || y != 0));
         if (Ops.or(xCasted, yCasted)) if (!(x != 0 || y != 0)) revert();
         if (x != 0 || y != 0) if (!Ops.or(xCasted, yCasted)) revert();
+        assertEq(Ops.and(xCasted, yCasted), x != 0 && y != 0);
+        assertTrue(Ops.and(xCasted, yCasted) == (x != 0 && y != 0));
+        if (Ops.and(xCasted, yCasted)) if (!(x != 0 && y != 0)) revert();
+        if (x != 0 && y != 0) if (!Ops.and(xCasted, yCasted)) revert();
     }
 
     function testTruthyness(bool x, bool y) public {

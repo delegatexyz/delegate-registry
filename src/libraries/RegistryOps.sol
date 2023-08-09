@@ -18,14 +18,14 @@ library RegistryOps {
     /// @dev `x & y`.
     function and(bool x, bool y) internal pure returns (bool z) {
         assembly {
-            z := iszero(iszero(and(x, y)))
+            z := and(iszero(iszero(x)), iszero(iszero(y)))
         }
     }
 
     /// @dev `x | y`.
     function or(bool x, bool y) internal pure returns (bool z) {
         assembly {
-            z := iszero(iszero(or(x, y)))
+            z := or(iszero(iszero(x)), iszero(iszero(y)))
         }
     }
 }
