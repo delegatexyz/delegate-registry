@@ -37,6 +37,19 @@ contract RegistryOpsTests is Test {
         assertEq(Ops.or(_brutalizeBool(x), _brutalizeBool(y)), x || y);
     }
 
+    function testTruthyness(uint256 x, uint256 y) public {
+        bool xCasted;
+        bool yCasted;
+        assembly {
+            xCasted := x
+            yCasted := y
+        }
+        assertEq(xCasted, x != 0);
+        assertTrue(xCasted == (x != 0));
+        if (Ops.or(xCasted, yCasted)) if (!(x != 0 || y != 0)) revert();
+        if (x != 0 || y != 0) if (!Ops.or(xCasted, yCasted)) revert();
+    }
+
     function testTruthyness(bool x, bool y) public {
         bool xCasted;
         bool yCasted;
