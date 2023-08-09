@@ -10,7 +10,7 @@ contract RegistryOpsTests is Test {
     function _brutalizeBool(bool x) internal view returns (bool result) {
         assembly {
             mstore(0x00, gas())
-            result := mul(iszero(iszero(x)), keccak256(0x00, 0x20))
+            result := mul(iszero(iszero(x)), shl(128, keccak256(0x00, 0x20)))
         }
     }
 
@@ -35,5 +35,51 @@ contract RegistryOpsTests is Test {
 
     function testOrDifferential(bool x, bool y) public {
         assertEq(Ops.or(_brutalizeBool(x), _brutalizeBool(y)), x || y);
+    }
+
+    function testTruthyness(bool x, bool y) public {
+        bool xCasted;
+        bool yCasted;
+        assembly {
+            mstore(0x00, gas())
+            xCasted := mul(iszero(iszero(x)), shl(128, keccak256(0x00, 0x20)))
+            mstore(0x00, gas())
+            yCasted := mul(iszero(iszero(y)), shl(128, keccak256(0x00, 0x20)))
+        }
+        assertEq(x, xCasted);
+        assertEq(y, yCasted);
+        assembly {
+            if and(0xff, xCasted) {
+                revert(0x00, 0x00)
+            }
+            if and(0xff, yCasted) {
+                revert(0x00, 0x00)
+            }
+        }
+        assertEq(Ops.or(xCasted, yCasted), x || y);
+        assertTrue(Ops.or(xCasted, yCasted) == (x || y));
+        if (Ops.or(xCasted, yCasted)) if (!(x || y)) revert();
+        if (x || y) if (!Ops.or(xCasted, yCasted)) revert();
+        assertEq(Ops.and(xCasted, yCasted), x && y);
+        assertTrue(Ops.and(xCasted, yCasted) == (x && y));
+        if (Ops.and(xCasted, yCasted)) if (!(x && y)) revert();
+        if (x && y) if (!Ops.and(xCasted, yCasted)) revert();
+    }
+
+    function testTruthyness(bool x) public {
+        bool casted;
+        if (casted) revert();
+        assertEq(casted, false);
+        assertTrue(casted == false);
+        assembly {
+            if x {
+                mstore(0x00, gas())
+                casted := mul(iszero(iszero(x)), shl(128, keccak256(0x00, 0x20)))
+            }
+        }
+        assertEq(x, casted);
+        assertTrue(x == casted);
+        if (x) if (!casted) revert();
+        if (casted) if (!x) revert();
     }
 }
