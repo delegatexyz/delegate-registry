@@ -19,7 +19,7 @@ import {IDelegateRegistry} from "../IDelegateRegistry.sol";
  */
 library RegistryHashes {
     /// @dev Used to delete everything but the last byte of a 32 byte word with and(word, EXTRACT_LAST_BYTE)
-    uint256 internal constant EXTRACT_LAST_BYTE = 0xFF;
+    uint256 internal constant EXTRACT_LAST_BYTE = 0xff;
     /// @dev uint256 constant for the delegate registry delegation type enumeration, related unit test should fail if these mismatch
     uint256 internal constant ALL_TYPE = 1;
     uint256 internal constant CONTRACT_TYPE = 2;
@@ -38,7 +38,7 @@ library RegistryHashes {
      * enum range
      */
     function decodeType(bytes32 inputHash) internal pure returns (IDelegateRegistry.DelegationType decodedType) {
-        assembly ("memory-safe") {
+        assembly {
             decodedType := and(inputHash, EXTRACT_LAST_BYTE)
         }
     }
@@ -52,9 +52,9 @@ library RegistryHashes {
      */
     function location(bytes32 inputHash) internal pure returns (bytes32 computedLocation) {
         assembly ("memory-safe") {
-            mstore(0x00, inputHash) // Store hash in scratch space
-            mstore(0x20, DELEGATION_SLOT) // Store delegationSlot after hash in scratch space
-            computedLocation := keccak256(0x00, 0x40) // Run keccak256 over bytes in scratch space to obtain the storage key
+            mstore(0, inputHash) // Store hash in scratch space
+            mstore(32, DELEGATION_SLOT) // Store delegationSlot after hash in scratch space
+            computedLocation := keccak256(0, 64) // Run keccak256 over bytes in scratch space to obtain the storage key
         }
     }
 
@@ -68,15 +68,15 @@ library RegistryHashes {
      * @dev will not revert if from or to are > uint160, any input larger than uint160 for from and to will be cleaned to their last 20 bytes
      */
     function allHash(address from, bytes32 rights, address to) internal pure returns (bytes32 hash) {
-        assembly ("memory-safe") {
+        assembly {
             // Layout the variables from last to first,
             // agnostic to upper 96 bits of address words.
-            mstore(0x28, to)
-            mstore(0x14, from)
-            mstore(0x00, rights)
-            hash := or(shl(8, keccak256(0x00, 0x48)), ALL_TYPE)
+            mstore(40, to)
+            mstore(20, from)
+            mstore(0, rights)
+            hash := or(shl(8, keccak256(0, 72)), ALL_TYPE)
             // Restore the upper bits of the free memory pointer, which is zero.
-            mstore(0x28, 0)
+            mstore(40, 0)
         }
     }
 
@@ -90,18 +90,18 @@ library RegistryHashes {
      * @dev will not revert if from or to are > uint160, any input larger than uint160 for from and to will be cleaned to their last 20 bytes
      */
     function allLocation(address from, bytes32 rights, address to) internal pure returns (bytes32 computedLocation) {
-        assembly ("memory-safe") {
+        assembly {
             // Layout the variables from last to first,
             // agnostic to upper 96 bits of address words.
-            mstore(0x28, to)
-            mstore(0x14, from)
-            mstore(0x00, rights)
-            mstore(0x08, or(shl(8, keccak256(0x00, 0x48)), ALL_TYPE))
-            mstore(0x28, DELEGATION_SLOT)
-            computedLocation := keccak256(0x08, 0x40)
+            mstore(40, to)
+            mstore(20, from)
+            mstore(0, rights)
+            mstore(8, or(shl(8, keccak256(0, 72)), ALL_TYPE))
+            mstore(40, DELEGATION_SLOT)
+            computedLocation := keccak256(8, 64)
             // Restore the upper bits of the free memory pointer, which is zero.
             // Should be optimized away if `DELEGATION_SLOT` is zero.
-            mstore(0x28, 0)
+            mstore(40, 0)
         }
     }
 
@@ -116,16 +116,16 @@ library RegistryHashes {
      * @dev will not revert if from, to, or contract_ are > uint160, any input larger than uint160 for from, to, or contract_ will be cleaned to their last 20 bytes
      */
     function contractHash(address from, bytes32 rights, address to, address contract_) internal pure returns (bytes32 hash) {
-        assembly ("memory-safe") {
+        assembly {
             // Layout the variables from last to first,
             // agnostic to upper 96 bits of address words.
-            mstore(0x3c, contract_)
-            mstore(0x28, to)
-            mstore(0x14, from)
-            mstore(0x00, rights)
-            hash := or(shl(8, keccak256(0x00, 0x5c)), CONTRACT_TYPE)
+            mstore(60, contract_)
+            mstore(40, to)
+            mstore(20, from)
+            mstore(0, rights)
+            hash := or(shl(8, keccak256(0, 92)), CONTRACT_TYPE)
             // Restore the upper bits of the free memory pointer, which is zero.
-            mstore(0x3c, 0)
+            mstore(60, 0)
         }
     }
 
@@ -140,19 +140,19 @@ library RegistryHashes {
      * @dev will not revert if from, to, or contract_ are > uint160, any input larger than uint160 for from, to, or contract_ will be cleaned to their last 20 bytes
      */
     function contractLocation(address from, bytes32 rights, address to, address contract_) internal pure returns (bytes32 computedLocation) {
-        assembly ("memory-safe") {
+        assembly {
             // Layout the variables from last to first,
             // agnostic to upper 96 bits of address words.
-            mstore(0x3c, contract_)
-            mstore(0x28, to)
-            mstore(0x14, from)
-            mstore(0x00, rights)
-            mstore(0x1c, or(shl(8, keccak256(0x00, 0x5c)), CONTRACT_TYPE))
-            mstore(0x3c, DELEGATION_SLOT)
-            computedLocation := keccak256(0x1c, 0x40)
+            mstore(60, contract_)
+            mstore(40, to)
+            mstore(20, from)
+            mstore(0, rights)
+            mstore(28, or(shl(8, keccak256(0, 92)), CONTRACT_TYPE))
+            mstore(60, DELEGATION_SLOT)
+            computedLocation := keccak256(28, 64)
             // Restore the upper bits of the free memory pointer, which is zero.
             // Should be optimized away if `DELEGATION_SLOT` is zero.
-            mstore(0x3c, 0)
+            mstore(60, 0)
         }
     }
 
@@ -168,18 +168,18 @@ library RegistryHashes {
      * @dev will not revert if from, to, or contract_ are > uint160, any input larger than uint160 for from, to, or contract_ will be cleaned to their last 20 bytes
      */
     function erc721Hash(address from, bytes32 rights, address to, uint256 tokenId, address contract_) internal pure returns (bytes32 hash) {
-        assembly ("memory-safe") {
-            let m := mload(0x40) // Cache the free memory pointer.
+        assembly {
+            let m := mload(64) // Cache the free memory pointer.
             // Layout the variables from last to first,
             // agnostic to upper 96 bits of address words.
-            mstore(0x5c, tokenId)
-            mstore(0x3c, contract_)
-            mstore(0x28, to)
-            mstore(0x14, from)
-            mstore(0x00, rights)
-            hash := or(shl(8, keccak256(0x00, 0x7c)), ERC721_TYPE)
-            mstore(0x40, m) // Restore the free memory pointer.
-            mstore(0x60, 0) // Restore the zero pointer.
+            mstore(92, tokenId)
+            mstore(60, contract_)
+            mstore(40, to)
+            mstore(20, from)
+            mstore(0, rights)
+            hash := or(shl(8, keccak256(0, 124)), ERC721_TYPE)
+            mstore(64, m) // Restore the free memory pointer.
+            mstore(96, 0) // Restore the zero pointer.
         }
     }
 
@@ -195,20 +195,20 @@ library RegistryHashes {
      * @dev will not revert if from, to, or contract_ are > uint160, any input larger than uint160 for from, to, or contract_ will be cleaned to their last 20 bytes
      */
     function erc721Location(address from, bytes32 rights, address to, uint256 tokenId, address contract_) internal pure returns (bytes32 computedLocation) {
-        assembly ("memory-safe") {
-            let m := mload(0x40) // Cache the free memory pointer.
+        assembly {
+            let m := mload(64) // Cache the free memory pointer.
             // Layout the variables from last to first,
             // agnostic to upper 96 bits of address words.
-            mstore(0x5c, tokenId)
-            mstore(0x3c, contract_)
-            mstore(0x28, to)
-            mstore(0x14, from)
-            mstore(0x00, rights)
-            mstore(0x40, or(shl(8, keccak256(0x00, 0x7c)), ERC721_TYPE))
-            mstore(0x60, DELEGATION_SLOT)
-            computedLocation := keccak256(0x40, 0x40)
-            mstore(0x40, m) // Restore the free memory pointer.
-            mstore(0x60, 0) // Restore the zero pointer. Should be optimized away if `DELEGATION_SLOT` is zero.
+            mstore(92, tokenId)
+            mstore(60, contract_)
+            mstore(40, to)
+            mstore(20, from)
+            mstore(0, rights)
+            mstore(64, or(shl(8, keccak256(0, 124)), ERC721_TYPE))
+            mstore(96, DELEGATION_SLOT)
+            computedLocation := keccak256(64, 64)
+            mstore(64, m) // Restore the free memory pointer.
+            mstore(96, 0) // Restore the zero pointer. Should be optimized away if `DELEGATION_SLOT` is zero.
         }
     }
 
@@ -223,16 +223,16 @@ library RegistryHashes {
      * @dev will not revert if from, to, or contract_ are > uint160, any input larger than uint160 for from, to, or contract_ will be cleaned to their last 20 bytes
      */
     function erc20Hash(address from, bytes32 rights, address to, address contract_) internal pure returns (bytes32 hash) {
-        assembly ("memory-safe") {
+        assembly {
             // Layout the variables from last to first,
             // agnostic to upper 96 bits of address words.
-            mstore(0x3c, contract_)
-            mstore(0x28, to)
-            mstore(0x14, from)
-            mstore(0x00, rights)
-            hash := or(shl(8, keccak256(0x00, 0x5c)), ERC20_TYPE)
+            mstore(60, contract_)
+            mstore(40, to)
+            mstore(20, from)
+            mstore(0, rights)
+            hash := or(shl(8, keccak256(0, 92)), ERC20_TYPE)
             // Restore the upper bits of the free memory pointer, which is zero.
-            mstore(0x3c, 0)
+            mstore(60, 0)
         }
     }
 
@@ -247,19 +247,19 @@ library RegistryHashes {
      * @dev will not revert if from, to, or contract_ are > uint160, any input larger than uint160 for from, to, or contract_ will be cleaned to their last 20 bytes
      */
     function erc20Location(address from, bytes32 rights, address to, address contract_) internal pure returns (bytes32 computedLocation) {
-        assembly ("memory-safe") {
+        assembly {
             // Layout the variables from last to first,
             // agnostic to upper 96 bits of address words.
-            mstore(0x3c, contract_)
-            mstore(0x28, to)
-            mstore(0x14, from)
-            mstore(0x00, rights)
-            mstore(0x1c, or(shl(8, keccak256(0x00, 0x5c)), ERC20_TYPE))
-            mstore(0x3c, DELEGATION_SLOT)
-            computedLocation := keccak256(0x1c, 0x40)
+            mstore(60, contract_)
+            mstore(40, to)
+            mstore(20, from)
+            mstore(0, rights)
+            mstore(28, or(shl(8, keccak256(0, 92)), ERC20_TYPE))
+            mstore(60, DELEGATION_SLOT)
+            computedLocation := keccak256(28, 64)
             // Restore the upper bits of the free memory pointer, which is zero.
             // Should be optimized away if `DELEGATION_SLOT` is zero.
-            mstore(0x3c, 0)
+            mstore(60, 0)
         }
     }
 
@@ -275,18 +275,18 @@ library RegistryHashes {
      * @dev will not revert if from, to, or contract_ are > uint160, any input larger than uint160 for from, to, or contract_ will be cleaned to their last 20 bytes
      */
     function erc1155Hash(address from, bytes32 rights, address to, uint256 tokenId, address contract_) internal pure returns (bytes32 hash) {
-        assembly ("memory-safe") {
-            let m := mload(0x40) // Cache the free memory pointer.
+        assembly {
+            let m := mload(64) // Cache the free memory pointer.
             // Layout the variables from last to first,
             // agnostic to upper 96 bits of address words.
-            mstore(0x5c, tokenId)
-            mstore(0x3c, contract_)
-            mstore(0x28, to)
-            mstore(0x14, from)
-            mstore(0x00, rights)
-            hash := or(shl(8, keccak256(0x00, 0x7c)), ERC1155_TYPE)
-            mstore(0x40, m) // Restore the free memory pointer.
-            mstore(0x60, 0) // Restore the zero pointer. Should be optimized away if `DELEGATION_SLOT` is zero.
+            mstore(92, tokenId)
+            mstore(60, contract_)
+            mstore(40, to)
+            mstore(20, from)
+            mstore(0, rights)
+            hash := or(shl(8, keccak256(0, 124)), ERC1155_TYPE)
+            mstore(64, m) // Restore the free memory pointer.
+            mstore(96, 0) // Restore the zero pointer. Should be optimized away if `DELEGATION_SLOT` is zero.
         }
     }
 
@@ -302,20 +302,20 @@ library RegistryHashes {
      * @dev will not revert if from, to, or contract_ are > uint160, any input larger than uint160 for from, to, or contract_ will be cleaned to their last 20 bytes
      */
     function erc1155Location(address from, bytes32 rights, address to, uint256 tokenId, address contract_) internal pure returns (bytes32 computedLocation) {
-        assembly ("memory-safe") {
-            let m := mload(0x40) // Cache the free memory pointer.
+        assembly {
+            let m := mload(64) // Cache the free memory pointer.
             // Layout the variables from last to first,
             // agnostic to upper 96 bits of address words.
-            mstore(0x5c, tokenId)
-            mstore(0x3c, contract_)
-            mstore(0x28, to)
-            mstore(0x14, from)
-            mstore(0x00, rights)
-            mstore(0x40, or(shl(8, keccak256(0x00, 0x7c)), ERC1155_TYPE))
-            mstore(0x60, DELEGATION_SLOT)
-            computedLocation := keccak256(0x40, 0x40)
-            mstore(0x40, m) // Restore the free memory pointer.
-            mstore(0x60, 0) // Restore the zero pointer. Should be optimized away if `DELEGATION_SLOT` is zero.
+            mstore(92, tokenId)
+            mstore(60, contract_)
+            mstore(40, to)
+            mstore(20, from)
+            mstore(0, rights)
+            mstore(64, or(shl(8, keccak256(0, 124)), ERC1155_TYPE))
+            mstore(96, DELEGATION_SLOT)
+            computedLocation := keccak256(64, 64)
+            mstore(64, m) // Restore the free memory pointer.
+            mstore(96, 0) // Restore the zero pointer. Should be optimized away if `DELEGATION_SLOT` is zero.
         }
     }
 }

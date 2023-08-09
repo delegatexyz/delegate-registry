@@ -52,7 +52,7 @@ library RegistryStorage {
         assembly {
             from := and(firstPacked, CLEAN_ADDRESS)
             to := and(secondPacked, CLEAN_ADDRESS)
-            contract_ := or(shr(64, xor(firstPacked, from)), shr(160, secondPacked))
+            contract_ := or(shr(64, and(firstPacked, CLEAN_PACKED8_BYTES_ADDRESS)), shr(160, secondPacked))
         }
     }
 

@@ -1,18 +1,18 @@
 No files changed, compilation skipped
 
 Running 1 test for test/GasBenchmark.t.sol:GasBenchmark
-[32m[PASS][0m testGas(address,bytes32) (runs: 256, μ: 12490859, ~: 12491136)
-Test result: [32mok[0m. 1 passed; 0 failed; 0 skipped; finished in 394.77ms
+[32m[PASS][0m testGas(address,bytes32) (runs: 256, μ: 12586431, ~: 12586524)
+Test result: [32mok[0m. 1 passed; 0 failed; 0 skipped; finished in 492.11ms
 | src/DelegateRegistry.sol:DelegateRegistry contract |                 |        |        |        |         |
 |----------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                    | Deployment Size |        |        |        |         |
-| 1783877                                            | 8942            |        |        |        |         |
+| 1799691                                            | 9021            |        |        |        |         |
 | Function Name                                      | min             | avg    | median | max    | # calls |
-| checkDelegateForAll                                | 2823            | 2986   | 2986   | 3150   | 2       |
-| checkDelegateForContract                           | 5240            | 5579   | 5579   | 5919   | 2       |
-| checkDelegateForERC1155                            | 7671            | 8226   | 8226   | 8782   | 2       |
-| checkDelegateForERC20                              | 7610            | 8157   | 8157   | 8705   | 2       |
-| checkDelegateForERC721                             | 7688            | 8217   | 8217   | 8746   | 2       |
+| checkDelegateForAll                                | 2841            | 3010   | 3010   | 3180   | 2       |
+| checkDelegateForContract                           | 5270            | 5621   | 5621   | 5973   | 2       |
+| checkDelegateForERC1155                            | 7707            | 8280   | 8280   | 8854   | 2       |
+| checkDelegateForERC20                              | 7646            | 8211   | 8211   | 8777   | 2       |
+| checkDelegateForERC721                             | 7730            | 8277   | 8277   | 8824   | 2       |
 | delegateAll                                        | 135880          | 135880 | 135880 | 135880 | 2       |
 | delegateContract                                   | 114464          | 125414 | 125414 | 136364 | 2       |
 | delegateERC1155                                    | 159363          | 170313 | 170313 | 181263 | 2       |
