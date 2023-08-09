@@ -68,12 +68,8 @@ contract RegistryOpsTests is Test {
         assertEq(x, xCasted);
         assertEq(y, yCasted);
         assembly {
-            if and(0xff, xCasted) {
-                revert(0x00, 0x00)
-            }
-            if and(0xff, yCasted) {
-                revert(0x00, 0x00)
-            }
+            if and(0xff, xCasted) { revert(0x00, 0x00) }
+            if and(0xff, yCasted) { revert(0x00, 0x00) }
         }
         assertEq(Ops.or(xCasted, yCasted), x || y);
         assertTrue(Ops.or(xCasted, yCasted) == (x || y));

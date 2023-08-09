@@ -19,7 +19,7 @@ library RegistryOps {
     function and(bool x, bool y) internal pure returns (bool z) {
         assembly {
             // Any non-zero 256 bit word is true, else false.
-            z := and(iszero(iszero(x)), iszero(iszero(y)))
+            z := iszero(or(iszero(x), iszero(y)))
         }
     }
 
@@ -27,8 +27,7 @@ library RegistryOps {
     function or(bool x, bool y) internal pure returns (bool z) {
         assembly {
             // Any non-zero 256 bit word is true, else false.
-            // We wrap with a double `iszero` to make the returned result 1 or 0.
-            z := iszero(iszero(or(x, y)))
+            z := iszero(and(iszero(x), iszero(y)))
         }
     }
 }
