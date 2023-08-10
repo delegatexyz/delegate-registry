@@ -35,7 +35,7 @@ library RegistryStorage {
     function packAddresses(address from, address to, address contract_) internal pure returns (bytes32 firstPacked, bytes32 secondPacked) {
         assembly {
             firstPacked := or(shl(64, and(contract_, CLEAN_FIRST8_BYTES_ADDRESS)), and(from, CLEAN_ADDRESS))
-            secondPacked := or(shl(160, and(contract_, CLEAN_LAST12_BYTES_ADDRESS)), and(to, CLEAN_ADDRESS))
+            secondPacked := or(shl(160, contract_), and(to, CLEAN_ADDRESS))
         }
     }
 
