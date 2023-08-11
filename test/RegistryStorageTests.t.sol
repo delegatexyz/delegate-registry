@@ -15,9 +15,12 @@ contract RegistryStorageTests is Test {
     }
 
     /// @dev Check that storage positions match up with the expect form of the delegations array
-    function testStoragePositionsEnum() public {
-        assertEq(uint256(type(Storage.Positions).min), 0);
-        assertEq(uint256(type(Storage.Positions).max), harness.exposedDelegations(0).length - 1);
+    function testStoragePositions() public {
+        assertEq(Storage.POSITIONS_FIRST_PACKED, 0);
+        assertEq(Storage.POSITIONS_SECOND_PACKED, 1);
+        assertEq(Storage.POSITIONS_RIGHTS, 2);
+        assertEq(Storage.POSITIONS_TOKEN_ID, 3);
+        assertEq(Storage.POSITIONS_AMOUNT, 4);
     }
 
     /// @dev Check that storage library constants are as intended

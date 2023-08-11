@@ -338,15 +338,15 @@ contract RegistryUnitTests is Test {
     }
 
     function _checkStorage(uint256 amount, address contract_, address delegate, bytes32 hash, bytes32 rights, uint256 tokenId, address vault) internal {
-        assertEq(harness.exposedDelegations(hash).length, uint256(type(Storage.Positions).max) + 1);
-        assertEq(address(uint160(uint256(harness.exposedDelegations(hash)[uint256(Storage.Positions.secondPacked)]))), delegate);
-        assertEq(address(uint160(uint256(harness.exposedDelegations(hash)[uint256(Storage.Positions.firstPacked)]))), vault);
-        assertEq(harness.exposedDelegations(hash)[uint256(Storage.Positions.rights)], rights);
-        assertEq(uint256(harness.exposedDelegations(hash)[uint256(Storage.Positions.tokenId)]), tokenId);
-        assertEq(uint256(harness.exposedDelegations(hash)[uint256(Storage.Positions.amount)]), amount);
+        assertEq(harness.exposedDelegations(hash).length, Storage.POSITIONS_AMOUNT + 1);
+        assertEq(address(uint160(uint256(harness.exposedDelegations(hash)[Storage.POSITIONS_SECOND_PACKED]))), delegate);
+        assertEq(address(uint160(uint256(harness.exposedDelegations(hash)[Storage.POSITIONS_FIRST_PACKED]))), vault);
+        assertEq(harness.exposedDelegations(hash)[Storage.POSITIONS_RIGHTS], rights);
+        assertEq(uint256(harness.exposedDelegations(hash)[Storage.POSITIONS_TOKEN_ID]), tokenId);
+        assertEq(uint256(harness.exposedDelegations(hash)[Storage.POSITIONS_AMOUNT]), amount);
         // Check token contract
-        uint256 contractFirst8Bytes = ((uint256(harness.exposedDelegations(hash)[uint256(Storage.Positions.firstPacked)]) >> 160) << 96);
-        uint256 contractLast12Bytes = (uint256(harness.exposedDelegations(hash)[uint256(Storage.Positions.secondPacked)]) >> 160);
+        uint256 contractFirst8Bytes = ((uint256(harness.exposedDelegations(hash)[Storage.POSITIONS_FIRST_PACKED]) >> 160) << 96);
+        uint256 contractLast12Bytes = (uint256(harness.exposedDelegations(hash)[Storage.POSITIONS_SECOND_PACKED]) >> 160);
         address decodedContract = address(uint160(contractFirst8Bytes | contractLast12Bytes));
         assertEq(decodedContract, contract_);
     }
@@ -820,8 +820,8 @@ contract RegistryUnitTests is Test {
     }
 
     function testWriteDelegationBytes32(bytes32 location, bytes32 notLocation, bytes32 data) public {
-        harness.exposedWriteDelegation(location, Storage.Positions.firstPacked, data);
-        bytes32 formattedLocation = bytes32(uint256(location) + uint256(Storage.Positions.firstPacked));
+        harness.exposedWriteDelegation(location, Storage.POSITIONS_FIRST_PACKED, data);
+        bytes32 formattedLocation = bytes32(uint256(location) + Storage.POSITIONS_FIRST_PACKED);
         bytes32 slotContains = harness.readSlot(formattedLocation);
         assertEq(slotContains, data);
         bytes32 notSlotContains = harness.readSlot(notLocation);
@@ -830,8 +830,8 @@ contract RegistryUnitTests is Test {
     }
 
     function testWriteDelegationUint256(bytes32 location, bytes32 notLocation, uint256 data) public {
-        harness.exposedWriteDelegation(location, Storage.Positions.firstPacked, data);
-        bytes32 formattedLocation = bytes32(uint256(location) + uint256(Storage.Positions.firstPacked));
+        harness.exposedWriteDelegation(location, Storage.POSITIONS_FIRST_PACKED, data);
+        bytes32 formattedLocation = bytes32(uint256(location) + Storage.POSITIONS_FIRST_PACKED);
         uint256 slotContains = uint256(harness.readSlot(formattedLocation));
         assertEq(slotContains, data);
         uint256 notSlotContains = uint256(harness.readSlot(notLocation));
@@ -842,12 +842,12 @@ contract RegistryUnitTests is Test {
     // @dev see IDelegateRegistry for packed layout
     function testWriteDelegationAddresses(bytes32 location, address from, address to, address contract_) public {
         vm.assume(uint256(location) < type(uint256).max - 10); // Prevents overflow
-        harness.exposedWriteDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked, from, to, contract_);
+        harness.exposedWriteDelegationAddresses(location, from, to, contract_);
         uint256 contractUint256 = uint256(uint160(contract_));
         uint256 first8BytesContract = (contractUint256 >> 96);
         uint256 last12BytesContract = ((contractUint256 << 160) >> 160);
-        bytes32 formattedLocation1 = bytes32(uint256(location) + uint256(Storage.Positions.firstPacked));
-        bytes32 formattedLocation2 = bytes32(uint256(location) + uint256(Storage.Positions.secondPacked));
+        bytes32 formattedLocation1 = bytes32(uint256(location) + Storage.POSITIONS_FIRST_PACKED);
+        bytes32 formattedLocation2 = bytes32(uint256(location) + Storage.POSITIONS_SECOND_PACKED);
         bytes32 slot1 = harness.readSlot(formattedLocation1);
         bytes32 slot2 = harness.readSlot(formattedLocation2);
         // Checking from, to, contract_ here
@@ -860,34 +860,33 @@ contract RegistryUnitTests is Test {
     /// TODO: enumeration helper functions
 
     function testLoadDelegationBytes32(bytes32 location, bytes32 data) public {
-        bytes32 formattedLocation = bytes32(uint256(location) + uint256(Storage.Positions.firstPacked));
+        bytes32 formattedLocation = bytes32(uint256(location) + Storage.POSITIONS_FIRST_PACKED);
         vm.store(address(harness), formattedLocation, data);
-        assertEq(data, harness.exposedLoadDelegationBytes32(location, Storage.Positions.firstPacked));
+        assertEq(data, harness.exposedLoadDelegationBytes32(location, Storage.POSITIONS_FIRST_PACKED));
     }
 
     function testLoadDelegationUint256(bytes32 location, uint256 data) public {
-        bytes32 formattedLocation = bytes32(uint256(location) + uint256(Storage.Positions.firstPacked));
+        bytes32 formattedLocation = bytes32(uint256(location) + Storage.POSITIONS_FIRST_PACKED);
         vm.store(address(harness), formattedLocation, bytes32(data));
-        assertEq(data, harness.exposedLoadDelegationUint(location, Storage.Positions.firstPacked));
+        assertEq(data, harness.exposedLoadDelegationUint(location, Storage.POSITIONS_FIRST_PACKED));
     }
 
     function testLoadFrom(bytes32 location, uint256 from) public {
-        bytes32 formattedLocation = bytes32(uint256(location) + uint256(Storage.Positions.firstPacked));
+        bytes32 formattedLocation = bytes32(uint256(location) + Storage.POSITIONS_FIRST_PACKED);
         vm.store(address(harness), formattedLocation, bytes32(from));
-        assertEq(address(uint160(((from << 96) >> 96))), harness.exposedLoadFrom(location, Storage.Positions.firstPacked));
+        assertEq(address(uint160(((from << 96) >> 96))), harness.exposedLoadFrom(location));
     }
 
     function testLoadDelegationAddresses(bytes32 location, address from, address to, address contract_) public {
-        harness.exposedWriteDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked, from, to, contract_);
-        (address checkFrom, address checkTo, address checkContract) =
-            harness.exposedLoadDelegationAddresses(location, Storage.Positions.firstPacked, Storage.Positions.secondPacked);
+        harness.exposedWriteDelegationAddresses(location, from, to, contract_);
+        (address checkFrom, address checkTo, address checkContract) = harness.exposedLoadDelegationAddresses(location);
         assertEq(from, checkFrom);
         assertEq(to, checkTo);
         assertEq(contract_, checkContract);
     }
 
     function testValidateDelegation(bytes32 location, address from, bytes32 notLocation, address notFrom) public {
-        bytes32 formattedLocation = bytes32(uint256(location) + uint256(Storage.Positions.firstPacked));
+        bytes32 formattedLocation = bytes32(uint256(location) + Storage.POSITIONS_FIRST_PACKED);
         vm.store(address(harness), formattedLocation, bytes32(uint256(uint160(from))));
         vm.assume(formattedLocation != notLocation);
         vm.assume(from != notFrom);

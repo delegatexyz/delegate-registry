@@ -3,13 +3,11 @@ pragma solidity ^0.8.21;
 
 library RegistryStorage {
     /// @dev Standardizes storage positions of delegation data
-    enum Positions {
-        firstPacked, //     | 4 bytes empty | first 8 bytes of contract address | 20 bytes of from address |
-        secondPacked, //    |        last 12 bytes of contract address          | 20 bytes of to address   |
-        rights,
-        tokenId,
-        amount
-    }
+    uint256 internal constant POSITIONS_FIRST_PACKED = 0; //  | 4 bytes empty | first 8 bytes of contract address | 20 bytes of from address |
+    uint256 internal constant POSITIONS_SECOND_PACKED = 1; // |        last 12 bytes of contract address          | 20 bytes of to address   |
+    uint256 internal constant POSITIONS_RIGHTS = 2;
+    uint256 internal constant POSITIONS_TOKEN_ID = 3;
+    uint256 internal constant POSITIONS_AMOUNT = 4;
 
     /// @dev Used to clean address types of dirty bits with and(address, CLEAN_ADDRESS)
     uint256 internal constant CLEAN_ADDRESS = 0x00ffffffffffffffffffffffffffffffffffffffff;
@@ -35,7 +33,7 @@ library RegistryStorage {
     function packAddresses(address from, address to, address contract_) internal pure returns (bytes32 firstPacked, bytes32 secondPacked) {
         assembly {
             firstPacked := or(shl(64, and(contract_, CLEAN_FIRST8_BYTES_ADDRESS)), and(from, CLEAN_ADDRESS))
-            secondPacked := or(shl(160, and(contract_, CLEAN_LAST12_BYTES_ADDRESS)), and(to, CLEAN_ADDRESS))
+            secondPacked := or(shl(160, contract_), and(to, CLEAN_ADDRESS))
         }
     }
 
