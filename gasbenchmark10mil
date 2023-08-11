@@ -1,25 +1,24 @@
 No files changed, compilation skipped
 
 Running 1 test for test/GasBenchmark.t.sol:GasBenchmark
-[32m[PASS][0m testGas(address,bytes32) (runs: 256, μ: 12592434, ~: 12592620)
-Test result: [32mok[0m. 1 passed; 0 failed; 0 skipped; finished in 405.76ms
+[32m[PASS][0m testGas(address,bytes32) (runs: 256, μ: 12620571, ~: 12621045)
+Test result: [32mok[0m. 1 passed; 0 failed; finished in 1.15s
 | src/DelegateRegistry.sol:DelegateRegistry contract |                 |        |        |        |         |
 |----------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                    | Deployment Size |        |        |        |         |
-| 1800698                                            | 9026            |        |        |        |         |
+| 1804898                                            | 9047            |        |        |        |         |
 | Function Name                                      | min             | avg    | median | max    | # calls |
-| checkDelegateForAll                                | 2847            | 3016   | 3016   | 3186   | 2       |
-| checkDelegateForContract                           | 5276            | 5627   | 5627   | 5979   | 2       |
-| checkDelegateForERC1155                            | 7707            | 8280   | 8280   | 8854   | 2       |
-| checkDelegateForERC20                              | 7646            | 8211   | 8211   | 8777   | 2       |
-| checkDelegateForERC721                             | 7736            | 8283   | 8283   | 8830   | 2       |
-| delegateAll                                        | 135880          | 135880 | 135880 | 135880 | 2       |
-| delegateContract                                   | 114464          | 125414 | 125414 | 136364 | 2       |
-| delegateERC1155                                    | 159363          | 170313 | 170313 | 181263 | 2       |
-| delegateERC20                                      | 136903          | 147853 | 147853 | 158803 | 2       |
+| checkDelegateForAll                                | 2940            | 3151   | 3151   | 3363   | 2       |
+| checkDelegateForContract                           | 5459            | 5897   | 5897   | 6336   | 2       |
+| checkDelegateForERC1155                            | 8003            | 8715   | 8715   | 9428   | 2       |
+| checkDelegateForERC20                              | 7942            | 8642   | 8642   | 9343   | 2       |
+| checkDelegateForERC721                             | 8006            | 8683   | 8683   | 9361   | 2       |
+| delegateAll                                        | 135846          | 135846 | 135846 | 135846 | 2       |
+| delegateContract                                   | 114436          | 125386 | 125386 | 136336 | 2       |
+| delegateERC1155                                    | 159360          | 170310 | 170310 | 181260 | 2       |
+| delegateERC20                                      | 136909          | 147859 | 147859 | 158809 | 2       |
 | delegateERC721                                     | 136903          | 147853 | 147853 | 158803 | 2       |
-| multicall                                          | 689608          | 689608 | 689608 | 689608 | 1       |
+| multicall                                          | 689549          | 689549 | 689549 | 689549 | 1       |
 
 
 
-Ran 1 test suites: 1 tests passed, 0 failed, 0 skipped (1 total tests)

@@ -18,16 +18,14 @@ library RegistryOps {
     /// @dev `x & y`.
     function and(bool x, bool y) internal pure returns (bool z) {
         assembly {
-            // Any non-zero 256 bit word is true, else false.
-            z := and(iszero(iszero(x)), iszero(iszero(y)))
+            z := and(iszero(iszero(x)), iszero(iszero(y))) // Compiler cleans dirty booleans on the stack to 1, so we're doing that here
         }
     }
 
     /// @dev `x | y`.
     function or(bool x, bool y) internal pure returns (bool z) {
         assembly {
-            // Any non-zero 256 bit word is true, else false.
-            z := or(iszero(iszero(x)), iszero(iszero(y)))
+            z := or(iszero(iszero(x)), iszero(iszero(y))) // Compiler cleans dirty booleans on the stack to 1, so we're doing that here
         }
     }
 }
