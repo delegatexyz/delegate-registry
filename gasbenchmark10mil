@@ -1,24 +1,24 @@
 No files changed, compilation skipped
 
 Running 1 test for test/GasBenchmark.t.sol:GasBenchmark
-[32m[PASS][0m testGas(address,bytes32) (runs: 256, μ: 12807902, ~: 12808281)
-Test result: [32mok[0m. 1 passed; 0 failed; 0 skipped; finished in 228.89ms
+[32m[PASS][0m testGas(address,bytes32) (runs: 256, μ: 12950904, ~: 12951283)
+Test result: [32mok[0m. 1 passed; 0 failed; 0 skipped; finished in 224.55ms
 | src/DelegateRegistry.sol:DelegateRegistry contract |                 |        |        |        |         |
 |----------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                    | Deployment Size |        |        |        |         |
-| 1836133                                            | 9203            |        |        |        |         |
+| 1859962                                            | 9322            |        |        |        |         |
 | Function Name                                      | min             | avg    | median | max    | # calls |
 | checkDelegateForAll                                | 2940            | 3151   | 3151   | 3363   | 2       |
 | checkDelegateForContract                           | 5459            | 5897   | 5897   | 6336   | 2       |
 | checkDelegateForERC1155                            | 8003            | 8715   | 8715   | 9428   | 2       |
 | checkDelegateForERC20                              | 7942            | 8642   | 8642   | 9343   | 2       |
 | checkDelegateForERC721                             | 8006            | 8683   | 8683   | 9361   | 2       |
-| delegateAll                                        | 135822          | 135822 | 135822 | 135822 | 2       |
+| delegateAll                                        | 135800          | 135800 | 135800 | 135800 | 2       |
 | delegateContract                                   | 114412          | 125362 | 125362 | 136312 | 2       |
 | delegateERC1155                                    | 159336          | 170286 | 170286 | 181236 | 2       |
 | delegateERC20                                      | 136885          | 147835 | 147835 | 158785 | 2       |
 | delegateERC721                                     | 136879          | 147829 | 147829 | 158779 | 2       |
-| multicall                                          | 689405          | 689405 | 689405 | 689405 | 1       |
+| multicall                                          | 689383          | 689383 | 689383 | 689383 | 1       |
 
 
 

@@ -12,6 +12,8 @@ optimizer_runs = 9_999_999
 bytecode_hash = "none"
 # Disable ir optimizer, minimal gas savings not worth the potential for bugs
 via_ir = false
+# Low-level return value ignored is expected in sweep
+ignored_error_codes = [9302]
 
 
 [fmt]
