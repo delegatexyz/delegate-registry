@@ -37,7 +37,7 @@ contract DelegateRegistry is IDelegateRegistry {
         bool success;
         unchecked {
             for (uint256 i = 0; i < data.length; ++i) {
-                //slither-disable-next-line calls-loop
+                //slither-disable-next-line calls-loop,delegatecall-loop
                 (success, results[i]) = address(this).delegatecall(data[i]);
                 if (!success) revert MulticallFailed();
             }
@@ -109,7 +109,12 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external payable override returns (bytes32 hash) {
+    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable)
+        external
+        payable
+        override
+        returns (bytes32 hash)
+    {
         hash = Hashes.erc1155Hash(msg.sender, rights, to, tokenId, contract_);
         bytes32 location = Hashes.location(hash);
         if (_loadFrom(location) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
@@ -125,6 +130,12 @@ contract DelegateRegistry is IDelegateRegistry {
             if (rights != "") _writeDelegation(location, Storage.POSITIONS_RIGHTS, "");
         }
         emit DelegateERC1155(msg.sender, to, contract_, tokenId, amount, rights, enable);
+    }
+
+    /// @dev Transfer native token out
+    function sweep() external {
+        // TODO: Replace this with CREATE2-counterfactual smart contract wallet address
+        0x0000000000000000000000000000000000000000.call{value: address(this).balance}("");
     }
 
     /**

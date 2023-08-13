@@ -111,7 +111,10 @@ interface IDelegateRegistry {
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      * @return delegationHash The unique identifier of the delegation
      */
-    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external payable returns (bytes32 delegationHash);
+    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable)
+        external
+        payable
+        returns (bytes32 delegationHash);
 
     /**
      * ----------- CHECKS -----------
