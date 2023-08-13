@@ -32,7 +32,7 @@ contract DelegateRegistry is IDelegateRegistry {
      */
 
     /// @inheritdoc IDelegateRegistry
-    function multicall(bytes[] calldata data) external override returns (bytes[] memory results) {
+    function multicall(bytes[] calldata data) external payable override returns (bytes[] memory results) {
         results = new bytes[](data.length);
         bool success;
         unchecked {
@@ -45,7 +45,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateAll(address to, bytes32 rights, bool enable) external override returns (bytes32 hash) {
+    function delegateAll(address to, bytes32 rights, bool enable) external payable override returns (bytes32 hash) {
         hash = Hashes.allHash(msg.sender, rights, to);
         bytes32 location = Hashes.location(hash);
         if (_loadFrom(location) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
@@ -60,7 +60,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateContract(address to, address contract_, bytes32 rights, bool enable) external override returns (bytes32 hash) {
+    function delegateContract(address to, address contract_, bytes32 rights, bool enable) external payable override returns (bytes32 hash) {
         hash = Hashes.contractHash(msg.sender, rights, to, contract_);
         bytes32 location = Hashes.location(hash);
         if (_loadFrom(location) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
@@ -75,7 +75,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external override returns (bytes32 hash) {
+    function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external payable override returns (bytes32 hash) {
         hash = Hashes.erc721Hash(msg.sender, rights, to, tokenId, contract_);
         bytes32 location = Hashes.location(hash);
         if (_loadFrom(location) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
@@ -92,7 +92,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     // @inheritdoc IDelegateRegistry
-    function delegateERC20(address to, address contract_, uint256 amount, bytes32 rights, bool enable) external override returns (bytes32 hash) {
+    function delegateERC20(address to, address contract_, uint256 amount, bytes32 rights, bool enable) external payable override returns (bytes32 hash) {
         hash = Hashes.erc20Hash(msg.sender, rights, to, contract_);
         bytes32 location = Hashes.location(hash);
         if (_loadFrom(location) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
@@ -109,7 +109,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external override returns (bytes32 hash) {
+    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external payable override returns (bytes32 hash) {
         hash = Hashes.erc1155Hash(msg.sender, rights, to, tokenId, contract_);
         bytes32 location = Hashes.location(hash);
         if (_loadFrom(location) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
