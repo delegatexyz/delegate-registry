@@ -135,6 +135,7 @@ contract DelegateRegistry is IDelegateRegistry {
     /// @dev Transfer native token out
     function sweep() external {
         // TODO: Replace this with CREATE2-counterfactual smart contract wallet address
+        //slither-disable-next-line unchecked-lowlevel
         0x0000000000000000000000000000000000000000.call{value: address(this).balance}("");
     }
 
