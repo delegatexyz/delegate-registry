@@ -19,6 +19,14 @@ contract Singlesig {
         emit OwnershipTransferred(address(0), initialOwner);
     }
 
+    // TODO: Do we need to implement receiver functions to get 1155s and others?
+
+    // Function to receive Ether. msg.data must be empty
+    receive() external payable {}
+
+    // Fallback function is called when msg.data is not empty
+    fallback() external payable {}
+
     /// @dev Throws if called by any account other than the owner
     modifier onlyOwner() {
         if (owner != msg.sender) revert OwnableUnauthorizedAccount(msg.sender);

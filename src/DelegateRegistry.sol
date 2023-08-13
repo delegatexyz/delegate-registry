@@ -150,7 +150,7 @@ contract DelegateRegistry is IDelegateRegistry {
         if (!Ops.or(rights == "", valid)) valid = _validateDelegation(Hashes.allLocation(from, rights, to), from);
         assembly ("memory-safe") {
             // Only first 32 bytes of scratch space is accessed
-            mstore(0, iszero(iszero(valid))) // Compiler cleans ditry booleans on the stack to 1, so we're doing the same here
+            mstore(0, iszero(iszero(valid))) // Compiler cleans dirty booleans on the stack to 1, so we're doing the same here
             return(0, 32) // Direct return. Skips Solidity's redundant copying to save gas.
         }
     }
