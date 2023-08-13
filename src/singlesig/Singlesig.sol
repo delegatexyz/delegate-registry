@@ -3,18 +3,20 @@ pragma solidity ^0.8.21;
 
 contract Singlesig {
     address public owner;
+    address public pendingOwner;
 
     /// @dev The caller account is not authorized to perform an operation
     error OwnableUnauthorizedAccount(address account);
 
-    /// @dev The owner is not a valid owner account. (eg. `address(0)`)
-    error OwnableInvalidOwner(address owner);
+    event OwnershipTransferStarted(address indexed previousOwner, address indexed newOwner);
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     /// @dev Initializes the contract setting the address provided by the deployer as the initial owner
     constructor(address initialOwner) {
-        _transferOwnership(initialOwner);
+        // TODO: Does a constructor arg affect the CREATE2 address?
+        owner = initialOwner;
+        emit OwnershipTransferred(address(0), initialOwner);
     }
 
     /// @dev Throws if called by any account other than the owner
@@ -23,19 +25,17 @@ contract Singlesig {
         _;
     }
 
-    /// @dev Transfers ownership of the contract to a new account (`newOwner`)
+    /// @dev Starts the ownership transfer of the contract to a new account. Replaces the pending transfer if there is one
     function transferOwnership(address newOwner) external onlyOwner {
-        if (newOwner == address(0)) {
-            revert OwnableInvalidOwner(address(0));
-        }
-        _transferOwnership(newOwner);
+        pendingOwner = newOwner;
+        emit OwnershipTransferStarted(owner, newOwner);
     }
 
-    /// @dev Internal function with no access restriction
-    function _transferOwnership(address newOwner) internal {
-        address oldOwner = owner;
-        owner = newOwner;
-        emit OwnershipTransferred(oldOwner, newOwner);
+    /// @dev The new owner accepts the ownership transfer
+    function acceptOwnership() external {
+        require(pendingOwner == msg.sender, "Ownable2Step: caller is not the new owner");
+        emit OwnershipTransferred(owner, pendingOwner);
+        owner = pendingOwner;
     }
 
     /**

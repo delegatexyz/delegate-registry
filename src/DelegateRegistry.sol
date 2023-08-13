@@ -134,7 +134,8 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @dev Transfer native token out
     function sweep() external {
-        // TODO: Replace this with CREATE2-counterfactual smart contract wallet address
+        // TODO: Replace this with correct address
+        // This hardcoded address is a CREATE2 factory counterfactual smart contract wallet that will always accept native token transfers
         //slither-disable-next-line unchecked-lowlevel
         0x0000000000000000000000000000000000000000.call{value: address(this).balance}("");
     }
