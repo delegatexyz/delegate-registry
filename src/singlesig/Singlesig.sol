@@ -43,19 +43,14 @@ contract Singlesig {
     }
 
     /**
-     * @notice Executes either a delegatecall or a call with provided parameters
+     * @notice Executes a call with provided parameters
      * @dev This method doesn't perform any sanity check of the transaction
      * @param to Destination address
      * @param value Ether value in wei
      * @param data Data payload
-     * @param delegate Should delegatecall or not
      * @return success Boolean flag indicating if the call succeeded
      */
-    function execute(address to, uint256 value, bytes memory data, bool delegate) public onlyOwner returns (bool success) {
-        if (delegate) {
-            (success,) = to.delegatecall(data);
-        } else {
-            (success,) = to.call{value: value}(data);
-        }
+    function execute(address to, uint256 value, bytes memory data) public onlyOwner returns (bool success) {
+        (success,) = to.call{value: value}(data);
     }
 }
