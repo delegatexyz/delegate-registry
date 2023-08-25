@@ -253,4 +253,27 @@ contract DelegateRegistryTest is Test {
         bytes32[] memory vaultDelegationHashes = reg.getOutgoingDelegationHashes(address(this));
         assertEq(vaultDelegationHashes.length, 5 * hashesLimit);
     }
+
+    function testSweep(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights_, bool enable) public {
+        address sc = address(0);
+        uint256 regBalanceBefore = address(reg).balance;
+        uint256 scBalanceBefore = address(sc).balance;
+        bytes[] memory data = new bytes[](1);
+        data[0] = abi.encodeWithSelector(reg.delegateAll.selector, to, rights_, enable);
+        reg.multicall{value: 0.2 ether}(data);
+        assertEq(regBalanceBefore + 0.2 ether, address(reg).balance);
+        reg.delegateAll{value: 0.2 ether}(to, rights_, enable);
+        assertEq(regBalanceBefore + 0.4 ether, address(reg).balance);
+        reg.delegateContract{value: 0.2 ether}(to, contract_, rights_, enable);
+        assertEq(regBalanceBefore + 0.6 ether, address(reg).balance);
+        reg.delegateERC721{value: 0.2 ether}(to, contract_, tokenId, rights_, enable);
+        assertEq(regBalanceBefore + 0.8 ether, address(reg).balance);
+        reg.delegateERC20{value: 0.1 ether}(to, contract_, amount, rights_, enable);
+        assertEq(regBalanceBefore + 0.9 ether, address(reg).balance);
+        reg.delegateERC1155{value: 0.1 ether}(to, contract_, tokenId, amount, rights_, enable);
+        assertEq(regBalanceBefore + 1 ether, address(reg).balance);
+        reg.sweep();
+        assertEq(address(reg).balance, 0);
+        assertEq(scBalanceBefore + 1 ether, sc.balance);
+    }
 }

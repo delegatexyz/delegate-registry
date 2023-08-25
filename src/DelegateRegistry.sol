@@ -32,12 +32,12 @@ contract DelegateRegistry is IDelegateRegistry {
      */
 
     /// @inheritdoc IDelegateRegistry
-    function multicall(bytes[] calldata data) external override returns (bytes[] memory results) {
+    function multicall(bytes[] calldata data) external payable override returns (bytes[] memory results) {
         results = new bytes[](data.length);
         bool success;
         unchecked {
             for (uint256 i = 0; i < data.length; ++i) {
-                //slither-disable-next-line calls-loop
+                //slither-disable-next-line calls-loop,delegatecall-loop
                 (success, results[i]) = address(this).delegatecall(data[i]);
                 if (!success) revert MulticallFailed();
             }
@@ -45,7 +45,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateAll(address to, bytes32 rights, bool enable) external override returns (bytes32 hash) {
+    function delegateAll(address to, bytes32 rights, bool enable) external payable override returns (bytes32 hash) {
         hash = Hashes.allHash(msg.sender, rights, to);
         bytes32 location = Hashes.location(hash);
         if (_loadFrom(location) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
@@ -60,7 +60,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateContract(address to, address contract_, bytes32 rights, bool enable) external override returns (bytes32 hash) {
+    function delegateContract(address to, address contract_, bytes32 rights, bool enable) external payable override returns (bytes32 hash) {
         hash = Hashes.contractHash(msg.sender, rights, to, contract_);
         bytes32 location = Hashes.location(hash);
         if (_loadFrom(location) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
@@ -75,7 +75,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external override returns (bytes32 hash) {
+    function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external payable override returns (bytes32 hash) {
         hash = Hashes.erc721Hash(msg.sender, rights, to, tokenId, contract_);
         bytes32 location = Hashes.location(hash);
         if (_loadFrom(location) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
@@ -92,7 +92,7 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     // @inheritdoc IDelegateRegistry
-    function delegateERC20(address to, address contract_, uint256 amount, bytes32 rights, bool enable) external override returns (bytes32 hash) {
+    function delegateERC20(address to, address contract_, uint256 amount, bytes32 rights, bool enable) external payable override returns (bytes32 hash) {
         hash = Hashes.erc20Hash(msg.sender, rights, to, contract_);
         bytes32 location = Hashes.location(hash);
         if (_loadFrom(location) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
@@ -109,7 +109,12 @@ contract DelegateRegistry is IDelegateRegistry {
     }
 
     /// @inheritdoc IDelegateRegistry
-    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external override returns (bytes32 hash) {
+    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable)
+        external
+        payable
+        override
+        returns (bytes32 hash)
+    {
         hash = Hashes.erc1155Hash(msg.sender, rights, to, tokenId, contract_);
         bytes32 location = Hashes.location(hash);
         if (_loadFrom(location) == DELEGATION_EMPTY) _pushDelegationHashes(msg.sender, to, hash);
@@ -127,6 +132,16 @@ contract DelegateRegistry is IDelegateRegistry {
         emit DelegateERC1155(msg.sender, to, contract_, tokenId, amount, rights, enable);
     }
 
+    /// @dev Transfer native token out
+    function sweep() external {
+        // TODO: Replace this with correct address
+        // This hardcoded address is a CREATE2 factory counterfactual smart contract wallet that will always accept native token transfers
+        uint256 sc = uint256(uint160(0x0000000000000000000000000000000000000000));
+        assembly ("memory-safe") {
+            let result := call(gas(), sc, selfbalance(), 0, 0, 0, 0)
+        }
+    }
+
     /**
      * ----------- CHECKS -----------
      */
@@ -137,7 +152,7 @@ contract DelegateRegistry is IDelegateRegistry {
         if (!Ops.or(rights == "", valid)) valid = _validateDelegation(Hashes.allLocation(from, rights, to), from);
         assembly ("memory-safe") {
             // Only first 32 bytes of scratch space is accessed
-            mstore(0, iszero(iszero(valid))) // Compiler cleans ditry booleans on the stack to 1, so we're doing the same here
+            mstore(0, iszero(iszero(valid))) // Compiler cleans dirty booleans on the stack to 1, so we're doing the same here
             return(0, 32) // Direct return. Skips Solidity's redundant copying to save gas.
         }
     }

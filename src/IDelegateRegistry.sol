@@ -56,7 +56,7 @@ interface IDelegateRegistry {
      * @param data The encoded function data for each of the calls to make to this contract
      * @return results The results from each of the calls passed in via data
      */
-    function multicall(bytes[] calldata data) external returns (bytes[] memory results);
+    function multicall(bytes[] calldata data) external payable returns (bytes[] memory results);
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for all contracts
@@ -65,7 +65,7 @@ interface IDelegateRegistry {
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      * @return delegationHash The unique identifier of the delegation
      */
-    function delegateAll(address to, bytes32 rights, bool enable) external returns (bytes32 delegationHash);
+    function delegateAll(address to, bytes32 rights, bool enable) external payable returns (bytes32 delegationHash);
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific contract
@@ -75,7 +75,7 @@ interface IDelegateRegistry {
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      * @return delegationHash The unique identifier of the delegation
      */
-    function delegateContract(address to, address contract_, bytes32 rights, bool enable) external returns (bytes32 delegationHash);
+    function delegateContract(address to, address contract_, bytes32 rights, bool enable) external payable returns (bytes32 delegationHash);
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific ERC721 token
@@ -86,7 +86,7 @@ interface IDelegateRegistry {
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      * @return delegationHash The unique identifier of the delegation
      */
-    function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external returns (bytes32 delegationHash);
+    function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external payable returns (bytes32 delegationHash);
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific amount of ERC20 tokens
@@ -98,7 +98,7 @@ interface IDelegateRegistry {
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      * @return delegationHash The unique identifier of the delegation
      */
-    function delegateERC20(address to, address contract_, uint256 amount, bytes32 rights, bool enable) external returns (bytes32 delegationHash);
+    function delegateERC20(address to, address contract_, uint256 amount, bytes32 rights, bool enable) external payable returns (bytes32 delegationHash);
 
     /**
      * @notice Allow the delegate to act on behalf of `msg.sender` for a specific amount of ERC1155 tokens
@@ -111,7 +111,10 @@ interface IDelegateRegistry {
      * @param enable Whether to enable or disable this delegation, true delegates and false revokes
      * @return delegationHash The unique identifier of the delegation
      */
-    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) external returns (bytes32 delegationHash);
+    function delegateERC1155(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable)
+        external
+        payable
+        returns (bytes32 delegationHash);
 
     /**
      * ----------- CHECKS -----------
