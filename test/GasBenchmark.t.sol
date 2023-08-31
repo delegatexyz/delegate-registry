@@ -81,12 +81,12 @@ contract GasBenchmark is Test {
         registry.checkDelegateForERC721(delegations[2].to, vault, delegations[2].contract_, delegations[2].tokenId, "fakeRights");
         // Benchmark delegate erc20 and check erc20
         registry = new Registry();
-        registry.delegateERC20(delegations[3].to, delegations[3].contract_, delegations[3].amount, delegations[3].rights, true);
+        registry.delegateERC20(delegations[3].to, delegations[3].contract_, delegations[3].rights, delegations[3].amount);
         registry.checkDelegateForERC20(delegations[3].to, vault, delegations[3].contract_, delegations[3].rights);
         registry.checkDelegateForERC20(delegations[3].to, vault, delegations[3].contract_, "fakeRights");
         // Benchmark delegate erc1155 and check erc1155
         registry = new Registry();
-        registry.delegateERC1155(delegations[4].to, delegations[4].contract_, delegations[4].tokenId, delegations[4].amount, delegations[4].rights, true);
+        registry.delegateERC1155(delegations[4].to, delegations[4].contract_, delegations[4].tokenId, delegations[4].rights, delegations[4].amount);
         registry.checkDelegateForERC1155(delegations[4].to, vault, delegations[4].contract_, delegations[4].tokenId, delegations[4].rights);
         registry.checkDelegateForERC1155(delegations[4].to, vault, delegations[4].contract_, delegations[4].tokenId, "fakeRights");
         // Benchmark multicall

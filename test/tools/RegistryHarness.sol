@@ -3,8 +3,6 @@ pragma solidity ^0.8.21;
 
 import {DelegateRegistry} from "src/DelegateRegistry.sol";
 
-import {RegistryStorage} from "src/libraries/RegistryStorage.sol";
-
 /// @dev harness contract that exposes internal registry methods as external ones
 contract RegistryHarness is DelegateRegistry {
     constructor() {
@@ -23,14 +21,6 @@ contract RegistryHarness is DelegateRegistry {
 
     function exposedIncomingDelegationHashes(address delegate) external view returns (bytes32[] memory) {
         return incomingDelegationHashes[delegate];
-    }
-
-    function exposedDelegationEmpty() external pure returns (address) {
-        return DELEGATION_EMPTY;
-    }
-
-    function exposedDelegationRevoked() external pure returns (address) {
-        return DELEGATION_REVOKED;
     }
 
     function exposedPushDelegationHashes(address from, address to, bytes32 delegationHash) external {
@@ -71,11 +61,11 @@ contract RegistryHarness is DelegateRegistry {
         return _loadFrom(location);
     }
 
-    function exposedLoadDelegationAddresses(bytes32 location) external view returns (address from, address to, address contract_) {
-        return _loadDelegationAddresses(location);
+    function exposedValidateFrom(bytes32 location, address from) external view returns (bool) {
+        return _validateFrom(location, from);
     }
 
-    function exposedValidateDelegation(bytes32 location, address from) external view returns (bool) {
-        return _validateDelegation(location, from);
+    function exposedLoadDelegationAddresses(bytes32 location) external view returns (address from, address to, address contract_) {
+        return _loadDelegationAddresses(location);
     }
 }

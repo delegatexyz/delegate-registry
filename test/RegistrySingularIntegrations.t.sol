@@ -426,11 +426,12 @@ contract DelegateSingularIntegrations is Test {
         // Create delegation
         vm.startPrank(_vault);
         bytes[] memory batchData = new bytes[](1);
-        batchData[0] = abi.encodeWithSelector(Registry.delegateERC20.selector, _delegate, _contract, _amount, _rights, _enable);
+        batchData[0] = abi.encodeWithSelector(Registry.delegateERC20.selector, _delegate, _contract, _rights, _amount);
         if (_multicall) registry.multicall(batchData);
-        else registry.delegateERC20(_delegate, _contract, _amount, _rights, _enable);
+        else registry.delegateERC20(_delegate, _contract, _rights, _amount);
         vm.stopPrank();
         // Check consumables and read
+        _enable = true;
         _checkConsumableERC20();
         _checkFalseConsumableCases();
         _checkFalseConsumableCasesBelowAll();
@@ -439,9 +440,9 @@ contract DelegateSingularIntegrations is Test {
         _checkReadCases();
         // Revoke and check logic again
         vm.startPrank(_vault);
-        batchData[0] = abi.encodeWithSelector(Registry.delegateERC20.selector, _delegate, _contract, _amount, _rights, false);
+        batchData[0] = abi.encodeWithSelector(Registry.delegateERC20.selector, _delegate, _contract, _rights, 0);
         if (_multicall) registry.multicall(batchData);
-        else registry.delegateERC20(_delegate, _contract, _amount, _rights, false);
+        else registry.delegateERC20(_delegate, _contract, _rights, 0);
         vm.stopPrank();
         _enable = false;
         _checkConsumableERC20();
@@ -531,10 +532,11 @@ contract DelegateSingularIntegrations is Test {
         // Create delegation
         vm.startPrank(_vault);
         bytes[] memory batchData = new bytes[](1);
-        batchData[0] = abi.encodeWithSelector(Registry.delegateERC1155.selector, _delegate, _contract, _tokenId, _amount, _rights, _enable);
+        batchData[0] = abi.encodeWithSelector(Registry.delegateERC1155.selector, _delegate, _contract, _tokenId, _rights, _amount);
         if (_multicall) registry.multicall(batchData);
-        else registry.delegateERC1155(_delegate, _contract, _tokenId, _amount, _rights, _enable);
+        else registry.delegateERC1155(_delegate, _contract, _tokenId, _rights, _amount);
         vm.stopPrank();
+        _enable = true;
         // Check consumables and read
         _checkConsumableERC1155();
         _checkFalseConsumableCases();
@@ -544,9 +546,9 @@ contract DelegateSingularIntegrations is Test {
         _checkReadCases();
         // Revoke and check logic again
         vm.startPrank(_vault);
-        batchData[0] = abi.encodeWithSelector(Registry.delegateERC1155.selector, _delegate, _contract, _tokenId, _amount, _rights, false);
+        batchData[0] = abi.encodeWithSelector(Registry.delegateERC1155.selector, _delegate, _contract, _tokenId, _rights, 0);
         if (_multicall) registry.multicall(batchData);
-        else registry.delegateERC1155(_delegate, _contract, _tokenId, _amount, _rights, false);
+        else registry.delegateERC1155(_delegate, _contract, _tokenId, _rights, 0);
         vm.stopPrank();
         _enable = false;
         _checkConsumableERC1155();

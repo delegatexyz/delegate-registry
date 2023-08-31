@@ -12,19 +12,12 @@ import {RegistryHarness as Harness} from "./tools/RegistryHarness.sol";
 contract RegistryUnitTests is Test {
     Harness public harness;
     Registry public registry;
+    bool everEnabled = false;
 
     function setUp() public {
         harness = new Harness();
         registry = new Registry();
-    }
-
-    /**
-     * ----------- constants -----------
-     */
-
-    function testConstants() public {
-        assertEq(harness.exposedDelegationEmpty(), address(0));
-        assertEq(harness.exposedDelegationRevoked(), address(1));
+        everEnabled = false;
     }
 
     /**
@@ -181,6 +174,7 @@ contract RegistryUnitTests is Test {
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         // Loop over this test
         for (uint256 i = 0; i < n; i++) {
+            if (enable) everEnabled = true;
             // Test correct event emitted
             vm.startPrank(vault);
             vm.expectEmit(true, true, true, true, address(harness));
@@ -188,7 +182,8 @@ contract RegistryUnitTests is Test {
             harness.delegateAll(delegate, rights, enable);
             vm.stopPrank();
             // Hashes should now exist regardless of true or false
-            _checkHashes(vault, delegate, hash, true);
+            if (everEnabled) _checkHashes(vault, delegate, hash, true);
+            else _checkHashes(vault, delegate, hash, false);
             // Check enable case
             if (enable) {
                 // Check storage slots are written correctly
@@ -203,7 +198,11 @@ contract RegistryUnitTests is Test {
                 _checkHashes(vault, delegate, hash, true);
             }
             // Check storage slots are written correctly for disable
-            _checkStorage(0, address(0), address(0), hash, 0, 0, address(1));
+            if (everEnabled) {
+                _checkStorage(0, address(0), delegate, hash, rights, 0, address(1));
+            } else {
+                _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
+            }
             // Randomize enable for next loop
             enable = uint256(keccak256(abi.encode(i, vault, delegate))) % 2 == 0;
         }
@@ -218,12 +217,14 @@ contract RegistryUnitTests is Test {
         _checkHashes(vault, delegate, hash, false);
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         for (uint256 i = 0; i < n; i++) {
+            if (enable) everEnabled = true;
             vm.startPrank(vault);
             vm.expectEmit(true, true, true, true, address(harness));
             emit DelegateContract(vault, delegate, contract_, rights, enable);
             harness.delegateContract(delegate, contract_, rights, enable);
             vm.stopPrank();
-            _checkHashes(vault, delegate, hash, true);
+            if (everEnabled) _checkHashes(vault, delegate, hash, true);
+            else _checkHashes(vault, delegate, hash, false);
             if (enable) {
                 _checkStorage(0, contract_, delegate, hash, rights, 0, vault);
                 vm.startPrank(vault);
@@ -233,7 +234,11 @@ contract RegistryUnitTests is Test {
                 vm.stopPrank();
                 _checkHashes(vault, delegate, hash, true);
             }
-            _checkStorage(0, address(0), address(0), hash, 0, 0, address(1));
+            if (everEnabled) {
+                _checkStorage(0, contract_, delegate, hash, rights, 0, address(1));
+            } else {
+                _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
+            }
             enable = uint256(keccak256(abi.encode(i, vault, delegate))) % 2 == 0;
         }
     }
@@ -247,12 +252,14 @@ contract RegistryUnitTests is Test {
         _checkHashes(vault, delegate, hash, false);
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         for (uint256 i = 0; i < n; i++) {
+            if (enable) everEnabled = true;
             vm.startPrank(vault);
             vm.expectEmit(true, true, true, true, address(harness));
             emit DelegateERC721(vault, delegate, contract_, tokenId, rights, enable);
             harness.delegateERC721(delegate, contract_, tokenId, rights, enable);
             vm.stopPrank();
-            _checkHashes(vault, delegate, hash, true);
+            if (everEnabled) _checkHashes(vault, delegate, hash, true);
+            else _checkHashes(vault, delegate, hash, false);
             if (enable) {
                 _checkStorage(0, contract_, delegate, hash, rights, tokenId, vault);
                 vm.startPrank(vault);
@@ -262,66 +269,77 @@ contract RegistryUnitTests is Test {
                 vm.stopPrank();
                 _checkHashes(vault, delegate, hash, true);
             }
-            _checkStorage(0, address(0), address(0), hash, 0, 0, address(1));
+            if (everEnabled) {
+                _checkStorage(0, contract_, delegate, hash, rights, tokenId, address(1));
+            } else {
+                _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
+            }
             enable = uint256(keccak256(abi.encode(i, vault, delegate))) % 2 == 0;
         }
     }
 
-    event DelegateERC20(address indexed vault, address indexed delegate, address indexed contract_, uint256 amount, bytes32 rights, bool enable);
+    event DelegateERC20(address indexed vault, address indexed delegate, address indexed contract_, bytes32 rights, uint256 amount);
 
-    function testDelegateERC20(address vault, address delegate, address contract_, uint256 amount, bytes32 rights, bool enable, uint256 n) public {
+    function testDelegateERC20(address vault, address delegate, address contract_, uint256 amount, bytes32 rights, uint256 n) public {
         vm.assume(vault > address(1) && n > 0 && n < 10);
         harness = new Harness();
         bytes32 hash = Hashes.erc20Hash(vault, rights, delegate, contract_);
         _checkHashes(vault, delegate, hash, false);
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         for (uint256 i = 0; i < n; i++) {
+            if (amount != 0) everEnabled = true;
             vm.startPrank(vault);
             vm.expectEmit(true, true, true, true, address(harness));
-            emit DelegateERC20(vault, delegate, contract_, amount, rights, enable);
-            harness.delegateERC20(delegate, contract_, amount, rights, enable);
+            emit DelegateERC20(vault, delegate, contract_, rights, amount);
+            harness.delegateERC20(delegate, contract_, rights, amount);
             vm.stopPrank();
-            _checkHashes(vault, delegate, hash, true);
-            if (enable) {
+            if (everEnabled) _checkHashes(vault, delegate, hash, true);
+            else _checkHashes(vault, delegate, hash, false);
+            if (amount != 0) {
                 _checkStorage(amount, contract_, delegate, hash, rights, 0, vault);
                 vm.startPrank(vault);
-                emit DelegateERC20(vault, delegate, contract_, amount, rights, false);
-                harness.delegateERC20(delegate, contract_, amount, rights, false);
+                emit DelegateERC20(vault, delegate, contract_, rights, 0);
+                harness.delegateERC20(delegate, contract_, rights, 0);
                 vm.stopPrank();
                 _checkHashes(vault, delegate, hash, true);
             }
-            _checkStorage(0, address(0), address(0), hash, 0, 0, address(1));
-            enable = uint256(keccak256(abi.encode(i, vault, delegate))) % 2 == 0;
-            amount = uint256(keccak256(abi.encode(i, enable, amount)));
+            if (everEnabled) _checkStorage(0, contract_, delegate, hash, rights, 0, address(1));
+            else _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
+            amount = uint256(keccak256(abi.encode(i, amount)));
         }
     }
 
-    event DelegateERC1155(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable);
+    event DelegateERC1155(address indexed vault, address indexed delegate, address indexed contract_, uint256 tokenId, bytes32 rights, uint256 amount);
 
-    function testDelegateERC1155(address vault, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 rights, bool enable) public {
+    function testDelegateERC1155(address vault, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 rights) public {
         vm.assume(vault > address(1));
         harness = new Harness();
         bytes32 hash = Hashes.erc1155Hash(vault, rights, delegate, tokenId, contract_);
         _checkHashes(vault, delegate, hash, false);
         _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
         for (uint256 i = 0; i < (1 + amount % 10); i++) {
+            if (amount != 0) everEnabled = true;
             vm.startPrank(vault);
             vm.expectEmit(true, true, true, true, address(harness));
-            emit DelegateERC1155(vault, delegate, contract_, tokenId, amount, rights, enable);
-            harness.delegateERC1155(delegate, contract_, tokenId, amount, rights, enable);
+            emit DelegateERC1155(vault, delegate, contract_, tokenId, rights, amount);
+            harness.delegateERC1155(delegate, contract_, tokenId, rights, amount);
             vm.stopPrank();
-            _checkHashes(vault, delegate, hash, true);
-            if (enable) {
+            if (everEnabled) _checkHashes(vault, delegate, hash, true);
+            else _checkHashes(vault, delegate, hash, false);
+            if (amount != 0) {
                 _checkStorage(amount, contract_, delegate, hash, rights, tokenId, vault);
                 vm.startPrank(vault);
-                emit DelegateERC1155(vault, delegate, contract_, tokenId, amount, rights, false);
-                harness.delegateERC1155(delegate, contract_, tokenId, amount, rights, false);
+                emit DelegateERC1155(vault, delegate, contract_, tokenId, rights, 0);
+                harness.delegateERC1155(delegate, contract_, tokenId, rights, 0);
                 vm.stopPrank();
                 _checkHashes(vault, delegate, hash, true);
             }
-            _checkStorage(0, address(0), address(0), hash, 0, 0, address(1));
-            enable = uint256(keccak256(abi.encode(i, vault, delegate))) % 2 == 0;
-            amount = uint256(keccak256(abi.encode(i, enable, amount)));
+            if (everEnabled) {
+                _checkStorage(0, contract_, delegate, hash, rights, tokenId, address(1));
+            } else {
+                _checkStorage(0, address(0), address(0), hash, 0, 0, address(0));
+            }
+            amount = uint256(keccak256(abi.encode(i, amount)));
         }
     }
 
@@ -367,8 +385,8 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, enable);
         registry.delegateERC721(delegate, contract_, tokenId, rights, enable);
-        registry.delegateERC20(delegate, contract_, amount, rights, enable);
-        registry.delegateERC1155(delegate, contract_, tokenId, amount, rights, enable);
+        registry.delegateERC20(delegate, contract_, rights, amount);
+        registry.delegateERC1155(delegate, contract_, tokenId, rights, amount);
         vm.stopPrank();
         assertFalse(registry.checkDelegateForAll(delegate, vault, rights));
         // delegateAll and test
@@ -404,8 +422,8 @@ contract RegistryUnitTests is Test {
         assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, rights));
         vm.startPrank(vault);
         registry.delegateERC721(delegate, contract_, tokenId, rights, enable);
-        registry.delegateERC20(delegate, contract_, amount, rights, enable);
-        registry.delegateERC1155(delegate, contract_, tokenId, amount, rights, enable);
+        registry.delegateERC20(delegate, contract_, rights, amount);
+        registry.delegateERC1155(delegate, contract_, tokenId, rights, amount);
         vm.stopPrank();
         assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, rights));
         // check all case
@@ -447,8 +465,8 @@ contract RegistryUnitTests is Test {
         registry = new Registry();
         assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
         vm.startPrank(vault);
-        registry.delegateERC20(delegate, contract_, amount, rights, enable);
-        registry.delegateERC1155(delegate, contract_, tokenId, amount, rights, enable);
+        registry.delegateERC20(delegate, contract_, rights, amount);
+        registry.delegateERC1155(delegate, contract_, tokenId, rights, amount);
         vm.stopPrank();
         assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
         // check all case
@@ -500,14 +518,14 @@ contract RegistryUnitTests is Test {
         assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
         vm.startPrank(vault);
         registry.delegateERC721(delegate, contract_, tokenId, rights, enable);
-        registry.delegateERC1155(delegate, contract_, tokenId, amount, rights, enable);
+        registry.delegateERC1155(delegate, contract_, tokenId, rights, amount);
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
         // Check all case
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, enable);
         vm.stopPrank();
-        _checkDelegateForERC20Logic(enable, delegate, vault, contract_, rights, fRights, type(uint256).max);
+        _checkDelegateForERC20Logic(delegate, vault, contract_, rights, fRights, enable ? type(uint256).max : 0);
         // Revoke all case then check contract case
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, false);
@@ -516,25 +534,25 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, enable);
         vm.stopPrank();
-        _checkDelegateForERC20Logic(enable, delegate, vault, contract_, rights, fRights, type(uint256).max);
+        _checkDelegateForERC20Logic(delegate, vault, contract_, rights, fRights, enable ? type(uint256).max : 0);
         // Revoke contract case then check for ERC20 case
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, false);
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
         vm.startPrank(vault);
-        registry.delegateERC20(delegate, contract_, amount, rights, enable);
+        registry.delegateERC20(delegate, contract_, rights, amount);
         vm.stopPrank();
-        _checkDelegateForERC20Logic(enable, delegate, vault, contract_, rights, fRights, amount);
+        _checkDelegateForERC20Logic(delegate, vault, contract_, rights, fRights, amount);
         // Revoke and check false
         vm.startPrank(vault);
-        registry.delegateERC20(delegate, contract_, amount, rights, false);
+        registry.delegateERC20(delegate, contract_, rights, 0);
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
         // Check bubble up for all and erc20
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, true);
-        registry.delegateERC20(delegate, contract_, amount, rights, true);
+        registry.delegateERC20(delegate, contract_, rights, amount);
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), type(uint256).max);
         // Revoke all then check bubble up for contract
@@ -549,19 +567,19 @@ contract RegistryUnitTests is Test {
         // Revoke and check false
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, false);
-        registry.delegateERC20(delegate, contract_, amount, rights, false);
+        registry.delegateERC20(delegate, contract_, rights, 0);
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
     }
 
-    function _checkDelegateForERC20Logic(bool enable, address delegate, address vault, address contract_, bytes32 rights, bytes32 fRights, uint256 amount) internal {
-        if (enable) {
+    function _checkDelegateForERC20Logic(address delegate, address vault, address contract_, bytes32 rights, bytes32 fRights, uint256 amount) internal {
+        if (amount != 0) {
             assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), amount);
         } else {
             assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
             assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), 0);
         }
-        if (enable && (rights == "" || rights == fRights)) assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), amount);
+        if (amount != 0 && (rights == "" || rights == fRights)) assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), amount);
         else assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), 0);
     }
 
@@ -580,14 +598,14 @@ contract RegistryUnitTests is Test {
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
         vm.startPrank(vault);
         registry.delegateERC721(delegate, contract_, tokenId, rights, enable);
-        registry.delegateERC20(delegate, contract_, amount, rights, enable);
+        registry.delegateERC20(delegate, contract_, rights, amount);
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
         // Check all case
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, enable);
         vm.stopPrank();
-        _checkDelegateForERC1155Logic(enable, delegate, vault, contract_, tokenId, rights, fRights, type(uint256).max);
+        _checkDelegateForERC1155Logic(delegate, vault, contract_, tokenId, rights, fRights, enable ? type(uint256).max : 0);
         // Revoke all then check contract case
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, false);
@@ -596,25 +614,25 @@ contract RegistryUnitTests is Test {
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, enable);
         vm.stopPrank();
-        _checkDelegateForERC1155Logic(enable, delegate, vault, contract_, tokenId, rights, fRights, type(uint256).max);
+        _checkDelegateForERC1155Logic(delegate, vault, contract_, tokenId, rights, fRights, enable ? type(uint256).max : 0);
         // Revoke contract then check for ERC1155 case
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, false);
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
         vm.startPrank(vault);
-        registry.delegateERC1155(delegate, contract_, tokenId, amount, rights, enable);
+        registry.delegateERC1155(delegate, contract_, tokenId, rights, amount);
         vm.stopPrank();
-        _checkDelegateForERC1155Logic(enable, delegate, vault, contract_, tokenId, rights, fRights, amount);
+        _checkDelegateForERC1155Logic(delegate, vault, contract_, tokenId, rights, fRights, amount);
         // Revoke and check false
         vm.startPrank(vault);
-        registry.delegateERC1155(delegate, contract_, tokenId, amount, rights, false);
+        registry.delegateERC1155(delegate, contract_, tokenId, rights, 0);
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
         // Check bubble up for all and erc1155
         vm.startPrank(vault);
         registry.delegateAll(delegate, rights, true);
-        registry.delegateERC1155(delegate, contract_, tokenId, amount, rights, true);
+        registry.delegateERC1155(delegate, contract_, tokenId, rights, amount);
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), type(uint256).max);
         // Revoke all then check bubble up for contract
@@ -629,28 +647,21 @@ contract RegistryUnitTests is Test {
         // Revoke and check false
         vm.startPrank(vault);
         registry.delegateContract(delegate, contract_, rights, false);
-        registry.delegateERC1155(delegate, contract_, tokenId, amount, rights, false);
+        registry.delegateERC1155(delegate, contract_, tokenId, rights, 0);
         vm.stopPrank();
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
     }
 
-    function _checkDelegateForERC1155Logic(
-        bool enable,
-        address delegate,
-        address vault,
-        address contract_,
-        uint256 tokenId,
-        bytes32 rights,
-        bytes32 fRights,
-        uint256 amount
-    ) internal {
-        if (enable) {
+    function _checkDelegateForERC1155Logic(address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights, bytes32 fRights, uint256 amount)
+        internal
+    {
+        if (amount != 0) {
             assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), amount);
         } else {
             assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
             assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), 0);
         }
-        if (enable && (rights == "" || rights == fRights)) assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), amount);
+        if (amount != 0 && (rights == "" || rights == fRights)) assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), amount);
         else assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, fRights), 0);
     }
 
@@ -667,14 +678,14 @@ contract RegistryUnitTests is Test {
         address contract_,
         bool[5] calldata enables
     ) public {
-        vm.assume(from > address(1));
+        vm.assume(from > address(1) && amount > 0);
         bytes32[] memory delegationHashes = new bytes32[](5);
         vm.startPrank(from);
         delegationHashes[0] = harness.delegateAll(to, rights, enables[0]);
         delegationHashes[1] = harness.delegateContract(to, contract_, rights, enables[1]);
         delegationHashes[2] = harness.delegateERC721(to, contract_, tokenId, rights, enables[2]);
-        delegationHashes[3] = harness.delegateERC20(to, contract_, amount, rights, enables[3]);
-        delegationHashes[4] = harness.delegateERC1155(to, contract_, tokenId, amount, rights, enables[4]);
+        delegationHashes[3] = harness.delegateERC20(to, contract_, rights, enables[3] ? amount : 0);
+        delegationHashes[4] = harness.delegateERC1155(to, contract_, tokenId, rights, enables[4] ? amount : 0);
         vm.stopPrank();
         uint256 numberOfEnables;
         for (uint256 i = 0; i < 5; i++) {
@@ -702,15 +713,16 @@ contract RegistryUnitTests is Test {
         address contract_,
         bool[5] calldata enables
     ) public {
+        vm.assume(amount > 0);
         bytes32[] memory delegationHashes = new bytes32[](5);
         vm.startPrank(from);
         delegationHashes[0] = harness.delegateAll(to, rights, enables[0]);
         delegationHashes[1] = harness.delegateContract(to, contract_, rights, enables[1]);
         delegationHashes[2] = harness.delegateERC721(to, contract_, tokenId, rights, enables[2]);
-        delegationHashes[3] = harness.delegateERC20(to, contract_, amount, rights, enables[3]);
-        delegationHashes[4] = harness.delegateERC1155(to, contract_, tokenId, amount, rights, enables[4]);
+        delegationHashes[3] = harness.delegateERC20(to, contract_, rights, enables[3] == true ? amount : 0);
+        delegationHashes[4] = harness.delegateERC1155(to, contract_, tokenId, rights, enables[4] == true ? amount : 0);
         vm.stopPrank();
-        if (from == harness.exposedDelegationEmpty() || from == harness.exposedDelegationRevoked()) {
+        if (from == Storage.DELEGATION_EMPTY || from == Storage.DELEGATION_REVOKED) {
             assertEq(harness.exposedGetValidDelegationHashesFromHashes(delegationHashes).length, 0);
         } else {
             bytes32[] memory hashesFromHashes = harness.exposedGetValidDelegationHashesFromHashes(delegationHashes);
@@ -726,6 +738,7 @@ contract RegistryUnitTests is Test {
     }
 
     function testGetDelegationsFromHashesSpecialFrom(address from, bytes32 rights, address to, uint256 amount, uint256 tokenId, address contract_) public {
+        vm.assume(amount > 0);
         bytes32[] memory delegationHashes = new bytes32[](5);
         vm.startPrank(from);
         delegationHashes[0] = registry.delegateAll(to, rights, true);
@@ -734,17 +747,17 @@ contract RegistryUnitTests is Test {
         harness.delegateContract(to, contract_, rights, true);
         delegationHashes[2] = registry.delegateERC721(to, contract_, tokenId, rights, true);
         harness.delegateERC721(to, contract_, tokenId, rights, true);
-        delegationHashes[3] = registry.delegateERC20(to, contract_, amount, rights, true);
-        harness.delegateERC20(to, contract_, amount, rights, true);
-        delegationHashes[4] = registry.delegateERC1155(to, contract_, tokenId, amount, rights, true);
-        harness.delegateERC1155(to, contract_, tokenId, amount, rights, true);
+        delegationHashes[3] = registry.delegateERC20(to, contract_, rights, amount);
+        harness.delegateERC20(to, contract_, rights, amount);
+        delegationHashes[4] = registry.delegateERC1155(to, contract_, tokenId, rights, amount);
+        harness.delegateERC1155(to, contract_, tokenId, rights, amount);
         vm.stopPrank();
         IRegistry.Delegation[] memory emptyDelegations = new IRegistry.Delegation[](5);
         IRegistry.Delegation[] memory getDelegations = registry.getDelegationsFromHashes(delegationHashes);
         IRegistry.Delegation[] memory getHarnessDelegations = harness.exposedGetValidDelegationsFromHashes(delegationHashes);
 
         assertEq(emptyDelegations.length, getDelegations.length);
-        if (from == harness.exposedDelegationEmpty() || from == harness.exposedDelegationRevoked()) {
+        if (from == Storage.DELEGATION_EMPTY || from == Storage.DELEGATION_REVOKED) {
             assertEq(keccak256(abi.encode(emptyDelegations)), keccak256(abi.encode(getDelegations)));
             assertEq(getHarnessDelegations.length, 0);
         } else {
@@ -885,15 +898,14 @@ contract RegistryUnitTests is Test {
         assertEq(contract_, checkContract);
     }
 
-    function testValidateDelegation(bytes32 location, address from, bytes32 notLocation, address notFrom) public {
+    function testValidateFrom(bytes32 location, address from, bytes32 notLocation, address notFrom) public {
         bytes32 formattedLocation = bytes32(uint256(location) + Storage.POSITIONS_FIRST_PACKED);
         vm.store(address(harness), formattedLocation, bytes32(uint256(uint160(from))));
         vm.assume(formattedLocation != notLocation);
-        vm.assume(from != notFrom);
-        if (from > address(1)) assertTrue(harness.exposedValidateDelegation(formattedLocation, from));
-        else assertFalse(harness.exposedValidateDelegation(formattedLocation, from));
-        assertFalse(harness.exposedValidateDelegation(formattedLocation, notFrom));
-        assertFalse(harness.exposedValidateDelegation(notLocation, from));
-        assertFalse(harness.exposedValidateDelegation(notLocation, notFrom));
+        vm.assume(from != notFrom && notFrom != address(0) && from != address(0));
+        assertTrue(harness.exposedValidateFrom(formattedLocation, from));
+        assertFalse(harness.exposedValidateFrom(formattedLocation, notFrom));
+        assertFalse(harness.exposedValidateFrom(notLocation, from));
+        assertFalse(harness.exposedValidateFrom(notLocation, notFrom));
     }
 }

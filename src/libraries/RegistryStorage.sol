@@ -2,6 +2,10 @@
 pragma solidity ^0.8.21;
 
 library RegistryStorage {
+    /// @dev Standardizes from storage flags to prevent double-writes in the delegation in/outbox if the same delegation is revoked and rewritten
+    address internal constant DELEGATION_EMPTY = address(0);
+    address internal constant DELEGATION_REVOKED = address(1);
+
     /// @dev Standardizes storage positions of delegation data
     uint256 internal constant POSITIONS_FIRST_PACKED = 0; //  | 4 bytes empty | first 8 bytes of contract address | 20 bytes of from address |
     uint256 internal constant POSITIONS_SECOND_PACKED = 1; // |        last 12 bytes of contract address          | 20 bytes of to address   |
@@ -14,9 +18,6 @@ library RegistryStorage {
 
     /// @dev Used to clean everything but the first 8 bytes of an address
     uint256 internal constant CLEAN_FIRST8_BYTES_ADDRESS = 0xffffffffffffffff << 96;
-
-    /// @dev Used to clean everything but the last 12 bytes of an address
-    uint256 internal constant CLEAN_LAST12_BYTES_ADDRESS = 0xffffffffffffffffffffffff;
 
     /// @dev Used to clean everything but the first 8 bytes of an address in the packed position
     uint256 internal constant CLEAN_PACKED8_BYTES_ADDRESS = 0xffffffffffffffff << 160;
