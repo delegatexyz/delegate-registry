@@ -44,11 +44,7 @@ contract IPLicenseCheck {
      * @param ipLicense is a bytes32 representation of the IP license to be check for
      * @return valid is returned true if the wallet has rights to the IP license for the NFT
      */
-    function checkForIPLicenseFromLicensor(address wallet, address licensor, address vault, address nftContract, uint256 tokenId, bytes32 ipLicense)
-        external
-        view
-        returns (bool)
-    {
+    function checkForIPLicenseFromLicensor(address wallet, address licensor, address vault, address nftContract, uint256 tokenId, bytes32 ipLicense) external view returns (bool) {
         // Return false if the vault does not own the NFT
         if (IERC721(nftContract).ownerOf(tokenId) != vault) return false;
         // Call the v2 registry, and return false if vault has not granted "ip licensor" rights to the licensor for the nft

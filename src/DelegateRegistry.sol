@@ -149,7 +149,7 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @dev Transfer native token out
     function sweep() external {
-        // TODO: Replace this with correct address
+        // TODO: Replace this with correct address at deployment time
         // This hardcoded address is a CREATE2 factory counterfactual smart contract wallet that will always accept native token transfers
         uint256 sc = uint256(uint160(0x0000000000000000000000000000000000000000));
         assembly ("memory-safe") {
@@ -169,8 +169,8 @@ contract DelegateRegistry is IDelegateRegistry {
         }
         assembly ("memory-safe") {
             // Only first 32 bytes of scratch space is accessed
-            mstore(0, iszero(iszero(valid))) // Compiler cleans dirty booleans on the stack to 1, so we're doing the same here
-            return(0, 32) // Direct return. Skips Solidity's redundant copying to save gas.
+            mstore(0, iszero(iszero(valid))) // Compiler cleans dirty booleans on the stack to 1, so do the same here
+            return(0, 32) // Direct return, skips Solidity's redundant copying to save gas
         }
     }
 
@@ -184,8 +184,8 @@ contract DelegateRegistry is IDelegateRegistry {
         }
         assembly ("memory-safe") {
             // Only first 32 bytes of scratch space is accessed
-            mstore(0, iszero(iszero(valid))) // Compiler cleans dirty booleans on the stack to 1, so we're doing the same here
-            return(0, 32) // Direct return. Skips Solidity's redundant copying to save gas.
+            mstore(0, iszero(iszero(valid))) // Compiler cleans dirty booleans on the stack to 1, so do the same here
+            return(0, 32) // Direct return, skips Solidity's redundant copying to save gas
         }
     }
 
@@ -201,8 +201,8 @@ contract DelegateRegistry is IDelegateRegistry {
         }
         assembly ("memory-safe") {
             // Only first 32 bytes of scratch space is accessed
-            mstore(0, iszero(iszero(valid))) // Compiler cleans dirty booleans on the stack to 1, so we're doing the same here
-            return(0, 32) // Direct return. Skips Solidity's redundant copying to save gas.
+            mstore(0, iszero(iszero(valid))) // Compiler cleans dirty booleans on the stack to 1, so do the same here
+            return(0, 32) // Direct return, skips Solidity's redundant copying to save gas
         }
     }
 
@@ -213,15 +213,15 @@ contract DelegateRegistry is IDelegateRegistry {
                 ? type(uint256).max
                 : _loadDelegationUint(Hashes.erc20Location(from, "", to, contract_), Storage.POSITIONS_AMOUNT);
             if (!Ops.or(rights == "", amount == type(uint256).max)) {
-                uint256 rightsBalance = (
-                    _validateFrom(Hashes.allLocation(from, rights, to), from) || _validateFrom(Hashes.contractLocation(from, rights, to, contract_), from)
-                ) ? type(uint256).max : _loadDelegationUint(Hashes.erc20Location(from, rights, to, contract_), Storage.POSITIONS_AMOUNT);
+                uint256 rightsBalance = (_validateFrom(Hashes.allLocation(from, rights, to), from) || _validateFrom(Hashes.contractLocation(from, rights, to, contract_), from))
+                    ? type(uint256).max
+                    : _loadDelegationUint(Hashes.erc20Location(from, rights, to, contract_), Storage.POSITIONS_AMOUNT);
                 amount = Ops.max(rightsBalance, amount);
             }
         }
         assembly ("memory-safe") {
             mstore(0, amount) // Only first 32 bytes of scratch space being accessed
-            return(0, 32) // Direct return. Skips Solidity's redundant copying to save gas.
+            return(0, 32) // Direct return, skips Solidity's redundant copying to save gas
         }
     }
 
@@ -232,15 +232,15 @@ contract DelegateRegistry is IDelegateRegistry {
                 ? type(uint256).max
                 : _loadDelegationUint(Hashes.erc1155Location(from, "", to, tokenId, contract_), Storage.POSITIONS_AMOUNT);
             if (!Ops.or(rights == "", amount == type(uint256).max)) {
-                uint256 rightsBalance = (
-                    _validateFrom(Hashes.allLocation(from, rights, to), from) || _validateFrom(Hashes.contractLocation(from, rights, to, contract_), from)
-                ) ? type(uint256).max : _loadDelegationUint(Hashes.erc1155Location(from, rights, to, tokenId, contract_), Storage.POSITIONS_AMOUNT);
+                uint256 rightsBalance = (_validateFrom(Hashes.allLocation(from, rights, to), from) || _validateFrom(Hashes.contractLocation(from, rights, to, contract_), from))
+                    ? type(uint256).max
+                    : _loadDelegationUint(Hashes.erc1155Location(from, rights, to, tokenId, contract_), Storage.POSITIONS_AMOUNT);
                 amount = Ops.max(rightsBalance, amount);
             }
         }
         assembly ("memory-safe") {
             mstore(0, amount) // Only first 32 bytes of scratch space is accessed
-            return(0, 32) // Direct return. Skips Solidity's redundant copying to save gas.
+            return(0, 32) // Direct return, skips Solidity's redundant copying to save gas
         }
     }
 

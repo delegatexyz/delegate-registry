@@ -71,16 +71,9 @@ contract DelegateSingularIntegrations is Test {
     }
 
     // Tests delegateAll case with non-default rights
-    function testDelegateAllSpecificRights(
-        address vault,
-        address fVault,
-        address delegate,
-        address fDelegate,
-        bytes32 rights,
-        bytes32 fRights,
-        address fContract,
-        uint256 fTokenId
-    ) public {
+    function testDelegateAllSpecificRights(address vault, address fVault, address delegate, address fDelegate, bytes32 rights, bytes32 fRights, address fContract, uint256 fTokenId)
+        public
+    {
         vm.assume(rights != "");
         _setParameters(vault, fVault, delegate, fDelegate, address(0), fContract, 0, fTokenId, rights, fRights, 0, IRegistry.DelegationType.ALL);
         _testDelegateAll();

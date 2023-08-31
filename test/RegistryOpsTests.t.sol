@@ -2,8 +2,6 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {console2} from "forge-std/console2.sol";
-import {IDelegateRegistry as IRegistry} from "src/IDelegateRegistry.sol";
 import {RegistryOps as Ops} from "src/libraries/RegistryOps.sol";
 
 contract RegistryOpsTests is Test {

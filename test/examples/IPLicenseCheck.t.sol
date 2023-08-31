@@ -44,9 +44,7 @@ contract IPLicenseCheckTest is Test {
         assertTrue(ipLicenseCheck.checkForIPLicense(wallet, vault, address(nft), 1, ipLicense));
     }
 
-    function testCheckForIPLicenseFromLicensor(address wallet, address vault, address licensor, address fLicensor, address fVault, bytes32 ipLicense, bytes32 fIpLicense)
-        public
-    {
+    function testCheckForIPLicenseFromLicensor(address wallet, address vault, address licensor, address fLicensor, address fVault, bytes32 ipLicense, bytes32 fIpLicense) public {
         vm.assume(vault > address(1) && licensor > address(1));
         vm.assume(wallet != vault && wallet != licensor && wallet != fVault && wallet != fLicensor);
         vm.assume(licensor != vault && licensor != fVault && licensor != fLicensor);
