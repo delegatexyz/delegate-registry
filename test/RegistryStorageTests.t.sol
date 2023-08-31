@@ -27,8 +27,9 @@ contract RegistryStorageTests is Test {
     function testStorageConstants() public {
         assertEq(Storage.CLEAN_ADDRESS, uint256(type(uint160).max));
         assertEq(Storage.CLEAN_FIRST8_BYTES_ADDRESS, uint256(type(uint64).max) << 96);
-        assertEq(Storage.CLEAN_LAST12_BYTES_ADDRESS, uint256(type(uint96).max));
         assertEq(Storage.CLEAN_PACKED8_BYTES_ADDRESS, uint256(type(uint64).max) << 160);
+        assertEq(Storage.DELEGATION_EMPTY, address(0));
+        assertEq(Storage.DELEGATION_REVOKED, address(1));
     }
 
     /// @dev Check that pack addresses works as intended
