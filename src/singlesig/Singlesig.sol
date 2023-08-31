@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-/// @dev This does not include receiver callbacks for "safe" transfer methods of ERC721, ERC1155, etc
+/// @dev Does not include receiver callbacks for "safe" transfer methods of ERC721, ERC1155, etc
 contract Singlesig {
     address public owner;
     address public pendingOwner;

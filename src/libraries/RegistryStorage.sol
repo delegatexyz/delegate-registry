@@ -24,12 +24,12 @@ library RegistryStorage {
 
     /**
      * @notice Helper function that packs from, to, and contract_ address to into the two slot configuration
-     * @param from is the address making the delegation
-     * @param to is the address receiving the delegation
-     * @param contract_ is the contract address associated with the delegation (optional)
-     * @return firstPacked is the firstPacked storage configured with the parameters
-     * @return secondPacked is the secondPacked storage configured with the parameters
-     * @dev will not revert if from, to, and contract_ are > uint160, any inputs with dirty bits outside the last 20 bytes will be cleaned
+     * @param from The address making the delegation
+     * @param to The address receiving the delegation
+     * @param contract_ The contract address associated with the delegation (optional)
+     * @return firstPacked The firstPacked storage configured with the parameters
+     * @return secondPacked The secondPacked storage configured with the parameters
+     * @dev Will not revert if from, to, and contract_ are > uint160, any inputs with dirty bits outside the last 20 bytes will be cleaned
      */
     function packAddresses(address from, address to, address contract_) internal pure returns (bytes32 firstPacked, bytes32 secondPacked) {
         assembly {
@@ -40,12 +40,12 @@ library RegistryStorage {
 
     /**
      * @notice Helper function that unpacks from, to, and contract_ address inside the firstPacked secondPacked storage configuration
-     * @param firstPacked is the firstPacked storage to be decoded
-     * @param secondPacked is the secondPacked storage to be decoded
-     * @return from is the address making the delegation
-     * @return to is the address receiving the delegation
-     * @return contract_ is the contract address associated with the delegation
-     * @dev will not revert if from, to, and contract_ are > uint160, any inputs with dirty bits outside the last 20 bytes will be cleaned
+     * @param firstPacked The firstPacked storage to be decoded
+     * @param secondPacked The secondPacked storage to be decoded
+     * @return from The address making the delegation
+     * @return to The address receiving the delegation
+     * @return contract_ The contract address associated with the delegation
+     * @dev Will not revert if from, to, and contract_ are > uint160, any inputs with dirty bits outside the last 20 bytes will be cleaned
      */
     function unpackAddresses(bytes32 firstPacked, bytes32 secondPacked) internal pure returns (address from, address to, address contract_) {
         assembly {
@@ -57,9 +57,9 @@ library RegistryStorage {
 
     /**
      * @notice Helper function that can unpack the from or to address from their respective packed slots in the registry
-     * @param packedSlot is the slot containing the from or to address
-     * @return unpacked from or to address
-     * @dev will not work if you want to obtain the contract address, use unpackAddresses
+     * @param packedSlot The slot containing the from or to address
+     * @return unpacked The `from` or `to` address
+     * @dev Will not work if you want to obtain the contract address, use unpackAddresses
      */
     function unpackAddress(bytes32 packedSlot) internal pure returns (address unpacked) {
         assembly {

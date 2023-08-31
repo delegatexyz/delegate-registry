@@ -95,24 +95,12 @@ contract GasBenchmark is Test {
         multicallDelegations = _createDelegations(keccak256(abi.encode(seed, "multicall")));
         bytes[] memory data = new bytes[](5);
         data[0] = abi.encodeWithSelector(IRegistry.delegateAll.selector, multicallDelegations[0].to, multicallDelegations[0].rights, true);
-        data[1] = abi.encodeWithSelector(
-            IRegistry.delegateContract.selector, multicallDelegations[1].to, multicallDelegations[1].contract_, multicallDelegations[1].rights, true
-        );
+        data[1] = abi.encodeWithSelector(IRegistry.delegateContract.selector, multicallDelegations[1].to, multicallDelegations[1].contract_, multicallDelegations[1].rights, true);
         data[2] = abi.encodeWithSelector(
-            IRegistry.delegateERC721.selector,
-            multicallDelegations[2].to,
-            multicallDelegations[2].contract_,
-            multicallDelegations[2].tokenId,
-            multicallDelegations[2].rights,
-            true
+            IRegistry.delegateERC721.selector, multicallDelegations[2].to, multicallDelegations[2].contract_, multicallDelegations[2].tokenId, multicallDelegations[2].rights, true
         );
         data[3] = abi.encodeWithSelector(
-            IRegistry.delegateERC20.selector,
-            multicallDelegations[3].to,
-            multicallDelegations[3].contract_,
-            multicallDelegations[3].amount,
-            multicallDelegations[3].rights,
-            true
+            IRegistry.delegateERC20.selector, multicallDelegations[3].to, multicallDelegations[3].contract_, multicallDelegations[3].amount, multicallDelegations[3].rights, true
         );
         data[4] = abi.encodeWithSelector(
             IRegistry.delegateERC1155.selector,

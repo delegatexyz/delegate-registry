@@ -2,7 +2,6 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {console2} from "forge-std/console2.sol";
 import {IDelegateRegistry as IRegistry} from "src/IDelegateRegistry.sol";
 import {RegistryHashes as Hashes} from "src/libraries/RegistryHashes.sol";
 
@@ -147,15 +146,11 @@ contract RegistryHashTests is Test {
         assertEq(Hashes.contractHash(largeFrom, rights, largeTo, largeContract), Hashes.contractHash(cleanedFrom, rights, cleanedTo, cleanedContract));
         assertEq(Hashes.contractLocation(largeFrom, rights, largeTo, largeContract), Hashes.contractLocation(cleanedFrom, rights, cleanedTo, cleanedContract));
         assertEq(Hashes.erc721Hash(largeFrom, rights, largeTo, tokenId, largeContract), Hashes.erc721Hash(cleanedFrom, rights, cleanedTo, tokenId, cleanedContract));
-        assertEq(
-            Hashes.erc721Location(largeFrom, rights, largeTo, tokenId, largeContract), Hashes.erc721Location(cleanedFrom, rights, cleanedTo, tokenId, cleanedContract)
-        );
+        assertEq(Hashes.erc721Location(largeFrom, rights, largeTo, tokenId, largeContract), Hashes.erc721Location(cleanedFrom, rights, cleanedTo, tokenId, cleanedContract));
         assertEq(Hashes.erc20Hash(largeFrom, rights, largeTo, largeContract), Hashes.erc20Hash(cleanedFrom, rights, cleanedTo, cleanedContract));
         assertEq(Hashes.erc20Location(largeFrom, rights, largeTo, largeContract), Hashes.erc20Location(cleanedFrom, rights, cleanedTo, cleanedContract));
         assertEq(Hashes.erc1155Hash(largeFrom, rights, largeTo, tokenId, largeContract), Hashes.erc1155Hash(cleanedFrom, rights, cleanedTo, tokenId, cleanedContract));
-        assertEq(
-            Hashes.erc1155Location(largeFrom, rights, largeTo, tokenId, largeContract), Hashes.erc1155Location(cleanedFrom, rights, cleanedTo, tokenId, cleanedContract)
-        );
+        assertEq(Hashes.erc1155Location(largeFrom, rights, largeTo, tokenId, largeContract), Hashes.erc1155Location(cleanedFrom, rights, cleanedTo, tokenId, cleanedContract));
     }
 
     /// @dev internal functions of the original registry hash specification to test optimized methods work as intended

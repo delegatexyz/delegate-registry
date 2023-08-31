@@ -2,7 +2,6 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {console2} from "forge-std/console2.sol";
 import {IDelegateRegistry as IRegistry} from "src/IDelegateRegistry.sol";
 import {DelegateRegistry as Registry} from "src/DelegateRegistry.sol";
 import {RegistryStorage as Storage} from "src/libraries/RegistryStorage.sol";
@@ -373,9 +372,7 @@ contract RegistryUnitTests is Test {
      * ----------- consumables -----------
      */
 
-    function testCheckDelegateForAll(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights)
-        public
-    {
+    function testCheckDelegateForAll(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights) public {
         vm.assume(vault > address(1));
         // new registry
         registry = new Registry();
@@ -407,16 +404,9 @@ contract RegistryUnitTests is Test {
         assertFalse(registry.checkDelegateForAll(delegate, vault, fRights));
     }
 
-    function testCheckDelegateForContract(
-        address vault,
-        bytes32 rights,
-        bool enable,
-        address delegate,
-        address contract_,
-        uint256 tokenId,
-        uint256 amount,
-        bytes32 fRights
-    ) public {
+    function testCheckDelegateForContract(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights)
+        public
+    {
         vm.assume(vault > address(1));
         registry = new Registry();
         assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, rights));
@@ -458,9 +448,7 @@ contract RegistryUnitTests is Test {
         else assertFalse(registry.checkDelegateForContract(delegate, vault, contract_, fRights));
     }
 
-    function testCheckDelegateForERC721(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights)
-        public
-    {
+    function testCheckDelegateForERC721(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights) public {
         vm.assume(vault > address(1));
         registry = new Registry();
         assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, rights));
@@ -510,9 +498,7 @@ contract RegistryUnitTests is Test {
         else assertFalse(registry.checkDelegateForERC721(delegate, vault, contract_, tokenId, fRights));
     }
 
-    function testCheckDelegateForERC20(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights)
-        public
-    {
+    function testCheckDelegateForERC20(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights) public {
         vm.assume(vault > address(1));
         registry = new Registry();
         assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, rights), 0);
@@ -583,16 +569,9 @@ contract RegistryUnitTests is Test {
         else assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), 0);
     }
 
-    function testCheckDelegateForERC1155(
-        address vault,
-        bytes32 rights,
-        bool enable,
-        address delegate,
-        address contract_,
-        uint256 tokenId,
-        uint256 amount,
-        bytes32 fRights
-    ) public {
+    function testCheckDelegateForERC1155(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights)
+        public
+    {
         vm.assume(vault > address(1));
         registry = new Registry();
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
@@ -652,9 +631,7 @@ contract RegistryUnitTests is Test {
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
     }
 
-    function _checkDelegateForERC1155Logic(address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights, bytes32 fRights, uint256 amount)
-        internal
-    {
+    function _checkDelegateForERC1155Logic(address delegate, address vault, address contract_, uint256 tokenId, bytes32 rights, bytes32 fRights, uint256 amount) internal {
         if (amount != 0) {
             assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), amount);
         } else {
@@ -669,15 +646,9 @@ contract RegistryUnitTests is Test {
      * ----------- TODO: Enumerations -----------
      */
 
-    function testGetValidDelegationsFromHashesEquivalence(
-        address from,
-        bytes32 rights,
-        address to,
-        uint256 amount,
-        uint256 tokenId,
-        address contract_,
-        bool[5] calldata enables
-    ) public {
+    function testGetValidDelegationsFromHashesEquivalence(address from, bytes32 rights, address to, uint256 amount, uint256 tokenId, address contract_, bool[5] calldata enables)
+        public
+    {
         vm.assume(from > address(1) && amount > 0);
         bytes32[] memory delegationHashes = new bytes32[](5);
         vm.startPrank(from);
@@ -704,15 +675,9 @@ contract RegistryUnitTests is Test {
         assertEq(keccak256(abi.encode(incomingDelegations)), keccak256(abi.encode(outgoingDelegations)));
     }
 
-    function testGetValidDelegationHashesFromHashes(
-        address from,
-        bytes32 rights,
-        address to,
-        uint256 amount,
-        uint256 tokenId,
-        address contract_,
-        bool[5] calldata enables
-    ) public {
+    function testGetValidDelegationHashesFromHashes(address from, bytes32 rights, address to, uint256 amount, uint256 tokenId, address contract_, bool[5] calldata enables)
+        public
+    {
         vm.assume(amount > 0);
         bytes32[] memory delegationHashes = new bytes32[](5);
         vm.startPrank(from);

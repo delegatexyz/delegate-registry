@@ -2,7 +2,6 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {console2} from "forge-std/console2.sol";
 import {DelegateRegistry} from "src/DelegateRegistry.sol";
 import {IDelegateRegistry} from "src/IDelegateRegistry.sol";
 
@@ -107,7 +106,7 @@ contract DelegateRegistryTest is Test {
         assertEq(info[0].to, delegate0);
         assertEq(info[1].from, vault);
         assertEq(info[1].to, delegate1);
-        // Remove
+        // Revoke
         reg.delegateAll(delegate0, rights, false);
         info = reg.getOutgoingDelegations(vault);
         assertEq(info.length, 1);

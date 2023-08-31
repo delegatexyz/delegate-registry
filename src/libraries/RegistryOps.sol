@@ -18,14 +18,14 @@ library RegistryOps {
     /// @dev `x & y`.
     function and(bool x, bool y) internal pure returns (bool z) {
         assembly {
-            z := and(iszero(iszero(x)), iszero(iszero(y))) // Compiler cleans dirty booleans on the stack to 1, so we're doing that here
+            z := and(iszero(iszero(x)), iszero(iszero(y))) // Compiler cleans dirty booleans on the stack to 1, so do the same here
         }
     }
 
     /// @dev `x | y`.
     function or(bool x, bool y) internal pure returns (bool z) {
         assembly {
-            z := or(iszero(iszero(x)), iszero(iszero(y))) // Compiler cleans dirty booleans on the stack to 1, so we're doing that here
+            z := or(iszero(iszero(x)), iszero(iszero(y))) // Compiler cleans dirty booleans on the stack to 1, so do the same here
         }
     }
 }
