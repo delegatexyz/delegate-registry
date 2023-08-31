@@ -163,8 +163,10 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForAll(address to, address from, bytes32 rights) external view override returns (bool valid) {
-        valid = _validateFrom(Hashes.allLocation(from, "", to), from);
-        if (!Ops.or(rights == "", valid)) valid = _validateFrom(Hashes.allLocation(from, rights, to), from);
+        if (!_invalidFrom(from)) {
+            valid = _validateFrom(Hashes.allLocation(from, "", to), from);
+            if (!Ops.or(rights == "", valid)) valid = _validateFrom(Hashes.allLocation(from, rights, to), from);
+        }
         assembly ("memory-safe") {
             // Only first 32 bytes of scratch space is accessed
             mstore(0, iszero(iszero(valid))) // Compiler cleans dirty booleans on the stack to 1, so we're doing the same here
@@ -174,9 +176,11 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForContract(address to, address from, address contract_, bytes32 rights) external view override returns (bool valid) {
-        valid = _validateFrom(Hashes.allLocation(from, "", to), from) || _validateFrom(Hashes.contractLocation(from, "", to, contract_), from);
-        if (!Ops.or(rights == "", valid)) {
-            valid = _validateFrom(Hashes.allLocation(from, rights, to), from) || _validateFrom(Hashes.contractLocation(from, rights, to, contract_), from);
+        if (!_invalidFrom(from)) {
+            valid = _validateFrom(Hashes.allLocation(from, "", to), from) || _validateFrom(Hashes.contractLocation(from, "", to, contract_), from);
+            if (!Ops.or(rights == "", valid)) {
+                valid = _validateFrom(Hashes.allLocation(from, rights, to), from) || _validateFrom(Hashes.contractLocation(from, rights, to, contract_), from);
+            }
         }
         assembly ("memory-safe") {
             // Only first 32 bytes of scratch space is accessed
@@ -187,11 +191,13 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC721(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view override returns (bool valid) {
-        valid = _validateFrom(Hashes.allLocation(from, "", to), from) || _validateFrom(Hashes.contractLocation(from, "", to, contract_), from)
-            || _validateFrom(Hashes.erc721Location(from, "", to, tokenId, contract_), from);
-        if (!Ops.or(rights == "", valid)) {
-            valid = _validateFrom(Hashes.allLocation(from, rights, to), from) || _validateFrom(Hashes.contractLocation(from, rights, to, contract_), from)
-                || _validateFrom(Hashes.erc721Location(from, rights, to, tokenId, contract_), from);
+        if (!_invalidFrom(from)) {
+            valid = _validateFrom(Hashes.allLocation(from, "", to), from) || _validateFrom(Hashes.contractLocation(from, "", to, contract_), from)
+                || _validateFrom(Hashes.erc721Location(from, "", to, tokenId, contract_), from);
+            if (!Ops.or(rights == "", valid)) {
+                valid = _validateFrom(Hashes.allLocation(from, rights, to), from) || _validateFrom(Hashes.contractLocation(from, rights, to, contract_), from)
+                    || _validateFrom(Hashes.erc721Location(from, rights, to, tokenId, contract_), from);
+            }
         }
         assembly ("memory-safe") {
             // Only first 32 bytes of scratch space is accessed
@@ -202,14 +208,16 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC20(address to, address from, address contract_, bytes32 rights) external view override returns (uint256 amount) {
-        amount = (_validateFrom(Hashes.allLocation(from, "", to), from) || _validateFrom(Hashes.contractLocation(from, "", to, contract_), from))
-            ? type(uint256).max
-            : _loadDelegationUint(Hashes.erc20Location(from, "", to, contract_), Storage.POSITIONS_AMOUNT);
-        if (!Ops.or(rights == "", amount == type(uint256).max)) {
-            uint256 rightsBalance = (
-                _validateFrom(Hashes.allLocation(from, rights, to), from) || _validateFrom(Hashes.contractLocation(from, rights, to, contract_), from)
-            ) ? type(uint256).max : _loadDelegationUint(Hashes.erc20Location(from, rights, to, contract_), Storage.POSITIONS_AMOUNT);
-            amount = Ops.max(rightsBalance, amount);
+        if (!_invalidFrom(from)) {
+            amount = (_validateFrom(Hashes.allLocation(from, "", to), from) || _validateFrom(Hashes.contractLocation(from, "", to, contract_), from))
+                ? type(uint256).max
+                : _loadDelegationUint(Hashes.erc20Location(from, "", to, contract_), Storage.POSITIONS_AMOUNT);
+            if (!Ops.or(rights == "", amount == type(uint256).max)) {
+                uint256 rightsBalance = (
+                    _validateFrom(Hashes.allLocation(from, rights, to), from) || _validateFrom(Hashes.contractLocation(from, rights, to, contract_), from)
+                ) ? type(uint256).max : _loadDelegationUint(Hashes.erc20Location(from, rights, to, contract_), Storage.POSITIONS_AMOUNT);
+                amount = Ops.max(rightsBalance, amount);
+            }
         }
         assembly ("memory-safe") {
             mstore(0, amount) // Only first 32 bytes of scratch space being accessed
@@ -219,14 +227,16 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @inheritdoc IDelegateRegistry
     function checkDelegateForERC1155(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view override returns (uint256 amount) {
-        amount = (_validateFrom(Hashes.allLocation(from, "", to), from) || _validateFrom(Hashes.contractLocation(from, "", to, contract_), from))
-            ? type(uint256).max
-            : _loadDelegationUint(Hashes.erc1155Location(from, "", to, tokenId, contract_), Storage.POSITIONS_AMOUNT);
-        if (!Ops.or(rights == "", amount == type(uint256).max)) {
-            uint256 rightsBalance = (
-                _validateFrom(Hashes.allLocation(from, rights, to), from) || _validateFrom(Hashes.contractLocation(from, rights, to, contract_), from)
-            ) ? type(uint256).max : _loadDelegationUint(Hashes.erc1155Location(from, rights, to, tokenId, contract_), Storage.POSITIONS_AMOUNT);
-            amount = Ops.max(rightsBalance, amount);
+        if (!_invalidFrom(from)) {
+            amount = (_validateFrom(Hashes.allLocation(from, "", to), from) || _validateFrom(Hashes.contractLocation(from, "", to, contract_), from))
+                ? type(uint256).max
+                : _loadDelegationUint(Hashes.erc1155Location(from, "", to, tokenId, contract_), Storage.POSITIONS_AMOUNT);
+            if (!Ops.or(rights == "", amount == type(uint256).max)) {
+                uint256 rightsBalance = (
+                    _validateFrom(Hashes.allLocation(from, rights, to), from) || _validateFrom(Hashes.contractLocation(from, rights, to, contract_), from)
+                ) ? type(uint256).max : _loadDelegationUint(Hashes.erc1155Location(from, rights, to, tokenId, contract_), Storage.POSITIONS_AMOUNT);
+                amount = Ops.max(rightsBalance, amount);
+            }
         }
         assembly ("memory-safe") {
             mstore(0, amount) // Only first 32 bytes of scratch space is accessed
