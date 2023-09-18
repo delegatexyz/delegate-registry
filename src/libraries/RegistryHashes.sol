@@ -284,7 +284,7 @@ library RegistryHashes {
     }
 
     /**
-     * @notice Helper function to compute delegation hash for ERC1155 delegation
+     * @notice Helper function to compute delegation location for ERC1155 delegation
      * @param from is the address making the delegation
      * @param rights is the rights specified by the delegation
      * @param to is the address receiving the delegation

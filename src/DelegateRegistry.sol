@@ -117,7 +117,7 @@ contract DelegateRegistry is IDelegateRegistry {
             }
         } else if (loadedFrom == msg.sender) {
             _updateFrom(location, Storage.DELEGATION_REVOKED);
-            _writeDelegation(location, Storage.POSITIONS_AMOUNT, amount);
+            _writeDelegation(location, Storage.POSITIONS_AMOUNT, uint256(0));
         }
         emit DelegateERC20(msg.sender, to, contract_, rights, amount);
     }
@@ -365,7 +365,7 @@ contract DelegateRegistry is IDelegateRegistry {
         }
     }
 
-    /// @dev Helper function that writes from whilst preserving the rest of the storage slot
+    /// @dev Helper function that writes `from` while preserving the rest of the storage slot
     function _updateFrom(bytes32 location, address from) internal {
         uint256 firstPacked = Storage.POSITIONS_FIRST_PACKED;
         uint256 cleanAddress = Storage.CLEAN_ADDRESS;
