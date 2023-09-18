@@ -28,12 +28,7 @@ contract InitCodeHashTest is Test {
 
     function getInitHash() public pure returns (bytes32) {
         // bytes memory bytecode = type(DelegateRegistry).creationCode;
-        bytes memory initCode = abi.encodePacked(
-            type(Singlesig).creationCode,
-            abi.encode(
-                address(0x6Ed7D526b020780f694f3c10Dfb25E1b134D3215)
-            )
-        );
+        bytes memory initCode = abi.encodePacked(type(Singlesig).creationCode, abi.encode(address(0x6Ed7D526b020780f694f3c10Dfb25E1b134D3215)));
 
         return keccak256(abi.encodePacked(initCode));
     }
