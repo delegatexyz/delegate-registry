@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: CC0-1.0
 pragma solidity ^0.8.4;
 
-/// @title The simplest possible 1-of-1 smart contract wallet for counterfactually receiving native tokens and ERC20/721/1155s
+/// @title 1-of-1 smart contract wallet with rotatable ownership for counterfactually receiving tokens at the same address across many EVM chains
 contract Singlesig {
     address public owner;
     address public pendingOwner;
