@@ -1,12 +1,14 @@
-No files changed, compilation skipped
+Compiling 11 files with 0.8.21
+Solc 0.8.21 finished in 7.30s
+Compiler run [32msuccessful![0m
 
 Running 1 test for test/GasBenchmark.t.sol:GasBenchmark
-[32m[PASS][0m testGas(address,bytes32) (runs: 256, μ: 13553869, ~: 13554252)
-Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 246.36ms
+[32m[PASS][0m testGas(address,bytes32) (runs: 256, μ: 13573069, ~: 13573452)
+Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 245.40ms
 | src/DelegateRegistry.sol:DelegateRegistry contract |                 |        |        |        |         |
 |----------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                    | Deployment Size |        |        |        |         |
-| 2008127                                            | 10062           |        |        |        |         |
+| 2011327                                            | 10078           |        |        |        |         |
 | Function Name                                      | min             | avg    | median | max    | # calls |
 | checkDelegateForAll                                | 3002            | 3198   | 3198   | 3395   | 2       |
 | checkDelegateForContract                           | 5491            | 5899   | 5899   | 6308   | 2       |
