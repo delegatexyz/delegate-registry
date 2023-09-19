@@ -20,6 +20,7 @@ import {Singlesig} from "src/singlesig/Singlesig.sol";
 // Seed 0x0000000000000000000000000000000000000000eab62839b3422a092c19bdab => 0x000000de1E803040Fba6B848D410a55FaB8B3256
 
 // new inithash: 0xf911e320d18e7274491e7ab207bfff830e2926248f86c6a987668e8e72e1ed77
+// salt 0x000000000000000000000000000000000000000016c7768a8c7a2824b846321d => 0x000000dE1E80ea5a234FB5488fee2584251BC7e8
 
 contract InitCodeHashTest is Test {
     DelegateRegistry reg;
@@ -33,6 +34,7 @@ contract InitCodeHashTest is Test {
     function getInitHash() public pure returns (bytes32) {
         // bytes memory bytecode = type(DelegateRegistry).creationCode;
         bytes memory initCode = abi.encodePacked(type(Singlesig).creationCode, abi.encode(address(0x6Ed7D526b020780f694f3c10Dfb25E1b134D3215)));
+        // console2.logBytes(initCode);
 
         return keccak256(abi.encodePacked(initCode));
     }

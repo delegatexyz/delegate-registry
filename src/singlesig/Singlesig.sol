@@ -57,11 +57,11 @@ contract Singlesig {
             || interfaceId == 0x4e2312e0; // ERC165 Interface ID for ERC1155TokenReceiver
     }
 
-    function onERC721Received(address, address, uint256, bytes calldata) external view returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
         return 0x150b7a02; //bytes4(keccak256("onERC721Received(address,uint256,bytes)"));
     }
 
-    function onERC1155Received(address, address, uint256, uint256, bytes calldata) external returns (bytes4) {
+    function onERC1155Received(address, address, uint256, uint256, bytes calldata) external pure returns (bytes4) {
         return 0xf23a6e61; // bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
     }
 

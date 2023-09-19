@@ -151,7 +151,7 @@ contract DelegateRegistry is IDelegateRegistry {
     function sweep() external {
         assembly ("memory-safe") {
             // This hardcoded address is a CREATE2 factory counterfactual smart contract wallet that will always accept native token transfers
-            let result := call(gas(), 0x000000de1E803040Fba6B848D410a55FaB8B3256, selfbalance(), 0, 0, 0, 0)
+            let result := call(gas(), 0x000000dE1E80ea5a234FB5488fee2584251BC7e8, selfbalance(), 0, 0, 0, 0)
         }
     }
 
