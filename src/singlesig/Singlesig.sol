@@ -22,14 +22,12 @@ contract Singlesig {
         _;
     }
 
-    /**
-     * @notice Executes a call with provided parameters
-     * @dev This method doesn't perform any sanity check of the transaction
-     * @param to Destination address
-     * @param value Native token value in wei
-     * @param data Data payload
-     * @return success Boolean flag indicating if the call succeeded
-     */
+    /// @notice Executes a call with provided parameters
+    /// @dev This method doesn't perform any sanity check of the transaction
+    /// @param to Destination address
+    /// @param value Native token value in wei
+    /// @param data Data payload
+    /// @return success Boolean flag indicating if the call succeeded
     function execute(address to, uint256 value, bytes memory data) public onlyOwner returns (bool success) {
         (success,) = to.call{value: value}(data);
     }
@@ -47,10 +45,10 @@ contract Singlesig {
         owner = pendingOwner;
     }
 
-    // @dev Function to receive native tokens when `msg.data` is empty
+    /// @dev Function to receive native tokens when `msg.data` is empty
     receive() external payable {}
 
-    // @dev Fallback function is called when `msg.data` is not empty
+    /// @dev Fallback function is called when `msg.data` is not empty
     fallback() external payable {}
 
     function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
