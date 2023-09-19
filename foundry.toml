@@ -2,6 +2,10 @@
 src = 'src'
 out = 'out'
 libs = ['lib']
+
+# auto_detect_remappings = false
+# remappings = []
+
 solc_version = "0.8.21"
 # EVM version must be Paris not Shanghai to prevent PUSH0 incompatibility with other EVM chains
 # Extra 137 deployment size, extra 0.1% runtime gas costs from using older version
@@ -18,4 +22,4 @@ via_ir = false
 line_length = 180
 wrap_comments = true # Increases readability of comments
 
-# See more config options https://github.com/foundry-rs/foundry/tree/master/config
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

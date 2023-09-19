@@ -2,7 +2,7 @@
 pragma solidity ^0.8.21;
 
 library RegistryStorage {
-    /// @dev Standardizes from storage flags to prevent double-writes in the delegation in/outbox if the same delegation is revoked and rewritten
+    /// @dev Standardizes `from` storage flags to prevent double-writes in the delegation in/outbox if the same delegation is revoked and rewritten
     address internal constant DELEGATION_EMPTY = address(0);
     address internal constant DELEGATION_REVOKED = address(1);
 
@@ -13,7 +13,7 @@ library RegistryStorage {
     uint256 internal constant POSITIONS_TOKEN_ID = 3;
     uint256 internal constant POSITIONS_AMOUNT = 4;
 
-    /// @dev Used to clean address types of dirty bits with and(address, CLEAN_ADDRESS)
+    /// @dev Used to clean address types of dirty bits with `and(address, CLEAN_ADDRESS)`
     uint256 internal constant CLEAN_ADDRESS = 0x00ffffffffffffffffffffffffffffffffffffffff;
 
     /// @dev Used to clean everything but the first 8 bytes of an address
@@ -29,7 +29,7 @@ library RegistryStorage {
      * @param contract_ The contract address associated with the delegation (optional)
      * @return firstPacked The firstPacked storage configured with the parameters
      * @return secondPacked The secondPacked storage configured with the parameters
-     * @dev Will not revert if from, to, and contract_ are > uint160, any inputs with dirty bits outside the last 20 bytes will be cleaned
+     * @dev Will not revert if `from`, `to`, and `contract_` are > uint160, any inputs with dirty bits outside the last 20 bytes will be cleaned
      */
     function packAddresses(address from, address to, address contract_) internal pure returns (bytes32 firstPacked, bytes32 secondPacked) {
         assembly {
@@ -45,7 +45,7 @@ library RegistryStorage {
      * @return from The address making the delegation
      * @return to The address receiving the delegation
      * @return contract_ The contract address associated with the delegation
-     * @dev Will not revert if from, to, and contract_ are > uint160, any inputs with dirty bits outside the last 20 bytes will be cleaned
+     * @dev Will not revert if `from`, `to`, and `contract_` are > uint160, any inputs with dirty bits outside the last 20 bytes will be cleaned
      */
     function unpackAddresses(bytes32 firstPacked, bytes32 secondPacked) internal pure returns (address from, address to, address contract_) {
         assembly {
