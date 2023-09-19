@@ -18,7 +18,7 @@ contract Deploy is Script {
     // bytes32 salt = 0x00000000000000000000000000000000000000008b99e5a778edb02572010000;
 
     bytes initCode = abi.encodePacked(type(Singlesig).creationCode, abi.encode(address(0x6Ed7D526b020780f694f3c10Dfb25E1b134D3215)));
-    bytes32 salt = 0x000000000000000000000000000000000000000023a8e79523c02100bd88400e;
+    bytes32 salt = 0x0000000000000000000000000000000000000000eab62839b3422a092c19bdab;
 
     function run() external {
         vm.startBroadcast();
