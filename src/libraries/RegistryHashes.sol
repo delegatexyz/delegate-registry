@@ -233,7 +233,7 @@ library RegistryHashes {
      * @param to The address receiving the delegation
      * @param contract_ The address of the ERC20 token contract
      * @return computedLocation The storage location of the ERC20 delegation with those parameters in the delegations mapping
-    */
+     */
     function erc20Location(address from, bytes32 rights, address to, address contract_) internal pure returns (bytes32 computedLocation) {
         assembly ("memory-safe") {
             // This block only allocates memory after the free memory pointer and in the scratch space

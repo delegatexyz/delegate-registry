@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: CC0-1.0
 pragma solidity ^0.8.4;
 
-/// @title The simplest possible 1-of-1 smart contract wallet for counterfactually receiving native tokens and ERC20s
-/// @dev Does not include receiver callbacks for "safe" transfer methods of ERC721, ERC1155, etc
+/// @title The simplest possible 1-of-1 smart contract wallet for counterfactually receiving native tokens and ERC20/721/1155s
 contract Singlesig {
     address public owner;
     address public pendingOwner;
@@ -17,16 +16,22 @@ contract Singlesig {
         emit OwnershipTransferred(address(0), initialOwner);
     }
 
-    // @dev Function to receive native tokens when `msg.data` is empty
-    receive() external payable {}
-
-    // @dev Fallback function is called when `msg.data` is not empty
-    fallback() external payable {}
-
     /// @dev Throws if called by any account other than the owner
     modifier onlyOwner() {
         require(owner == msg.sender, "Ownable2Step: caller is not the owner");
         _;
+    }
+
+    /**
+     * @notice Executes a call with provided parameters
+     * @dev This method doesn't perform any sanity check of the transaction
+     * @param to Destination address
+     * @param value Native token value in wei
+     * @param data Data payload
+     * @return success Boolean flag indicating if the call succeeded
+     */
+    function execute(address to, uint256 value, bytes memory data) public onlyOwner returns (bool success) {
+        (success,) = to.call{value: value}(data);
     }
 
     /// @dev Offers to transfer ownership permissions to a new account
@@ -42,15 +47,27 @@ contract Singlesig {
         owner = pendingOwner;
     }
 
-    /**
-     * @notice Executes a call with provided parameters
-     * @dev This method doesn't perform any sanity check of the transaction
-     * @param to Destination address
-     * @param value Native token value in wei
-     * @param data Data payload
-     * @return success Boolean flag indicating if the call succeeded
-     */
-    function execute(address to, uint256 value, bytes memory data) public onlyOwner returns (bool success) {
-        (success,) = to.call{value: value}(data);
+    // @dev Function to receive native tokens when `msg.data` is empty
+    receive() external payable {}
+
+    // @dev Fallback function is called when `msg.data` is not empty
+    fallback() external payable {}
+
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return interfaceId == 0x01ffc9a7 // ERC165 Interface ID for ERC165
+            || interfaceId == 0x150b7a02 // ERC165 Interface ID for ERC721TokenReceiver
+            || interfaceId == 0x4e2312e0; // ERC165 Interface ID for ERC1155TokenReceiver
+    }
+
+    function onERC721Received(address, address, uint256, bytes calldata) external view returns (bytes4) {
+        return 0x150b7a02; //bytes4(keccak256("onERC721Received(address,uint256,bytes)"));
+    }
+
+    function onERC1155Received(address, address, uint256, uint256, bytes calldata) external returns (bytes4) {
+        return 0xf23a6e61; // bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
+    }
+
+    function onERC1155BatchReceived(address, address, uint256[] calldata, uint256[] calldata, bytes calldata) external pure returns (bytes4) {
+        return 0xbc197c81; // bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))
     }
 }
