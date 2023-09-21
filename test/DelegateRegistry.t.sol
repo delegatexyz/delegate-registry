@@ -255,7 +255,7 @@ contract DelegateRegistryTest is Test {
     }
 
     function testSweep(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights_, bool enable) public {
-        address sc = address(0);
+        address sc = address(0x000000dE1E80ea5a234FB5488fee2584251BC7e8);
         uint256 regBalanceBefore = address(reg).balance;
         uint256 scBalanceBefore = address(sc).balance;
         bytes[] memory data = new bytes[](1);

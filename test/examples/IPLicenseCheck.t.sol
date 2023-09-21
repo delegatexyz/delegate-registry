@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 
 import {IPLicenseCheck} from "src/examples/IPLicenseCheck.sol";
 import {DelegateRegistry} from "src/DelegateRegistry.sol";
-import {ERC721} from "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import {ERC721} from "openzeppelin/token/ERC721/ERC721.sol";
 
 contract NFT is ERC721 {
     constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {

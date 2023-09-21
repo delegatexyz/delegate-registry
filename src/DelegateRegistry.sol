@@ -117,7 +117,7 @@ contract DelegateRegistry is IDelegateRegistry {
             }
         } else if (loadedFrom == msg.sender) {
             _updateFrom(location, Storage.DELEGATION_REVOKED);
-            _writeDelegation(location, Storage.POSITIONS_AMOUNT, amount);
+            _writeDelegation(location, Storage.POSITIONS_AMOUNT, uint256(0));
         }
         emit DelegateERC20(msg.sender, to, contract_, rights, amount);
     }
@@ -149,11 +149,9 @@ contract DelegateRegistry is IDelegateRegistry {
 
     /// @dev Transfer native token out
     function sweep() external {
-        // TODO: Replace this with correct address at deployment time
-        // This hardcoded address is a CREATE2 factory counterfactual smart contract wallet that will always accept native token transfers
-        uint256 sc = uint256(uint160(0x0000000000000000000000000000000000000000));
         assembly ("memory-safe") {
-            let result := call(gas(), sc, selfbalance(), 0, 0, 0, 0)
+            // This hardcoded address is a CREATE2 factory counterfactual smart contract wallet that will always accept native token transfers
+            let result := call(gas(), 0x000000dE1E80ea5a234FB5488fee2584251BC7e8, selfbalance(), 0, 0, 0, 0)
         }
     }
 
@@ -365,7 +363,7 @@ contract DelegateRegistry is IDelegateRegistry {
         }
     }
 
-    /// @dev Helper function that writes from whilst preserving the rest of the storage slot
+    /// @dev Helper function that writes `from` while preserving the rest of the storage slot
     function _updateFrom(bytes32 location, address from) internal {
         uint256 firstPacked = Storage.POSITIONS_FIRST_PACKED;
         uint256 cleanAddress = Storage.CLEAN_ADDRESS;

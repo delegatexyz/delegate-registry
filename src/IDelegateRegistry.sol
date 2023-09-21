@@ -210,12 +210,12 @@ interface IDelegateRegistry {
      */
 
     /**
-     * @notice allows external contract to read arbitrary storage slot
+     * @notice Allows external contracts to read arbitrary storage slots
      */
     function readSlot(bytes32 location) external view returns (bytes32);
 
     /**
-     * @notice allows external contracts to read an arbitrary array of storage slots
+     * @notice Allows external contracts to read an arbitrary array of storage slots
      */
     function readSlots(bytes32[] calldata locations) external view returns (bytes32[] memory);
 }
