@@ -1,0 +1,26 @@
+No files changed, compilation skipped
+
+Running 1 test for test/GasBenchmark.t.sol:GasBenchmark
+[32m[PASS][0m testGas(address,bytes32) (runs: 256, μ: 13573356, ~: 13573452)
+Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 247.64ms
+| src/DelegateRegistry.sol:DelegateRegistry contract |                 |        |        |        |         |
+|----------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                    | Deployment Size |        |        |        |         |
+| 2011327                                            | 10078           |        |        |        |         |
+| Function Name                                      | min             | avg    | median | max    | # calls |
+| checkDelegateForAll                                | 3002            | 3198   | 3198   | 3395   | 2       |
+| checkDelegateForContract                           | 5491            | 5899   | 5899   | 6308   | 2       |
+| checkDelegateForERC1155                            | 7932            | 8550   | 8550   | 9169   | 2       |
+| checkDelegateForERC20                              | 7882            | 8494   | 8494   | 9106   | 2       |
+| checkDelegateForERC721                             | 7975            | 8607   | 8607   | 9240   | 2       |
+| delegateAll                                        | 135825          | 135825 | 135825 | 135825 | 2       |
+| delegateContract                                   | 114433          | 125383 | 125383 | 136333 | 2       |
+| delegateERC1155                                    | 5710            | 93282  | 93282  | 180854 | 2       |
+| delegateERC20                                      | 5357            | 81865  | 81865  | 158374 | 2       |
+| delegateERC721                                     | 136921          | 147871 | 147871 | 158821 | 2       |
+| multicall                                          | 404294          | 404294 | 404294 | 404294 | 1       |
+
+
+
+ 
+Ran 1 test suites: [32m1[0m tests passed, [31m0[0m failed, [33m0[0m skipped (1 total tests)

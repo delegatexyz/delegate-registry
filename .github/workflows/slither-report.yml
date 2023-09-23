@@ -1,0 +1,12 @@
+name: Slither Report
+on: [push, pull_request]
+jobs:
+  slither-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: crytic/slither-action@v0.3.0
+        with:
+          target: "src/"
+          slither-args: "--checklist"
+          fail-on: "low"

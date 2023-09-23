@@ -2,6 +2,24 @@
 src = 'src'
 out = 'out'
 libs = ['lib']
-solc_version = "0.8.17"
 
-# See more config options https://github.com/foundry-rs/foundry/tree/master/config
+auto_detect_remappings = false
+# remappings = []
+
+solc_version = "0.8.21"
+# EVM version must be Paris not Shanghai to prevent PUSH0 incompatibility with other EVM chains
+# Extra 137 deployment size, extra 0.1% runtime gas costs from using older version
+evm_version = "paris"
+# Etherscan verification max is 100 million
+optimizer_runs = 9_999_999
+# Get reproducible bytecode across machines by removing metadata hash from runtime bytecode, also saves 41 deployment size
+bytecode_hash = "none"
+# Disable ir optimizer, minimal gas savings not worth the potential for bugs
+via_ir = false
+
+
+[fmt]
+line_length = 180
+wrap_comments = true # Increases readability of comments
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

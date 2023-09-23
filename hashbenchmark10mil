@@ -1,0 +1,27 @@
+No files changed, compilation skipped
+
+Running 1 test for test/HashBenchmark.t.sol:HashBenchmark
+[32m[PASS][0m testHashGas(address,bytes32,address,uint256,address,bytes32) (runs: 256, μ: 19906, ~: 19906)
+Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 32.07ms
+| test/HashBenchmark.t.sol:HashHarness contract |                 |     |        |     |         |
+|-----------------------------------------------|-----------------|-----|--------|-----|---------|
+| Deployment Cost                               | Deployment Size |     |        |     |         |
+| 282524                                        | 1443            |     |        |     |         |
+| Function Name                                 | min             | avg | median | max | # calls |
+| allHash                                       | 658             | 658 | 658    | 658 | 1       |
+| allLocation                                   | 715             | 715 | 715    | 715 | 1       |
+| contractHash                                  | 777             | 777 | 777    | 777 | 1       |
+| contractLocation                              | 824             | 824 | 824    | 824 | 1       |
+| decodeType                                    | 371             | 371 | 371    | 371 | 1       |
+| erc1155Hash                                   | 785             | 785 | 785    | 785 | 1       |
+| erc1155Location                               | 899             | 899 | 899    | 899 | 1       |
+| erc20Hash                                     | 756             | 756 | 756    | 756 | 1       |
+| erc20Location                                 | 793             | 793 | 793    | 793 | 1       |
+| erc721Hash                                    | 830             | 830 | 830    | 830 | 1       |
+| erc721Location                                | 867             | 867 | 867    | 867 | 1       |
+| location                                      | 384             | 384 | 384    | 384 | 1       |
+
+
+
+ 
+Ran 1 test suites: [32m1[0m tests passed, [31m0[0m failed, [33m0[0m skipped (1 total tests)
