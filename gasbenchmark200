@@ -1,0 +1,11 @@
+| src/DelegationRegistry.sol:DelegationRegistry contract |                 |        |        |        |         |
+|--------------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                        | Deployment Size |        |        |        |         |
+| 1247295                                                | 6262            |        |        |        |         |
+| Function Name                                          | min             | avg    | median | max    | # calls |
+| checkDelegateForAll                                    | 7588            | 7588   | 7588   | 7588   | 2       |
+| checkDelegateForContract                               | 4786            | 7786   | 7786   | 10786  | 2       |
+| checkDelegateForToken                                  | 8186            | 11186  | 11186  | 14186  | 2       |
+| delegateForAll                                         | 190137          | 190137 | 190137 | 190137 | 1       |
+| delegateForContract                                    | 210458          | 210458 | 210458 | 210458 | 1       |
+| delegateForToken                                       | 230841          | 230841 | 230841 | 230841 | 1       |
