@@ -6,27 +6,27 @@
 
 |Mainnet Chain|Address|
 |---|---|
-|Ethereum|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|Polygon|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://polygonscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|Optimism|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://optimistic.etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|Celo|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://explorer.celo.org/mainnet/address/0x00000000000076A84feF008CDAbe6409d2FE638B)|
-|Avalanche|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://snowtrace.io/address/0x00000000000076A84feF008CDAbe6409d2FE638B)|
-|BSC|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://bscscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|Gnosis|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://gnosisscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|Fantom|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://ftmscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|Arbitrum|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://arbiscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|Arbitrum (Nova)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://nova.arbiscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
+|Ethereum|[0x00000000000000447e69651d841bd8d104bed493](https://etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Polygon|[0x00000000000000447e69651d841bd8d104bed493](https://polygonscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Optimism|[0x00000000000000447e69651d841bd8d104bed493](https://optimistic.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Celo|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.celo.org/mainnet/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Avalanche|[0x00000000000000447e69651d841bd8d104bed493](https://snowtrace.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|BSC|[0x00000000000000447e69651d841bd8d104bed493](https://bscscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Gnosis|[0x00000000000000447e69651d841bd8d104bed493](https://gnosisscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Fantom|[0x00000000000000447e69651d841bd8d104bed493](https://ftmscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Arbitrum|[0x00000000000000447e69651d841bd8d104bed493](https://arbiscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Arbitrum (Nova)|[0x00000000000000447e69651d841bd8d104bed493](https://nova.arbiscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 
 |Testnet Chain|Address|
 |---|---|
-|Ethereum (Goerli)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://goerli.etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|Polygon (Mumbai)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://mumbai.polygonscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|Optimism (Goerli)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://goerli-optimism.etherscan.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|Celo (Alfajores)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://alfajores-forno.celo-testnet.org/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|Avalanche (Fuji)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://testnet.snowtrace.io/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|BSC (testnet)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://testnet.bscscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
-|Gnosis (Chiado)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://blockscout.chiadochain.net/address/0x00000000000076A84feF008CDAbe6409d2FE638B)|
-|Fantom (testnet)|[0x00000000000076A84feF008CDAbe6409d2FE638B](https://testnet.ftmscan.com/address/0x00000000000076a84fef008cdabe6409d2fe638b)|
+|Ethereum (Goerli)|[0x00000000000000447e69651d841bd8d104bed493](https://goerli.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Polygon (Mumbai)|[0x00000000000000447e69651d841bd8d104bed493](https://mumbai.polygonscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Optimism (Goerli)|[0x00000000000000447e69651d841bd8d104bed493](https://goerli-optimism.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Celo (Alfajores)|[0x00000000000000447e69651d841bd8d104bed493](https://alfajores-forno.celo-testnet.org/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Avalanche (Fuji)|[0x00000000000000447e69651d841bd8d104bed493](https://testnet.snowtrace.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|BSC (testnet)|[0x00000000000000447e69651d841bd8d104bed493](https://testnet.bscscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Gnosis (Chiado)|[0x00000000000000447e69651d841bd8d104bed493](https://blockscout.chiadochain.net/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Fantom (testnet)|[0x00000000000000447e69651d841bd8d104bed493](https://testnet.ftmscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
 
 
 If you'd like to get the DelegateRegistry on another EVM chain, anyone in the community can deploy to the same address! Simply run the script in [Deploy.s.sol](script/Deploy.s.sol) with the specified salt. The CREATE2 factory must be deployed at `0x0000000000FFe8B47B3e2130213B802212439497`, but this factory exists on 19 separate chains so shouldn't be an issue. If you've run a community deployment, open a PR adding the link to the above table.
