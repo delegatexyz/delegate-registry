@@ -88,6 +88,8 @@ function getDelegatesForToken(address vault, address contract_, uint256 tokenId)
 function checkDelegateForAll(address delegate, address vault) external view returns (bool);
 function checkDelegateForContract(address delegate, address vault, address contract_) external view returns (bool);
 function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId) external view returns (bool);
+function checkDelegateForERC20(address to, address from, address contract_, bytes32 rights) external view returns (uint256);
+function checkDelegateForERC1155(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view returns (uint256);
 ```
 
 As an NFT creator, the important ones to pay attention to are `getDelegationsByDelegate()`, which you can use on the website frontend to enumerate which vaults a specific hotwallet is delegated to act on behalf of, and `checkDelegateForERC721()`, which can be called in your smart contract to ensure a hotwallet is acting on behalf of the proper vaults.
