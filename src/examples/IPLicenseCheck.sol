@@ -9,7 +9,6 @@ import {IDelegateRegistry} from "src/IDelegateRegistry.sol";
  * @notice A contract for checking whether a wallet has been granted IP licenses for an NFT. It supports both NFT vault -> IP license and NFT vault -> IP
  * licensor -> IP license workflows.
  */
-
 contract IPLicenseCheck {
     IDelegateRegistry public immutable delegateRegistry;
 

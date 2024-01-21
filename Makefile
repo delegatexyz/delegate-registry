@@ -1,6 +1,10 @@
 simulate-deploy:
 	# For live deployment, add --broadcast --verify --delay 30 --etherscan-api-key ${ETHERSCAN_API_KEY}
-	forge script -vvv script/Deploy.s.sol --sig "run()" --rpc-url ${RPC_URL} --private-key ${PK}
+	forge script -vvv script/Deploy.s.sol --sig "run()" --rpc-url ${RPC_URL} --private-key ${PK} --broadcast --verify --delay 30 --etherscan-api-key ${ETHERSCAN_API_KEY}
+
+verify:
+	forge verify-contract 0x00000000000000447e69651d841bD8D104Bed493 src/DelegateRegistry.sol:DelegateRegistry --chain 17000  --etherscan-api-key ${ETHERSCAN_API_KEY} --retries 5 --delay 30 --watch
+
 
 cast-deploy:
 	# If you get `custom error: EIP-1559 not activated`, then add the --legacy flag
