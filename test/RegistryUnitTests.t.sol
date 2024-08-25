@@ -22,7 +22,6 @@ contract RegistryUnitTests is Test {
     /**
      * ----------- multicall -----------
      */
-
     function testMulticall(
         address vault,
         address delegate,
@@ -158,7 +157,6 @@ contract RegistryUnitTests is Test {
     /**
      * ----------- delegate methods -----------
      */
-
     event DelegateAll(address indexed vault, address indexed delegate, bytes32 rights, bool enable);
 
     function testDelegateAll(address vault, address delegate, bytes32 rights, bool enable, uint256 n) public {
@@ -371,7 +369,6 @@ contract RegistryUnitTests is Test {
     /**
      * ----------- consumables -----------
      */
-
     function testCheckDelegateForAll(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights) public {
         vm.assume(vault > address(1));
         // new registry
@@ -645,7 +642,6 @@ contract RegistryUnitTests is Test {
     /**
      * ----------- TODO: Enumerations -----------
      */
-
     function testGetValidDelegationsFromHashesEquivalence(address from, bytes32 rights, address to, uint256 amount, uint256 tokenId, address contract_, bool[5] calldata enables)
         public
     {
@@ -735,7 +731,6 @@ contract RegistryUnitTests is Test {
     /**
      * ----------- storage access -----------
      */
-
     function testReadSlot(bytes32 slot, bytes32 data) public {
         registry = new Registry();
         vm.store(address(registry), slot, data);
@@ -759,7 +754,6 @@ contract RegistryUnitTests is Test {
     /**
      * ----------- ERC165 -----------
      */
-
     function testSupportsInterface(bytes32 notInterface) public {
         bytes4 formattedNotInterface = bytes4(notInterface);
         vm.assume(formattedNotInterface != type(IRegistry).interfaceId);
@@ -772,7 +766,6 @@ contract RegistryUnitTests is Test {
     /**
      * ----------- Internal helper functions -----------
      */
-
     function testPushDelegationHashes(uint256 seed, uint256 n) public {
         vm.assume(n < 100);
         address[] memory fromAddresses = new address[](n);

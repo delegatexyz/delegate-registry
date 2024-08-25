@@ -16,11 +16,15 @@
 |Fantom|[0x00000000000000447e69651d841bd8d104bed493](https://ftmscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Arbitrum|[0x00000000000000447e69651d841bd8d104bed493](https://arbiscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Arbitrum (Nova)|[0x00000000000000447e69651d841bd8d104bed493](https://nova.arbiscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Ronin|[0x00000000000000447e69651d841bd8d104bed493](https://app.roninchain.com/address/0x00000000000000447e69651d841bd8d104bed493)|
 
 |Testnet Chain|Address|
 |---|---|
 |Ethereum (Goerli)|[0x00000000000000447e69651d841bd8d104bed493](https://goerli.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Arbitrum (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia-explorer.arbitrum.io/address/0x00000000000000447e69651d841bD8D104Bed493)|
+|Ethereum (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Ethereum (Holesky)|[0x00000000000000447e69651d841bd8d104bed493](https://holesky.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Ronin (Saigon)|[0x00000000000000447e69651d841bd8d104bed493](https://saigon-app.roninchain.com/address/0x00000000000000447e69651d841bd8d104bed493)|
 
 
 If you'd like to get the DelegateRegistry on another EVM chain, anyone in the community can deploy to the same address! Simply run the script in [Deploy.s.sol](script/Deploy.s.sol) with the specified salt. The CREATE2 factory must be deployed at `0x0000000000FFe8B47B3e2130213B802212439497`, but this factory exists on 19 separate chains so shouldn't be an issue. If you've run a community deployment, open a PR adding the link to the above table.
@@ -89,6 +93,8 @@ function getDelegatesForToken(address vault, address contract_, uint256 tokenId)
 function checkDelegateForAll(address delegate, address vault) external view returns (bool);
 function checkDelegateForContract(address delegate, address vault, address contract_) external view returns (bool);
 function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId) external view returns (bool);
+function checkDelegateForERC20(address to, address from, address contract_, bytes32 rights) external view returns (uint256);
+function checkDelegateForERC1155(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view returns (uint256);
 ```
 
 As an NFT creator, the important ones to pay attention to are `getDelegationsByDelegate()`, which you can use on the website frontend to enumerate which vaults a specific hotwallet is delegated to act on behalf of, and `checkDelegateForERC721()`, which can be called in your smart contract to ensure a hotwallet is acting on behalf of the proper vaults.

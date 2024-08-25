@@ -294,7 +294,6 @@ contract DelegateRegistry is IDelegateRegistry {
     /**
      * ----------- EXTERNAL STORAGE ACCESS -----------
      */
-
     function readSlot(bytes32 location) external view returns (bytes32 contents) {
         assembly {
             contents := sload(location)
