@@ -21,6 +21,7 @@
 |Testnet Chain|Address|
 |---|---|
 |Ethereum (Goerli)|[0x00000000000000447e69651d841bd8d104bed493](https://goerli.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Arbitrum (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia-explorer.arbitrum.io/address/0x00000000000000447e69651d841bD8D104Bed493)|
 |Ethereum (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Ethereum (Holesky)|[0x00000000000000447e69651d841bd8d104bed493](https://holesky.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Ronin (Saigon)|[0x00000000000000447e69651d841bd8d104bed493](https://saigon-app.roninchain.com/address/0x00000000000000447e69651d841bd8d104bed493)|
