@@ -25,7 +25,7 @@
 |Ethereum (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Ethereum (Holesky)|[0x00000000000000447e69651d841bd8d104bed493](https://holesky.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Ronin (Saigon)|[0x00000000000000447e69651d841bd8d104bed493](https://saigon-app.roninchain.com/address/0x00000000000000447e69651d841bd8d104bed493)|
-
+|Shape (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://explorer-sepolia.shape.network/address/0x00000000000000447e69651d841bD8D104Bed493)|
 
 If you'd like to get the DelegateRegistry on another EVM chain, anyone in the community can deploy to the same address! Simply run the script in [Deploy.s.sol](script/Deploy.s.sol) with the specified salt. The CREATE2 factory must be deployed at `0x0000000000FFe8B47B3e2130213B802212439497`, but this factory exists on 19 separate chains so shouldn't be an issue. If you've run a community deployment, open a PR adding the link to the above table.
 
