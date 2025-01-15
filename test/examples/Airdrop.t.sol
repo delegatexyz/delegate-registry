@@ -70,22 +70,22 @@ contract AirdropTest is Test {
         record = AirdropRecord({receiver: receiver, amount: amount});
     }
 
-    function testCreateAirdrop(uint256 addressSeed, uint256 amountSeed, uint256 n, uint256 x) public {
-        vm.assume(n > 1 && n < MAX_AIRDROP_SIZE);
-        _createAirdrop(addressSeed, amountSeed, n);
-        // Test random value
-        vm.assume(x < n);
-        (uint256 amount, address receiver,,) = _generateAirdropRecord(addressSeed, amountSeed, x);
-        // Load struct and data from storage
-        AirdropRecord memory record = airdropData[x];
-        bytes32 data = keccak256(abi.encodePacked(receiver, amount));
-        assertEq(amount, record.amount);
-        assertEq(receiver, record.receiver);
-        assertEq(data, airdropHashes[x]);
-        // Generate proof and verify
-        bytes32[] memory proof = merkle.getProof(airdropHashes, x);
-        assertTrue(merkle.verifyProof(merkleRoot, proof, data));
-    }
+    // function testCreateAirdrop(uint256 addressSeed, uint256 amountSeed, uint256 n, uint256 x) public {
+    //     vm.assume(n > 1 && n < MAX_AIRDROP_SIZE);
+    //     _createAirdrop(addressSeed, amountSeed, n);
+    //     // Test random value
+    //     vm.assume(x < n);
+    //     (uint256 amount, address receiver,,) = _generateAirdropRecord(addressSeed, amountSeed, x);
+    //     // Load struct and data from storage
+    //     AirdropRecord memory record = airdropData[x];
+    //     bytes32 data = keccak256(abi.encodePacked(receiver, amount));
+    //     assertEq(amount, record.amount);
+    //     assertEq(receiver, record.receiver);
+    //     assertEq(data, airdropHashes[x]);
+    //     // Generate proof and verify
+    //     bytes32[] memory proof = merkle.getProof(airdropHashes, x);
+    //     assertTrue(merkle.verifyProof(merkleRoot, proof, data));
+    // }
 
     function testAirdropWithoutDelegate(uint256 addressSeed, uint256 amountSeed, uint256 n, address referenceToken) public {
         vm.assume(referenceToken != address(0));

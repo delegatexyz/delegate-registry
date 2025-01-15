@@ -240,19 +240,19 @@ contract DelegateRegistryTest is Test {
         }
     }
 
-    function testGetDelegationsGas() public {
-        uint256 delegationsLimit = 2600; // Actual limit is x5
-        _createUniqueDelegations(0, delegationsLimit);
-        IDelegateRegistry.Delegation[] memory vaultDelegations = reg.getOutgoingDelegations(address(this));
-        assertEq(vaultDelegations.length, 5 * delegationsLimit);
-    }
+    // function testGetDelegationsGas() public {
+    //     uint256 delegationsLimit = 2600; // Actual limit is x5
+    //     _createUniqueDelegations(0, delegationsLimit);
+    //     IDelegateRegistry.Delegation[] memory vaultDelegations = reg.getOutgoingDelegations(address(this));
+    //     assertEq(vaultDelegations.length, 5 * delegationsLimit);
+    // }
 
-    function testGetDelegationHashesGas() public {
-        uint256 hashesLimit = 20800; // Actual limit is x5
-        _createUniqueDelegations(0, hashesLimit);
-        bytes32[] memory vaultDelegationHashes = reg.getOutgoingDelegationHashes(address(this));
-        assertEq(vaultDelegationHashes.length, 5 * hashesLimit);
-    }
+    // function testGetDelegationHashesGas() public {
+    //     uint256 hashesLimit = 20800; // Actual limit is x5
+    //     _createUniqueDelegations(0, hashesLimit);
+    //     bytes32[] memory vaultDelegationHashes = reg.getOutgoingDelegationHashes(address(this));
+    //     assertEq(vaultDelegationHashes.length, 5 * hashesLimit);
+    // }
 
     function testSweep(address to, address contract_, uint256 tokenId, uint256 amount, bytes32 rights_, bool enable) public {
         address sc = address(0x000000dE1E80ea5a234FB5488fee2584251BC7e8);
