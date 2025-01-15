@@ -1,30 +1,49 @@
-# delegation-registry
+# delegate-registry
 
-<img src="vault.png" width="300" />
+<img src="logo_text_black.png" width="700" />
+
+Frontend website interface at [delegate.xyz](https://delegate.xyz). Full docs at [docs.delegate.xyz](https://docs.delegate.xyz).
 
 ## Finalized Deployment
 
 |Mainnet Chain|Address|
 |---|---|
 |Ethereum|[0x00000000000000447e69651d841bd8d104bed493](https://etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
-|Polygon|[0x00000000000000447e69651d841bd8d104bed493](https://polygonscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
-|Optimism|[0x00000000000000447e69651d841bd8d104bed493](https://optimistic.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
-|Celo|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.celo.org/mainnet/address/0x00000000000000447e69651d841bd8d104bed493)|
-|Avalanche|[0x00000000000000447e69651d841bd8d104bed493](https://snowtrace.io/address/0x00000000000000447e69651d841bd8d104bed493)|
-|BSC|[0x00000000000000447e69651d841bd8d104bed493](https://bscscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
-|Gnosis|[0x00000000000000447e69651d841bd8d104bed493](https://gnosisscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
-|Fantom|[0x00000000000000447e69651d841bd8d104bed493](https://ftmscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Apechain|[0x00000000000000447e69651d841bd8d104bed493](https://apescan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Arbitrum|[0x00000000000000447e69651d841bd8d104bed493](https://arbiscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Arbitrum (Nova)|[0x00000000000000447e69651d841bd8d104bed493](https://nova.arbiscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Avalanche|[0x00000000000000447e69651d841bd8d104bed493](https://snowtrace.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Base|[0x00000000000000447e69651d841bd8d104bed493](https://basescan.org/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Blast|[0x00000000000000447e69651d841bd8d104bed493](https://blastscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|BNB Chain|[0x00000000000000447e69651d841bd8d104bed493](https://bscscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Canto|[0x00000000000000447e69651d841bd8d104bed493](https://cantoscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Celo|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.celo.org/mainnet/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Fantom|[0x00000000000000447e69651d841bd8d104bed493](https://ftmscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Gnosis|[0x00000000000000447e69651d841bd8d104bed493](https://gnosisscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Hychain|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.hychain.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Optimism|[0x00000000000000447e69651d841bd8d104bed493](https://optimistic.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Polygon|[0x00000000000000447e69651d841bd8d104bed493](https://polygonscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Polygon zkEVM|[0x00000000000000447e69651d841bd8d104bed493](https://zkevm.polygonscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Linea|[0x00000000000000447e69651d841bd8d104bed493](https://lineascan.build/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Mantle|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.mantle.xyz/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Moonbeam|[0x00000000000000447e69651d841bd8d104bed493](https://moonscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Moonriver|[0x00000000000000447e69651d841bd8d104bed493](https://moonriver.moonscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Ronin|[0x00000000000000447e69651d841bd8d104bed493](https://app.roninchain.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Sanko|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.sanko.xyz/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Scroll|[0x00000000000000447e69651d841bd8d104bed493](https://scrollscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Sei|[0x00000000000000447e69651d841bd8d104bed493](https://seiscan.app/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Shape|[0x00000000000000447e69651d841bd8d104bed493](https://shapescan.xyz/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Taiko|[0x00000000000000447e69651d841bd8d104bed493](https://taikoscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Shape|[0x00000000000000447e69651d841bd8d104bed493](https://shapescan.xyz/address/0x00000000000000447e69651d841bd8d104bed493)|
+|ZetaChain|[0x00000000000000447e69651d841bd8d104bed493](https://mainnet.explorer.zetachain.app/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Zora|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.zora.energy/address/0x00000000000000447e69651d841bd8d104bed493)|
+
 
 |Testnet Chain|Address|
 |---|---|
-|Ethereum (Goerli)|[0x00000000000000447e69651d841bd8d104bed493](https://goerli.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
-|Arbitrum (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia-explorer.arbitrum.io/address/0x00000000000000447e69651d841bD8D104Bed493)|
 |Ethereum (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Ethereum (Holesky)|[0x00000000000000447e69651d841bd8d104bed493](https://holesky.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
-|Ronin (Saigon)|[0x00000000000000447e69651d841bd8d104bed493](https://saigon-app.roninchain.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Base (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia.basescan.org/address/0x00000000000000447e69651d841bd8d104bed493)|
 
 
 If you'd like to get the DelegateRegistry on another EVM chain, anyone in the community can deploy to the same address! Simply run the script in [Deploy.s.sol](script/Deploy.s.sol) with the specified salt. The CREATE2 factory must be deployed at `0x0000000000FFe8B47B3e2130213B802212439497`, but this factory exists on 19 separate chains so shouldn't be an issue. If you've run a community deployment, open a PR adding the link to the above table.
@@ -75,26 +94,21 @@ wenew's approach via [HotWalletProxy](https://github.com/wenewlabs/public/blob/m
 
 ## How do I use it?
 
-Check out the [IDelegateRegistry.sol](src/IDelegateRegistry.sol) file. This is the interface to interact with, and contains the following methods:
+Check out the [IDelegateRegistry.sol](src/IDelegateRegistry.sol) file. This is the interface to interact with, and contains the following core interface:
 
 ```code
 /// WRITE ///
-function delegateAll(address delegate, bool value) external;
-function delegateContract(address delegate, address contract_, bool value) external;
-function delegateERC721(address delegate, address contract_, uint256 tokenId, bool value) external;
-function revokeAllDelegates() external;
-function revokeDelegate(address delegate) external;
-function revokeSelf(address vault) external;
+function delegateAll(address to, bytes32 rights, bool enable) external;
+function delegateContract(address to, address contract_, bytes32 rights, bool enable) external;
+function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external;
+function delegateERC20(address to, address contract_, bytes32 rights, uint256 amount) external;
+function delegateERC1155(address to, address contract_, uint256 tokenId, bytes32 rights, uint256 amount) external;
 /// READ ///
-function getDelegationsByDelegate(address delegate) external view returns (DelegationInfo[] memory);
-function getDelegatesForAll(address vault) external view returns (address[] memory);
-function getDelegatesForContract(address vault, address contract_) external view returns (address[] memory);
-function getDelegatesForToken(address vault, address contract_, uint256 tokenId) external view returns (address[] memory);
+function getIncomingDelegations(address to) external view returns (Delegation[] memory delegations);
+function getOutgoingDelegations(address from) external view returns (Delegation[] memory delegations);
 function checkDelegateForAll(address delegate, address vault) external view returns (bool);
 function checkDelegateForContract(address delegate, address vault, address contract_) external view returns (bool);
 function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId) external view returns (bool);
 function checkDelegateForERC20(address to, address from, address contract_, bytes32 rights) external view returns (uint256);
 function checkDelegateForERC1155(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view returns (uint256);
 ```
-
-As an NFT creator, the important ones to pay attention to are `getDelegationsByDelegate()`, which you can use on the website frontend to enumerate which vaults a specific hotwallet is delegated to act on behalf of, and `checkDelegateForERC721()`, which can be called in your smart contract to ensure a hotwallet is acting on behalf of the proper vaults.
