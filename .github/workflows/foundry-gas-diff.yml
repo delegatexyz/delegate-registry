@@ -1,4 +1,4 @@
-name: Report gas diff 
+name: Report Gas Diff
 
 on:
   push:
