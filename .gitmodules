@@ -10,3 +10,6 @@
 	path = lib/murky
 	url = https://github.com/dmfxyz/murky
 	branch = main
+[submodule "lib/era-contracts"]
+	path = lib/era-contracts
+	url = https://github.com/matter-labs/era-contracts
