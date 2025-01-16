@@ -11,7 +11,7 @@ mode = "3"
 auto_detect_remappings = false
 # remappings = []
 
-solc_version = "0.8.24"
+solc_version = "0.8.21"
 # EVM version must be Paris not Shanghai to prevent PUSH0 incompatibility with other EVM chains
 # Extra 137 deployment size, extra 0.1% runtime gas costs from using older version
 evm_version = "paris"
