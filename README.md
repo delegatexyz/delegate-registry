@@ -21,13 +21,13 @@ Frontend website interface at [delegate.xyz](https://delegate.xyz). Full docs at
 |Fantom|[0x00000000000000447e69651d841bd8d104bed493](https://ftmscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Gnosis|[0x00000000000000447e69651d841bd8d104bed493](https://gnosisscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Hychain|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.hychain.com/address/0x00000000000000447e69651d841bd8d104bed493)|
-|Optimism|[0x00000000000000447e69651d841bd8d104bed493](https://optimistic.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
-|Polygon|[0x00000000000000447e69651d841bd8d104bed493](https://polygonscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
-|Polygon zkEVM|[0x00000000000000447e69651d841bd8d104bed493](https://zkevm.polygonscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Linea|[0x00000000000000447e69651d841bd8d104bed493](https://lineascan.build/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Mantle|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.mantle.xyz/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Moonbeam|[0x00000000000000447e69651d841bd8d104bed493](https://moonscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Moonriver|[0x00000000000000447e69651d841bd8d104bed493](https://moonriver.moonscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Optimism|[0x00000000000000447e69651d841bd8d104bed493](https://optimistic.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Polygon|[0x00000000000000447e69651d841bd8d104bed493](https://polygonscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Polygon zkEVM|[0x00000000000000447e69651d841bd8d104bed493](https://zkevm.polygonscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Ronin|[0x00000000000000447e69651d841bd8d104bed493](https://app.roninchain.com/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Sanko|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.sanko.xyz/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Scroll|[0x00000000000000447e69651d841bd8d104bed493](https://scrollscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
@@ -38,12 +38,18 @@ Frontend website interface at [delegate.xyz](https://delegate.xyz). Full docs at
 |ZetaChain|[0x00000000000000447e69651d841bd8d104bed493](https://mainnet.explorer.zetachain.app/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Zora|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.zora.energy/address/0x00000000000000447e69651d841bd8d104bed493)|
 
+|ZKSync Chain|Address|
+|---|---|
+|Abstract (Sepolia)|[0x0000000059A24EB229eED07Ac44229DB56C5d797](https://sepolia.abscan.org/address/0x0000000059A24EB229eED07Ac44229DB56C5d797)|
+|ZKsync Era|[0x0000000059A24EB229eED07Ac44229DB56C5d797](https://holesky.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Treasure|[0x0000000059A24EB229eED07Ac44229DB56C5d797](https://sepolia.basescan.org/address/0x00000000000000447e69651d841bd8d104bed493)|
 
 |Testnet Chain|Address|
 |---|---|
 |Ethereum (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Ethereum (Holesky)|[0x00000000000000447e69651d841bd8d104bed493](https://holesky.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Base (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia.basescan.org/address/0x00000000000000447e69651d841bd8d104bed493)|
+
 
 
 If you'd like to get the DelegateRegistry on another EVM chain, anyone in the community can deploy to the same address! Simply run the script in [Deploy.s.sol](script/Deploy.s.sol) with the specified salt. The CREATE2 factory must be deployed at `0x0000000000FFe8B47B3e2130213B802212439497`, but this factory exists on 19 separate chains so shouldn't be an issue. If you've run a community deployment, open a PR adding the link to the above table.
