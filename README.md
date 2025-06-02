@@ -49,7 +49,11 @@ Frontend website interface at [delegate.xyz](https://delegate.xyz). Full docs at
 |---|---|
 |Ethereum (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Ethereum (Holesky)|[0x00000000000000447e69651d841bd8d104bed493](https://holesky.etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Abstract (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia.abscan.org/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Base (Sepolia)|[0x00000000000000447e69651d841bd8d104bed493](https://sepolia.basescan.org/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Berachain bArtio|[0x00000000000000447e69651d841bd8d104bed493](https://bartio.beratrail.io/address/0x00000000000000447e69651d841bD8D104Bed493)|
+|Monad|[0x00000000000000447e69651d841bd8d104bed493](https://testnet.monadexplorer.com/address/0x00000000000000447e69651d841bD8D104Bed493)|
+|Ronin (Saigon)|[0x00000000000000447e69651d841bd8d104bed493](https://saigon-app.roninchain.com/address/0x00000000000000447e69651d841bd8d104bed493)|
 
 
 
