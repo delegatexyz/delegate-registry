@@ -9,6 +9,7 @@ Frontend website interface at [delegate.xyz](https://delegate.xyz). Full docs at
 |Mainnet Chain|Address|
 |---|---|
 |Ethereum|[0x00000000000000447e69651d841bd8d104bed493](https://etherscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
+|Animechain|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.anime.xyz/address/0x00000000000000447e69651d841bD8D104Bed493)|
 |Apechain|[0x00000000000000447e69651d841bd8d104bed493](https://apescan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Arbitrum|[0x00000000000000447e69651d841bd8d104bed493](https://arbiscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Arbitrum (Nova)|[0x00000000000000447e69651d841bd8d104bed493](https://nova.arbiscan.io/address/0x00000000000000447e69651d841bd8d104bed493)|
