@@ -1,6 +1,6 @@
 simulate-deploy:
 	# For live deployment, add --broadcast --verify --delay 30 --etherscan-api-key ${ETHERSCAN_API_KEY}
-	forge script -vvv script/Deploy.s.sol --sig "run()" --rpc-url ${RPC_URL} --private-key ${PK} --broadcast --verify --delay 30 --etherscan-api-key ${ETHERSCAN_API_KEY}
+	forge script -vvv script/Deploy.s.sol --sig "run()" --rpc-url ${RPC_URL} --private-key ${PK}
 
 verify:
 	forge verify-contract 0x0000000059A24EB229eED07Ac44229DB56C5d797 src/DelegateRegistry.sol:DelegateRegistry --chain 11124  --etherscan-api-key ${ETHERSCAN_API_KEY} --retries 5 --delay 30 --watch --zksync
