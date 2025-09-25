@@ -17,12 +17,7 @@ interface ImmutableCreate2Factory {
 
 interface ZksyncCreate2Factory {
     function create2(bytes32 salt, bytes32 bytecodeHash, bytes calldata constructorInput) external payable returns (address deploymentAddress);
-    function getNewAddressCreate2(
-        address _sender,
-        bytes32 _bytecodeHash,
-        bytes32 _salt,
-        bytes calldata _input
-    ) external view returns (address newAddress);
+    function getNewAddressCreate2(address _sender, bytes32 _bytecodeHash, bytes32 _salt, bytes calldata _input) external view returns (address newAddress);
 }
 
 contract Deploy is Script {
@@ -76,9 +71,9 @@ contract Deploy is Script {
         console2.logBytes32(zkRegistrySalt);
         bytes memory preimage = bytes.concat(CREATE2_PREFIX, bytes32(uint256(uint160(address(zksyncCreateFactory)))), zkRegistrySalt, zkBytecodeHash, keccak256(""));
         console2.logBytes(preimage);
-        address localRegistryAddress = address(uint160(uint256(keccak256(
-            bytes.concat(CREATE2_PREFIX, bytes32(uint256(uint160(address(zksyncCreateFactory)))), zkRegistrySalt, zkBytecodeHash, keccak256(""))
-        ))));
+        address localRegistryAddress = address(
+            uint160(uint256(keccak256(bytes.concat(CREATE2_PREFIX, bytes32(uint256(uint160(address(zksyncCreateFactory)))), zkRegistrySalt, zkBytecodeHash, keccak256("")))))
+        );
         console2.log(localRegistryAddress);
         address registryAddress = zksyncContractDeployer.getNewAddressCreate2(address(zksyncCreateFactory), zkBytecodeHash, zkRegistrySalt, "");
         console2.log(registryAddress);
