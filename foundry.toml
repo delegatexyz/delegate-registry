@@ -3,6 +3,11 @@ src = 'src'
 out = 'out'
 libs = ['lib']
 
+# zksync specific
+fallback_oz = true
+is_system = false # Note: NonceHolder and the ContractDeployer system contracts can only be called with a special isSystem flag as true
+mode = "3"
+
 auto_detect_remappings = false
 # remappings = []
 

@@ -4,3 +4,5 @@ broadcast/
 Makefile
 abi.json
 .vscode/
+zkout/
+foundryup-zksync
