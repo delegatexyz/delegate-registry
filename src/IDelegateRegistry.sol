@@ -1,4 +1,17 @@
-// SPDX-License-Identifier: CC0-1.0
+/// WRITE ///
+function delegateAll(address to, bytes32 rights, bool enable) external;
+function delegateContract(address to, address contract_, bytes32 rights, bool enable) external;
+function delegateERC721(address to, address contract_, uint256 tokenId, bytes32 rights, bool enable) external;
+function delegateERC20(address to, address contract_, bytes32 rights, uint256 amount) external;
+function delegateERC1155(address to, address contract_, uint256 tokenId, bytes32 rights, uint256 amount) external;
+/// READ ///
+function getIncomingDelegations(address to) external view returns (Delegation[] memory delegations);
+function getOutgoingDelegations(address from) external view returns (Delegation[] memory delegations);
+function checkDelegateForAll(address delegate, address vault) external view returns (bool);
+function checkDelegateForContract(address delegate, address vault, address contract_) external view returns (bool);
+function checkDelegateForERC721(address delegate, address vault, address contract_, uint256 tokenId) external view returns (bool);
+function checkDelegateForERC20(address to, address from, address contract_, bytes32 rights) external view returns (uint256);
+function checkDelegateForERC1155(address to, address from, address contract_, uint256 tokenId, bytes32 rights) external view returns (uint256);// SPDX-License-Identifier: CC0-1.0
 pragma solidity >=0.8.13;
 
 /**
