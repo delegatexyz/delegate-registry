@@ -1,3 +1,4 @@
+<img width="1843" height="973" alt="fhEVMContracts" src="https://github.com/user-attachments/assets/5486d11a-b18e-4635-b16b-f02a69cca173" />
 # delegate-registry
 
 <img src="logo_text_black.png" width="700" />
