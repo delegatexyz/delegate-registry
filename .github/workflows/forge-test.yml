@@ -28,3 +28,5 @@ jobs:
         #   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
         # run: forge test --fork-url "https://eth-mainnet.alchemyapi.io/v2/$ALCHEMY_API_KEY"
         run: forge test --ffi -vvv
+
+        src/cmd/compile/internal/types2/stdlib_test.go
