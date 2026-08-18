@@ -566,9 +566,7 @@ contract RegistryUnitTests is Test {
         else assertEq(registry.checkDelegateForERC20(delegate, vault, contract_, fRights), 0);
     }
 
-    function testCheckDelegateForERC1155(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights)
-        public
-    {
+    function testCheckDelegateForERC1155(address vault, bytes32 rights, bool enable, address delegate, address contract_, uint256 tokenId, uint256 amount, bytes32 fRights) public {
         vm.assume(vault > address(1));
         registry = new Registry();
         assertEq(registry.checkDelegateForERC1155(delegate, vault, contract_, tokenId, rights), 0);
@@ -671,9 +669,7 @@ contract RegistryUnitTests is Test {
         assertEq(keccak256(abi.encode(incomingDelegations)), keccak256(abi.encode(outgoingDelegations)));
     }
 
-    function testGetValidDelegationHashesFromHashes(address from, bytes32 rights, address to, uint256 amount, uint256 tokenId, address contract_, bool[5] calldata enables)
-        public
-    {
+    function testGetValidDelegationHashesFromHashes(address from, bytes32 rights, address to, uint256 amount, uint256 tokenId, address contract_, bool[5] calldata enables) public {
         vm.assume(amount > 0);
         bytes32[] memory delegationHashes = new bytes32[](5);
         vm.startPrank(from);
