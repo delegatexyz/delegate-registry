@@ -30,6 +30,7 @@ Frontend website interface at [delegate.xyz](https://delegate.xyz). Full docs at
 |Polygon|[0x00000000000000447e69651d841bd8d104bed493](https://polygonscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Polygon zkEVM|[0x00000000000000447e69651d841bd8d104bed493](https://zkevm.polygonscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Plume|[0x00000000000000447e69651d841bd8d104bed493](https://phoenix-explorer.plumenetwork.xyz/address/0x00000000000000447e69651d841bD8D104Bed493)|
+|Robinhood|[0x00000000000000447e69651d841bd8d104bed493](https://robinhoodchain.blockscout.com/address/0x00000000000000447e69651d841bD8D104Bed493)|
 |Ronin|[0x00000000000000447e69651d841bd8d104bed493](https://app.roninchain.com/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Sanko|[0x00000000000000447e69651d841bd8d104bed493](https://explorer.sanko.xyz/address/0x00000000000000447e69651d841bd8d104bed493)|
 |Scroll|[0x00000000000000447e69651d841bd8d104bed493](https://scrollscan.com/address/0x00000000000000447e69651d841bd8d104bed493)|
